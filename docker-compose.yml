@@ -1,0 +1,16 @@
+version: '2.1'
+
+services:
+
+  # ---------------------------------
+  # Auth builder Container
+  # ---------------------------------
+
+  auth:
+    image: gateway-manager
+    build: ./gateway-manager
+    volumes:
+      - ./api-auth/aether-auth:/code
+    command: help
+
+

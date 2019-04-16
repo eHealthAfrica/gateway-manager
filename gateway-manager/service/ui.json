@@ -1,0 +1,19 @@
+{
+  "name": "ui",
+  "host": "http://ui:8004",
+  "oidc_endpoints": [
+    {
+      "name": "protected",
+      "url": "/",
+      "strip_path": "false"
+    }
+  ],
+  "public_endpoints": [
+    {
+      "name": "public",
+      "url": "/-/ui/",
+      "route_path": "/-/ui/",
+      "strip_path": "true"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+    "enabled": true,
+    "requiredCredentials": [ "password" ],
+    "roles" : {
+        "realm" : [
+            {
+                "name": "user",
+                "description": "User privileges"
+            },
+            {
+                "name": "admin",
+                "description": "Administrator privileges"
+            }
+        ]
+    }
+}
