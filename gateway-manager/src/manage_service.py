@@ -97,7 +97,15 @@ def _get_service_oidc_payload(service_name, realm):
         'config.service_logout_url': f'{KEYCLOAK_URL}/{realm}/{OPENID_PATH}/logout',
         'config.token_url': f'{KEYCLOAK_URL}/{realm}/{OPENID_PATH}/token',
         'config.user_url': f'{KEYCLOAK_URL}/{realm}/{OPENID_PATH}/userinfo',
+        'config.realm': realm
     }
+
+
+def fill_template(template_str, replacements):
+    # take only the required values for formatting
+    swaps = {k: v for k, v in replacements.items()
+             if ('{%s}' % k) in template_str}
+    return template_str.format(**swaps)
 
 
 def add_service(config, realm):
@@ -118,7 +126,6 @@ def add_service(config, realm):
             ep_name = ep['name']
             ep_url = ep['url']
             service_name = f'{name}_{ep_type}_{ep_name}'
-
             data = {
                 'name': service_name,
                 'url': f'{host}{ep_url}',
@@ -130,7 +137,11 @@ def add_service(config, realm):
                 print(f'    - Could not add service "{ep_name}"')
 
             ROUTE_URL = f'{KONG_URL}/services/{service_name}/routes'
-            path = ep.get('route_path') or f'/{realm}/{name}{ep_url}'
+            if ep.get('template_path'):
+                context = dict({'realm': realm}, **ep)
+                path = fill_template(ep.get('template_path'), context)
+            else:
+                path = ep.get('route_path') or f'/{realm}/{name}{ep_url}'
             route_data = {
                 'paths': [path, ],
                 'strip_path': ep.get('strip_path', 'false'),
@@ -141,10 +152,13 @@ def add_service(config, realm):
                 # OIDC routes are protected using the "kong-oidc-auth" plugin
                 if ep_type == EPT_OIDC:
                     protected_route_id = route_info['id']
+                    _oidc_config = {}
+                    _oidc_config.update(oidc_data)
+                    _oidc_config.update(ep.get('oidc_override', {}))
                     request(
                         method='post',
                         url=f'{KONG_URL}/routes/{protected_route_id}/plugins',
-                        data=oidc_data,
+                        data=_oidc_config,
                     )
 
                 print(f'    + Added route {ep_url} >> {path}')
