@@ -112,18 +112,18 @@ def create_oidc_client(realm):
         'enabled': True,
         'protocolMappers': [
             {
-                'name': 'groups',
-                'protocol': 'openid-connect',
-                'protocolMapper': 'oidc-usermodel-realm-role-mapper',
-                'consentRequired': False,
-                'config': {
-                    'multivalued': 'true',
-                    'userinfo.token.claim': 'true',
-                    'user.attribute': 'foo',
-                    'id.token.claim': 'true',
-                    'access.token.claim': 'true',
-                    'claim.name': 'groups',
-                    'jsonType.label': 'String'
+                "name": "groups",
+                "protocol": "openid-connect",
+                "protocolMapper": "oidc-usermodel-realm-role-mapper",
+                "consentRequired": False,
+                "config": {
+                    "multivalued": "true",
+                    "userinfo.token.claim": "true",
+                    "user.attribute": "foo",
+                    "id.token.claim": "true",
+                    "access.token.claim": "true",
+                    "claim.name": "groups",
+                    "jsonType.label": "String"
                 }
             }
         ]
