@@ -97,7 +97,7 @@ def _get_service_oidc_payload(service_name, realm):
         'config.service_logout_url': f'{KEYCLOAK_URL}/{realm}/{OPENID_PATH}/logout',
         'config.token_url': f'{KEYCLOAK_URL}/{realm}/{OPENID_PATH}/token',
         'config.user_url': f'{KEYCLOAK_URL}/{realm}/{OPENID_PATH}/userinfo',
-        'config.realm': realm
+        'config.realm': f'{realm}'
     }
 
 
