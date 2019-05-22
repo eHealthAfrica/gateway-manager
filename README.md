@@ -8,8 +8,6 @@ This application is referenced there via docker-compose.
 
 ### Service Definitions:
 
-# Service
-
 A service represents an application and defines a set of public and protected urls
 and the route to access to them.
 
