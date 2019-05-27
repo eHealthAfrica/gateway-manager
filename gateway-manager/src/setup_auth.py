@@ -19,7 +19,7 @@
 # under the License.
 
 from helpers import request
-from settings import HOST, KONG_URL, KEYCLOAK_INTERNAL, MINIO_INTERNAL
+from settings import BASE_HOST, KONG_URL, KEYCLOAK_INTERNAL, MINIO_INTERNAL
 
 
 def register_app(name, url):
@@ -41,7 +41,7 @@ def register_app(name, url):
         'config.headers': 'Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, Authorization',
         'config.max_age': 3600,
         'config.methods': ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-        'config.origins': f'{HOST}/*',
+        'config.origins': f'{BASE_HOST}/*',
     }
     request(method='post', url=PLUGIN_URL, data=data_cors)
 
@@ -68,4 +68,4 @@ if __name__ == '__main__':
     for name, url in services:
         print(f'Exposing service "{name}" @ {url}')
         register_app(name, url)
-        print(f'Service "{name}" @ {url} now being served by kong @ {HOST}/{name}')
+        print(f'Service "{name}" @ {url} now being served by kong @ {BASE_HOST}/{name}')

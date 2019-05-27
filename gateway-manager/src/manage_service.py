@@ -29,7 +29,7 @@ from requests.exceptions import HTTPError
 
 from helpers import request
 from settings import (
-    HOST,
+    BASE_HOST,
     DOMAIN,
 
     KONG_URL,
@@ -55,7 +55,7 @@ def _get_service_oidc_payload(service_name, realm):
     client_secret = None
 
     # must be the public url
-    KEYCLOAK_URL = f'{HOST}/keycloak/auth/realms'
+    KEYCLOAK_URL = f'{BASE_HOST}/keycloak/auth/realms'
     OPENID_PATH = 'protocol/openid-connect'
 
     try:
@@ -92,7 +92,7 @@ def _get_service_oidc_payload(service_name, realm):
         'config.scope': 'openid+profile+email+iss',
         'config.user_info_cache_enabled': 'true',
 
-        'config.app_login_redirect_url': f'{HOST}/{realm}/{service_name}/',
+        'config.app_login_redirect_url': f'{BASE_HOST}/{realm}/{service_name}/',
         'config.authorize_url': f'{KEYCLOAK_URL}/{realm}/{OPENID_PATH}/auth',
         'config.service_logout_url': f'{KEYCLOAK_URL}/{realm}/{OPENID_PATH}/logout',
         'config.token_url': f'{KEYCLOAK_URL}/{realm}/{OPENID_PATH}/token',

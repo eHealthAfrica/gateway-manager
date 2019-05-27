@@ -115,6 +115,10 @@ case "$1" in
         python /code/src/manage_realm.py ADD_OIDC_CLIENT "${@:2}"
     ;;
 
+    add_aether_client )
+        python /code/src/manage_realm.py ADD_AETHER_CLIENT "${@:2}"
+    ;;
+
     add_service )
         python /code/src/manage_service.py ADD SERVICE "${@:2}"
     ;;
