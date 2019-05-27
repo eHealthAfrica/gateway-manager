@@ -101,7 +101,7 @@ def create_client(realm, config):
 
 def create_aether_client(realm):
 
-    print('Creating aether client in realm [{realm}]...')
+    print(f'Creating aether client in realm [{realm}]...')
     REALM_URL = f'{BASE_HOST}/{realm}/'
     PUBLIC_URL = f'{BASE_HOST}/{PUBLIC_REALM}/*'
 
@@ -139,7 +139,7 @@ def create_aether_client(realm):
 
 def create_oidc_client(realm):
 
-    print('Creating client [{KEYCLOAK_KONG_CLIENT}] in realm [{realm}]...')
+    print(f'Creating client [{KEYCLOAK_KONG_CLIENT}] in realm [{realm}]...')
     REALM_URL = f'{BASE_HOST}/{realm}/'
 
     config = {

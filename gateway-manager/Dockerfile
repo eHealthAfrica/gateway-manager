@@ -1,7 +1,6 @@
 FROM python:3.7-slim-stretch
 
 WORKDIR /code
-COPY . /code
 
 RUN apt-get update -qq && \
     apt-get -qq \
@@ -10,6 +9,8 @@ RUN apt-get update -qq && \
         --allow-remove-essential \
         --allow-change-held-packages \
         install gcc
+
+COPY . /code
 
 RUN pip install -q --upgrade pip && \
     pip install -q -r /code/conf/pip/requirements.txt
