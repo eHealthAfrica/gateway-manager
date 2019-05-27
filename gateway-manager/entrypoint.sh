@@ -33,10 +33,9 @@ function show_help {
     setup_auth       : register Keycloak & Minio in Kong.
 
     
-    add_realm        : adds a new realm using the default realm template
-                       found in the /realm directory
+    add_realm        : adds a new realm using a default realm template
 
-                       usage: add_realm {realm}
+                       usage: add_realm {realm} {description (optional)}
 
     
     add_user         : adds a user to an existing realm.
@@ -50,6 +49,11 @@ function show_help {
                        any realm that will use OIDC for authentication.
 
                        usage: add_oidc_client <realm>
+
+
+    add_aether_client: adds the default aether client to a realm. Allows token generation
+
+                       usage: add_aether_client <realm>
 
 
     add_service      : adds a service to an existing realm in Kong,

@@ -30,15 +30,14 @@ from typing import (
 )
 
 from settings import (
-    HOST,
-    DOMAIN,
-    PLATFORM_NAME,
-    REALM_TEMPLATE_PATH,
+    BASE_HOST,
     KC_URL,
     KC_ADMIN_USER,
     KC_ADMIN_PASSWORD,
     KC_MASTER_REALM,
+    KEYCLOAK_AETHER_CLIENT,
     KEYCLOAK_KONG_CLIENT,
+    PUBLIC_REALM
 )
 
 
@@ -66,27 +65,31 @@ def client_for_realm(realm):
         )
 
 
-def create_realm(realm):
+def create_realm(realm, description=None):
     # There is no method for realm creation in KeycloakAdmin!
     print(f'\nAdding realm "{realm}" to keycloak')
     keycloak_admin = client()
-    access_token = keycloak_admin.token['access_token']
-    realm_url = f'{KC_URL}admin/realms'
-    headers = {
-        'content-type': 'application/json',
-        'authorization': f'Bearer {access_token}'
+    desc = description if description else realm
+    config = {
+        'realm': realm,
+        'displayName': desc,
+        'loginTheme': 'aether',
+        'enabled': True,
+        'roles': {
+            'realm': [
+                {
+                    'name': 'user',
+                    'description': 'User privileges'
+                },
+                {
+                    'name': 'admin',
+                    'description': 'Administrative privileges'
+                }
+            ]
+        }
     }
-    with open(REALM_TEMPLATE_PATH) as f:
-        realm_config = json.load(f)
-    realm_config['realm'] = realm
-    realm_config['displayName'] = f'{realm} realm for the {PLATFORM_NAME} platform'
-    res = requests.post(
-        realm_url,
-        headers=headers,
-        data=json.dumps(realm_config)
-    )
-    if res.status_code != 201:
-        raise RuntimeError(f'Could not create {realm}: {str(res.text)}')
+
+    keycloak_admin.create_realm(config, skip_exists=True)
     print(f'    + Added realm {realm} >> keycloak')
     return
 
@@ -96,34 +99,73 @@ def create_client(realm, config):
     keycloak_admin.create_client(config, skip_exists=True)
 
 
-def create_oidc_client(realm):
-    client_url = f'{HOST}/{realm}/'
+def create_aether_client(realm):
+
+    print('Creating aether client in realm [{realm}]...')
+    REALM_URL = f'{BASE_HOST}/{realm}/'
+    PUBLIC_URL = f'{BASE_HOST}/{PUBLIC_REALM}/*'
+
     config = {
-        'clientId': KEYCLOAK_KONG_CLIENT,
+        'clientId': KEYCLOAK_AETHER_CLIENT,
         'publicClient': True,  # allow users to get a token for auth
         'clientAuthenticatorType': 'client-secret',
         'directAccessGrantsEnabled': True,
-        'rootUrl': client_url,
-        'baseUrl': client_url,
+        'baseUrl': REALM_URL,
         'redirectUris': [
-            f'http://{DOMAIN}*',
-            f'https://{DOMAIN}*',
+            '*',
+            PUBLIC_URL
         ],
         'enabled': True,
         'protocolMappers': [
             {
-                "name": "groups",
-                "protocol": "openid-connect",
-                "protocolMapper": "oidc-usermodel-realm-role-mapper",
-                "consentRequired": False,
-                "config": {
-                    "multivalued": "true",
-                    "userinfo.token.claim": "true",
-                    "user.attribute": "foo",
-                    "id.token.claim": "true",
-                    "access.token.claim": "true",
-                    "claim.name": "groups",
-                    "jsonType.label": "String"
+                'name': 'groups',
+                'protocol': 'openid-connect',
+                'protocolMapper': 'oidc-usermodel-realm-role-mapper',
+                'consentRequired': False,
+                'config': {
+                    'multivalued': True,
+                    'userinfo.token.claim': True,
+                    'user.attribute': 'foo',
+                    'id.token.claim': True,
+                    'access.token.claim': True,
+                    'claim.name': 'groups',
+                    'jsonType.label': 'String'
+                }
+            }
+        ]
+    }
+    create_client(realm, config)
+
+
+def create_oidc_client(realm):
+
+    print('Creating client [{KEYCLOAK_KONG_CLIENT}] in realm [{realm}]...')
+    REALM_URL = f'{BASE_HOST}/{realm}/'
+
+    config = {
+        'clientId': KEYCLOAK_KONG_CLIENT,
+        'publicClient': False,
+        'clientAuthenticatorType': 'client-secret',
+        'directAccessGrantsEnabled': True,
+        'baseUrl': REALM_URL,
+        'redirectUris': [
+            '*'
+        ],
+        'enabled': True,
+        'protocolMappers': [
+            {
+                'name': 'groups',
+                'protocol': 'openid-connect',
+                'protocolMapper': 'oidc-usermodel-realm-role-mapper',
+                'consentRequired': False,
+                'config': {
+                    'multivalued': True,
+                    'userinfo.token.claim': True,
+                    'user.attribute': 'foo',
+                    'id.token.claim': True,
+                    'access.token.claim': True,
+                    'claim.name': 'groups',
+                    'jsonType.label': 'String'
                 }
             }
         ]
@@ -177,6 +219,7 @@ if __name__ == '__main__':
     commands: Dict[str, Callable] = {
         'ADD_REALM': create_realm,
         'ADD_USER': create_user,
+        'ADD_AETHER_CLIENT': create_aether_client,
         'ADD_OIDC_CLIENT': create_oidc_client,
         'KEYCLOAK_READY': keycloak_ready
     }
