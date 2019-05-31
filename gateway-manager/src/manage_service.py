@@ -123,8 +123,9 @@ def add_service(config, realm):
 
         endpoints = config.get(f'{ep_type}_endpoints', [])
         for ep in endpoints:
+            context = dict({'realm': realm}, **ep)
             ep_name = ep['name']
-            ep_url = ep['url']
+            ep_url = fill_template(ep.get('url'), context)
             service_name = f'{name}_{ep_type}_{ep_name}'
             data = {
                 'name': service_name,
@@ -138,7 +139,6 @@ def add_service(config, realm):
 
             ROUTE_URL = f'{KONG_URL}/services/{service_name}/routes'
             if ep.get('template_path'):
-                context = dict({'realm': realm}, **ep)
                 path = fill_template(ep.get('template_path'), context)
             else:
                 path = ep.get('route_path') or f'/{realm}/{name}{ep_url}'
