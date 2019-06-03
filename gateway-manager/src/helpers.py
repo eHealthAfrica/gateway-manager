@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2018 by eHealth Africa : http://www.eHealthAfrica.org
+# Copyright (C) 2019 by eHealth Africa : http://www.eHealthAfrica.org
 #
 # See the NOTICE file distributed with this work for additional information
 # regarding copyright ownership.
@@ -18,11 +18,17 @@
 # specific language governing permissions and limitations
 # under the License.
 
+
 import json
 import requests
 from requests.exceptions import HTTPError
+import os
 
 from settings import DEBUG
+
+
+def env(name, default=None):
+    return os.environ.get(name, default)
 
 
 def request(method, url, data={}):

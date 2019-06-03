@@ -12,5 +12,3 @@ services:
     volumes:
       - ./api-auth/aether-auth:/code
     command: help
-
-
