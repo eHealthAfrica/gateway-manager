@@ -12,3 +12,17 @@ services:
     volumes:
       - ./api-auth/aether-auth:/code
     command: help
+    environment:
+      DEBUG: null
+
+      KEYCLOAK_GLOBAL_ADMIN: ${KEYCLOAK_GLOBAL_ADMIN}
+      KEYCLOAK_GLOBAL_PASSWORD: ${KEYCLOAK_GLOBAL_PASSWORD}
+      KEYCLOAK_KONG_CLIENT: ${KEYCLOAK_KONG_CLIENT}
+
+      BASE_DOMAIN: ${BASE_DOMAIN}
+      BASE_HOST: ${BASE_HOST}
+      KEYCLOAK_INTERNAL: ${KEYCLOAK_INTERNAL}
+      KONG_INTERNAL: ${KONG_INTERNAL}
+      MINIO_INTERNAL: ${MINIO_INTERNAL}
+    extra_hosts:
+      - ${BASE_DOMAIN}:${KONG_IP}

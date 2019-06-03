@@ -28,15 +28,13 @@ from kazoo.client import KazooClient
 
 from helpers import env
 from cryptography import zk_config, pbkdf2_hmac_sha256
+from settings import (
+    ZK_HOST,
+    ZK_USER,
+    ZK_PW,
+    KAFKA_ADMIN_SECRET
+)
 
-
-# zookeeper host
-ZK_HOST = env('ZOOKEEPER_HOST')  # '127.0.0.1:32181'
-# registered administrative credentials
-
-KAFKA_ADMIN_SECRET = env('KAFKA_SECRET')
-USER = env('ZOOKEEPER_USER')  # 'zk-admin'
-PW = env('ZOOKEEPER_PW')  # 'password'
 # kafka ZK paths
 USER_CHANGES_PATH = '/config/changes'
 USER_CHANGES_FORMAT = 'config_change_'
@@ -50,7 +48,6 @@ ACL_CHANGES_FORMAT = 'acl_changes_'
 
 
 # Use the shared (internally) KafkaSecret to get the password for a user
-
 def get_tenant_password(tenant_name):
     data = f'{tenant_name}{KAFKA_ADMIN_SECRET}'
     return pbkdf2_hmac_sha256(data, salt='kafka')
@@ -237,11 +234,11 @@ def make_user(zk, name, pw):
 logging.basicConfig()
 
 # constructor components
-default_acl = kazoo.security.make_acl('sasl', USER, all=True)
+default_acl = kazoo.security.make_acl('sasl', ZK_USER, all=True)
 sasl_options = {
     'mechanism': 'DIGEST-MD5',
-    'username': USER,
-    'password': PW
+    'username': ZK_USER,
+    'password': ZK_PW
 }
 
 # Requires unreleased feature from Kazoo 2.7.x to get the digest to work properly

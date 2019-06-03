@@ -22,13 +22,8 @@
 import json
 import requests
 from requests.exceptions import HTTPError
-import os
 
 from settings import DEBUG
-
-
-def env(name, default=None):
-    return os.environ.get(name, default)
 
 
 def request(method, url, data={}):
