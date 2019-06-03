@@ -105,6 +105,11 @@ function show_help {
 
                        usage: add_kafka_tenant {tenant}
 
+
+    get_kafka_creds  : Gets SASL Credential for a given kafka tenant
+
+                       usage: get_kafka_creds {tenant}
+
     """
 }
 
@@ -167,6 +172,10 @@ case "$1" in
 
     add_kafka_tenant )
         python /code/src/manage_kafka.py ADD_TENANT "${@:2}"
+    ;;
+
+    get_kafka_creds )
+        python /code/src/manage_kafka.py KAFKA_CREDS "${@:2}"
     ;;
 
     help )

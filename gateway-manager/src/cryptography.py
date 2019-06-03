@@ -52,14 +52,14 @@ This lib allows you to generate the same artifacts in python for insertion into 
 '''
 
 
-def pbkdf2_hmac_sha256(pw, salt, iters=4096):
+def pbkdf2_hmac_sha256(pw, salt, iterations=4096):
     dk = hashlib.pbkdf2_hmac(
         hash_name='sha256',
-        password=pw,
-        salt=salt,
-        iterations=iters
+        password=pw.encode('utf-8'),
+        salt=salt.encode('utf-8'),
+        iterations=iterations
     )
-    return str(binascii.hexlify(dk))
+    return binascii.hexlify(dk).decode('utf-8')
 
 
 def make_salt(size=25):

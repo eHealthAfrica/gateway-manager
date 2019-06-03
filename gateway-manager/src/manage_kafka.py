@@ -57,6 +57,7 @@ def create_tenant(realm):
     # make user for realm
     print(f'\nCreating Kafka Tenant for realm: {realm}')
     pw = get_tenant_password(realm)
+    print(realm, pw)
     make_user(zookeeper, realm, pw)
     sleep(ZK_LAG_TIME)
     # give user permission on all realm artifacts in kafka
@@ -75,10 +76,16 @@ def create_tenant(realm):
         )
 
 
+def tenant_creds(realm):
+    pw = get_tenant_password(realm)
+    print(f'{realm} : {pw}')
+
+
 if __name__ == "__main__":
     commands = {
         'ADD_SUPERUSER': create_superuser,
-        'ADD_TENANT': create_tenant
+        'ADD_TENANT': create_tenant,
+        'KAFKA_CREDS': tenant_creds
     }
     command = sys.argv[1]
     args = sys.argv[2:]

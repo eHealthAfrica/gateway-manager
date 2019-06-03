@@ -1,5 +1,10 @@
 version: '2.1'
 
+networks:
+  aether:
+    external:
+      name: aether_test
+
 services:
 
   # ---------------------------------
@@ -9,8 +14,6 @@ services:
   auth:
     image: gateway-manager
     build: ./gateway-manager
-    volumes:
-      - ./api-auth/aether-auth:/code
     command: help
     environment:
       DEBUG: null
@@ -32,3 +35,5 @@ services:
 
     extra_hosts:
       - ${BASE_DOMAIN:-aether.local}:${KONG_IP:-192.168.9.10}
+    networks:
+        - aether

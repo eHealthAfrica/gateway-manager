@@ -26,7 +26,6 @@ import sys
 import kazoo
 from kazoo.client import KazooClient
 
-from helpers import env
 from cryptography import zk_config, pbkdf2_hmac_sha256
 from settings import (
     ZK_HOST,
@@ -49,8 +48,8 @@ ACL_CHANGES_FORMAT = 'acl_changes_'
 
 # Use the shared (internally) KafkaSecret to get the password for a user
 def get_tenant_password(tenant_name):
-    data = f'{tenant_name}{KAFKA_ADMIN_SECRET}'
-    return pbkdf2_hmac_sha256(data, salt='kafka')
+    seed = f'{tenant_name}{KAFKA_ADMIN_SECRET}'
+    return pbkdf2_hmac_sha256(seed, 'kafka')
 
 
 # Print contents of Zookeeper path
