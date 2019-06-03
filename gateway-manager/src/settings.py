@@ -53,5 +53,13 @@ REALMS_PATH = '/code/realm'
 SERVICES_PATH = '/code/service'
 SOLUTIONS_PATH = '/code/solution'
 
+# Kafka && Zookeeper
+
+ZK_HOST = get_env('ZOOKEEPER_HOST')  # '127.0.0.1:32181'
+# registered administrative credentials
+KAFKA_ADMIN_SECRET = get_env('KAFKA_SECRET')
+ZK_USER = get_env('ZOOKEEPER_USER')  # 'zk-admin'
+ZK_PW = get_env('ZOOKEEPER_PW')  # 'password'
+
 # Minio
 MINIO_INTERNAL = get_env('MINIO_INTERNAL')
