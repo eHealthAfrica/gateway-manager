@@ -49,7 +49,7 @@ def create_superuser(name, password):
             resource_id,
             resource_type=resource_type,
             operation='All',
-            extended_acl=True
+            extended_acl=False
         )
 
 
