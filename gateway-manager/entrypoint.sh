@@ -29,7 +29,15 @@ function show_help {
 
     eval             : eval shell command
 
+
+    decode_token     : decodes a JSON Web Token (JWT)
+
+                       usage: decode_token {token}
+
     
+    Keycloak & Kong
+    ----------------------------------------------------------------------------
+
     setup_auth       : register Keycloak & Minio in Kong.
 
     
@@ -44,7 +52,8 @@ function show_help {
                               {*password} {*is_administrator}
                               {*email} {*reset_password_on_login}
 
-    
+
+
     add_oidc_client  : adds the default kong client to a realm. Required for
                        any realm that will use OIDC for authentication.
 
@@ -84,15 +93,28 @@ function show_help {
 
                        usage: keycloak_ready
     
-    decode_token     : decodes a JSON Web Token (JWT)
+    Kafka
+    ----------------------------------------------------------------------------
 
-                       usage: decode_token {token}
+    add_kafka_su     : Adds a Superuser to the Kafka Cluster
+
+                       usage: add_kafka_su {username} {password}
+
+    
+    add_kafka_tenant : Adds a kafka user for a tenant, and adds ACL to their namespace.
+
+                       usage: add_kafka_tenant {tenant}
+
     """
 }
 
 case "$1" in
     bash )
         bash
+    ;;
+
+    decode_token )
+        python /code/src/decode_token.py "${@:2}"
     ;;
 
     eval )
@@ -139,8 +161,12 @@ case "$1" in
         python /code/src/manage_realm.py KEYCLOAK_READY
     ;;
 
-    decode_token )
-        python /code/src/decode_token.py "${@:2}"
+    add_kafka_su )
+        python /code/src/manage_kafka.py ADD_SUPERUSER "${@:2}"
+    ;;
+
+    add_kafka_tenant )
+        python /code/src/manage_kafka.py ADD_TENANT "${@:2}"
     ;;
 
     help )

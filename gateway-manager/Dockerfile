@@ -8,7 +8,7 @@ RUN apt-get update -qq && \
         --allow-downgrades \
         --allow-remove-essential \
         --allow-change-held-packages \
-        install gcc
+        install gcc git
 
 COPY . /code
 
