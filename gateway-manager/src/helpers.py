@@ -27,7 +27,7 @@ from settings import DEBUG
 
 def request(method, url, data={}):
     try:
-        res = requests.request(method=method, url=url, data=data)
+        res = requests.request(method=method, url=url, data=data, verify=False)
         res.raise_for_status()
         if res.status_code != 204:
             data = res.json()
