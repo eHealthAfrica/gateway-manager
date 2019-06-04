@@ -57,11 +57,10 @@ def create_tenant(realm):
     # make user for realm
     print(f'\nCreating Kafka Tenant for realm: {realm}')
     pw = get_tenant_password(realm)
-    print(realm, pw)
     make_user(zookeeper, realm, pw)
     sleep(ZK_LAG_TIME)
     # give user permission on all realm artifacts in kafka
-    allowed_resource = f'{realm}-'
+    allowed_resource = f'{realm}.'
     for resource_type, resource_id, operation, wildcard in [
         ('topic', allowed_resource, 'All', True),
         ('group', allowed_resource, 'All', True)
