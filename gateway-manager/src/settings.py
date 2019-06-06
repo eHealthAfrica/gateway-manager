@@ -33,6 +33,8 @@ REALM_TEMPLATE_PATH = get_env(
     '/code/realm/realm_template.json'
 )
 
+LOGIN_THEME = get_env('LOGIN_THEME', None)
+
 # Keycloak Information
 KEYCLOAK_INTERNAL = get_env('KEYCLOAK_INTERNAL')
 
