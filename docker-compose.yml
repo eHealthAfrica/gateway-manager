@@ -36,4 +36,4 @@ services:
     extra_hosts:
       - ${BASE_DOMAIN:-aether.local}:${KONG_IP:-192.168.9.10}
     networks:
-        - aether
+      - aether

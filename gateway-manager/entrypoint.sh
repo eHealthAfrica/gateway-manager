@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2018 by eHealth Africa : http://www.eHealthAfrica.org
+# Copyright (C) 2019 by eHealth Africa : http://www.eHealthAfrica.org
 #
 # See the NOTICE file distributed with this work for additional information
 # regarding copyright ownership.
@@ -25,7 +25,7 @@ function show_help {
     Commands
     ----------------------------------------------------------------------------
     bash             : run bash
-    
+
 
     eval             : eval shell command
 
@@ -34,21 +34,21 @@ function show_help {
 
                        usage: decode_token {token}
 
-    
+
     Keycloak & Kong
     ----------------------------------------------------------------------------
 
     setup_auth       : register Keycloak & Minio in Kong.
 
-    
+
     add_realm        : adds a new realm using a default realm template
 
                        usage: add_realm {realm} {description (optional)}
 
-    
+
     add_user         : adds a user to an existing realm.
 
-                       usage: add_user {realm} {username} 
+                       usage: add_user {realm} {username}
                               {*password} {*is_administrator}
                               {*email} {*reset_password_on_login}
 
@@ -70,29 +70,29 @@ function show_help {
 
                        usage: add_service {service} {realm}
 
-    
+
     remove_service   : removes a service from an existing realm in Kong,
                        using the service definition in /service directory.
 
                        usage: remove_service {service} {realm}
 
-    
+
     add_solution     : adds a package of services to an existing realm in Kong,
                        using the solution definition in /solution directory.
 
                        usage: add_solution {solution} {realm}
 
-    
+
     remove_solution  : removes a package of services from an existing realm in Kong,
                        using the solution definition in /solution directory.
 
                        usage: remove_solution {solution} {realm}
 
-    
+
     keycloak_ready   : checks the keycloak connection. Returns status 0 on success.
 
                        usage: keycloak_ready
-    
+
     Kafka
     ----------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ function show_help {
 
                        usage: add_kafka_su {username} {password}
 
-    
+
     add_kafka_tenant : Adds a kafka user for a tenant, and adds ACL to their namespace.
 
                        usage: add_kafka_tenant {tenant}

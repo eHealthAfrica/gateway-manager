@@ -146,7 +146,7 @@ def remove_permission(
     principal = f'User:{user}'
     print(acl_path, principal)
     try:
-        data, stat = zk.get(acl_path)
+        data, _ = zk.get(acl_path)
         data = json.loads(data)
     except kazoo.exceptions.NoNodeError:
         data = {
@@ -183,7 +183,7 @@ def upsert_permission(
     principal = f'User:{user}'
     print(acl_path, principal)
     try:
-        data, stat = zk.get(acl_path)
+        data, _ = zk.get(acl_path)
         data = json.loads(data)
     except kazoo.exceptions.NoNodeError:
         data = {

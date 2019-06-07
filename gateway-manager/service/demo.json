@@ -1,14 +1,14 @@
 {
-    "name": "demo",
-    "host": "http://demo-service:3013",
-    "oidc_endpoints": [
+  "name": "demo",
+  "host": "http://demo-service:3013",
+  "oidc_endpoints": [
     {
       "name": "base",
       "url": "/",
       "strip_path": "true"
     }
   ],
-    "public_endpoints": [
+  "public_endpoints": [
     {
       "name": "public",
       "url": "/public",
