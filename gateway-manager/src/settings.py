@@ -28,6 +28,13 @@ DEBUG = bool(get_env('DEBUG'))
 BASE_HOST = get_env('BASE_HOST')  # External URL for host
 BASE_DOMAIN = get_env('BASE_DOMAIN')
 
+SERVICES_PATH = '/code/service'
+SOLUTIONS_PATH = '/code/solution'
+
+REALMS_PATH = '/code/realm'
+REALM_TEMPLATE_PATH = get_env('REALM_TEMPLATE_PATH', f'{REALMS_PATH}/realm_template.json')
+CLIENT_TEMPLATE_PATH = get_env('CLIENT_TEMPLATE_PATH', f'{REALMS_PATH}/client_template.json')
+
 
 # Keycloak Information
 
@@ -46,15 +53,11 @@ KONG_URL = get_env('KONG_INTERNAL')
 KONG_OIDC_PLUGIN = 'kong-oidc-auth'
 KONG_PUBLIC_REALM = get_env('PUBLIC_REALM', '-')
 
-REALMS_PATH = '/code/realm'
-SERVICES_PATH = '/code/service'
-SOLUTIONS_PATH = '/code/solution'
-
 
 # Kafka && Zookeeper
 
 ZK_HOST = get_env('ZOOKEEPER_HOST')             # '127.0.0.1:32181'
-# registered administrative credentials
-KAFKA_ADMIN_SECRET = get_env('KAFKA_SECRET')
 ZK_USER = get_env('ZOOKEEPER_USER')             # 'zk-admin'
 ZK_PW = get_env('ZOOKEEPER_PW')                 # 'password'
+# registered administrative credentials
+KAFKA_ADMIN_SECRET = get_env('KAFKA_SECRET')

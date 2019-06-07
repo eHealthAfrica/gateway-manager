@@ -40,6 +40,15 @@ def request(*args, **kwargs):
         __handle_exception(e)
 
 
+def load_json_file(json_file_path):
+    try:
+        with open(json_file_path) as _f:
+            data = json.load(_f)
+        return data
+    except Exception as e:
+        __handle_exception(e)
+
+
 def __print(msg):
     if DEBUG:
         print(msg)

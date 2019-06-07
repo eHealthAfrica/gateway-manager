@@ -25,6 +25,8 @@ from typing import Callable, Dict
 from keycloak import KeycloakAdmin
 from keycloak.exceptions import KeycloakError
 
+from helpers import load_json_file
+
 from settings import (
     BASE_HOST,
     KC_URL,
@@ -32,6 +34,9 @@ from settings import (
     KC_ADMIN_PASSWORD,
     KC_MASTER_REALM,
     KONG_PUBLIC_REALM,
+
+    REALM_TEMPLATE_PATH,
+    CLIENT_TEMPLATE_PATH,
 )
 
 
@@ -63,23 +68,10 @@ def create_realm(realm, description=None, login_theme=None):
     print(f'\nAdding realm "{realm}" to keycloak')
     keycloak_admin = client()
 
-    config = {
-        'realm': realm,
-        'displayName': description if description else realm,
-        'enabled': True,
-        'roles': {
-            'realm': [
-                {
-                    'name': 'user',
-                    'description': 'User privileges'
-                },
-                {
-                    'name': 'admin',
-                    'description': 'Administrative privileges'
-                }
-            ]
-        }
-    }
+    config = load_json_file(REALM_TEMPLATE_PATH)
+    config['realm'] = realm
+    if description:
+        config['displayName'] = description
     if login_theme:
         config['loginTheme'] = login_theme
 
@@ -107,32 +99,12 @@ def _create_realm_client(realm, name, isPublic):
     REALM_URL = f'{BASE_HOST}/{realm}/'
     PUBLIC_URL = f'{BASE_HOST}/{KONG_PUBLIC_REALM}/*'
 
-    config = {
-        'clientId': name,
-        'publicClient': isPublic,
-        'clientAuthenticatorType': 'client-secret',
-        'directAccessGrantsEnabled': True,
-        'baseUrl': REALM_URL,
-        'redirectUris': ['*', PUBLIC_URL] if isPublic else ['*'],
-        'enabled': True,
-        'protocolMappers': [
-            {
-                'name': 'groups',
-                'protocol': 'openid-connect',
-                'protocolMapper': 'oidc-usermodel-realm-role-mapper',
-                'consentRequired': False,
-                'config': {
-                    'multivalued': True,
-                    'userinfo.token.claim': True,
-                    'user.attribute': 'foo',
-                    'id.token.claim': True,
-                    'access.token.claim': True,
-                    'claim.name': 'groups',
-                    'jsonType.label': 'String'
-                }
-            }
-        ]
-    }
+    config = load_json_file(CLIENT_TEMPLATE_PATH)
+    config['clientId'] = name
+    config['baseUrl'] = REALM_URL
+    config['publicClient'] = isPublic
+    config['redirectUris'] = ['*', PUBLIC_URL] if isPublic else ['*']
+
     create_client(realm, config)
 
 
