@@ -18,16 +18,12 @@
 # specific language governing permissions and limitations
 # under the License.
 
-import json
-from keycloak import KeycloakAdmin
-from keycloak.exceptions import KeycloakError
-import requests
 import sys
 
-from typing import (
-    Callable,
-    Dict
-)
+from typing import Callable, Dict
+
+from keycloak import KeycloakAdmin
+from keycloak.exceptions import KeycloakError
 
 from settings import (
     BASE_HOST,
@@ -189,7 +185,7 @@ def create_user(
     if not isinstance(temporary_password, bool):
         temporary_password = bool(temporary_password)
 
-    realm_roles = ['admin', 'user', ] if admin else['user', ]
+    realm_roles = ['admin', 'user', ] if admin else ['user', ]
     config = {
         'username': user,
         'enabled': True,

@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Copyright (C) 2019 by eHealth Africa : http://www.eHealthAfrica.org
 #
 # See the NOTICE file distributed with this work for additional information
@@ -26,9 +24,10 @@ from requests.exceptions import HTTPError
 from settings import DEBUG
 
 
-def request(method, url, data={}):
+def request(*args, **kwargs):
     try:
-        res = requests.request(method=method, url=url, data=data, verify=False)
+        # don't verify SSL certificate internally
+        res = requests.request(*args, **kwargs, verify=False)
         res.raise_for_status()
         if res.status_code != 204:
             data = res.json()

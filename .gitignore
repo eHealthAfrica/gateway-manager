@@ -1,0 +1,58 @@
+### Visual Studio Code ###
+.vscode
+
+### Eclipse ###
+.project
+.classpath
+.settings
+
+### IntelliJ IDEA ###
+.idea
+*.iml
+*.ipr
+*.iws
+out
+
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+### Vim ###
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~
+
+# secrets
+*.crt
+*.csr
+*.key
+*.pem
+*.p12
+*.keystore
+*.truststore
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg

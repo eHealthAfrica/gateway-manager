@@ -3,8 +3,11 @@
 #                              Requirements                                             #
 #                                                                                       #
 #########################################################################################
+
 passlib
 pure-sasl
-python-keycloak>=0.17
 pyjwt
+python-keycloak>=0.17
+
+# kazoo ???
 git+https://github.com/python-zk/kazoo.git@88b657a0977161f3815657878ba48f82a97a3846#egg=kazoo

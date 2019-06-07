@@ -1,6 +1,6 @@
 ## Gateway Manager
 
-This application is used to configure Keycloak+Kong installations, locally or as part of a cluster. 
+This application is used to configure Keycloak+Kong installations, locally or as part of a cluster.
 
 For usage instructions and a guide to the shared auth infrastructure, please see the [API Layer Demo Repository](https://github.com/eHealthAfrica/api-layer-demo)
 
@@ -58,7 +58,7 @@ The expected format for each service file is:
       //     http://my-service:8888/testing-realm/service-name/protect-me-please/my-path
       "oidc_override": {
         // [optional & advanced!]
-        // provide overrides to the standard oidc configuration passed to Kong-Oidc        
+        // provide overrides to the standard oidc configuration passed to Kong-Oidc
         // Do not use this unless you absolutely have to.
         "config.user_keys": ["preferred_username", "email"]
       }
@@ -127,4 +127,3 @@ To remove a service from ALL existing realms in Kong
 ```bash
 {this_container} remove_service "service-name" "*"
 ```
-

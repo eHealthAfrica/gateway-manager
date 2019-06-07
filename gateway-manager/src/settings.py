@@ -33,7 +33,8 @@ REALM_TEMPLATE_PATH = get_env(
     '/code/realm/realm_template.json'
 )
 
-LOGIN_THEME = get_env('LOGIN_THEME', None)
+LOGIN_THEME = get_env('LOGIN_THEME')
+
 
 # Keycloak Information
 KEYCLOAK_INTERNAL = get_env('KEYCLOAK_INTERNAL')
@@ -54,6 +55,7 @@ KONG_OIDC_PLUGIN = 'kong-oidc-auth'
 REALMS_PATH = '/code/realm'
 SERVICES_PATH = '/code/service'
 SOLUTIONS_PATH = '/code/solution'
+
 
 # Kafka && Zookeeper
 

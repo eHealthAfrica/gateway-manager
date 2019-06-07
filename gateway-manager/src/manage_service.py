@@ -103,8 +103,11 @@ def _get_service_oidc_payload(service_name, realm):
 
 def fill_template(template_str, replacements):
     # take only the required values for formatting
-    swaps = {k: v for k, v in replacements.items()
-             if ('{%s}' % k) in template_str}
+    swaps = {
+        k: v
+        for k, v in replacements.items()
+        if ('{%s}' % k) in template_str
+    }
     return template_str.format(**swaps)
 
 
