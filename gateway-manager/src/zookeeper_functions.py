@@ -54,7 +54,7 @@ def get_tenant_password(tenant_name):
 
 # Print contents of Zookeeper path
 def loot(zk, path):
-    data, stat = zk.get(path)
+    data, _ = zk.get(path)
     if data:
         try:
             readable = json.dumps(json.loads(data), indent=2)
