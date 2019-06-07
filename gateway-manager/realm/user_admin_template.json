@@ -1,0 +1,6 @@
+{
+  "username": null,
+  "enabled": true,
+  "realmRoles": ["admin", "user"],
+  "email": null
+}

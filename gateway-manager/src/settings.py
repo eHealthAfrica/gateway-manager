@@ -31,10 +31,22 @@ BASE_DOMAIN = get_env('BASE_DOMAIN')
 SERVICES_PATH = '/code/service'
 SOLUTIONS_PATH = '/code/solution'
 
-REALMS_PATH = '/code/realm'
-REALM_TEMPLATE_PATH = get_env('REALM_TEMPLATE_PATH', f'{REALMS_PATH}/realm_template.json')
-CLIENT_TEMPLATE_PATH = get_env('CLIENT_TEMPLATE_PATH', f'{REALMS_PATH}/client_template.json')
+_REALMS_PATH = '/code/realm'
+REALM_TEMPLATES = {
+    'realm': get_env('REALM_TEMPLATE_PATH',
+                     f'{_REALMS_PATH}/realm_template.json'),
 
+    'client': get_env('CLIENT_TEMPLATE_PATH',
+                      f'{_REALMS_PATH}/client_template.json'),
+
+    'user': {
+        'admin': get_env('ADMIN_TEMPLATE_PATH',
+                         f'{_REALMS_PATH}/user_admin_template.json'),
+
+        'standard': get_env('USER_TEMPLATE_PATH',
+                            f'{_REALMS_PATH}/user_standard_template.json'),
+    },
+}
 
 # Keycloak Information
 
