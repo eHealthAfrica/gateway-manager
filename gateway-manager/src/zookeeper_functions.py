@@ -155,8 +155,7 @@ def remove_permission(
         }
     else:
         filtered_acls = list(filter(
-            lambda acl: acl['principal'] != principal
-            or acl['operation'] != operation,
+            lambda acl: acl['principal'] != principal or acl['operation'] != operation,
             data['acls']
         ))
         data['acls'] = filtered_acls
@@ -191,9 +190,8 @@ def upsert_permission(
             'acls': []
         }
     else:
-        acls = list(filter((lambda acl:
-                    acl['principal'] != principal
-                    or acl['operation'] != operation),
+        acls = list(filter((
+            lambda acl: acl['principal'] != principal or acl['operation'] != operation),
             data['acls']
         ))
         data['acls'] = acls

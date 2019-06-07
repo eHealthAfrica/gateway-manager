@@ -24,13 +24,20 @@ import random
 import string
 from passlib.hash import scram
 
-'''  # noqa
+'''
 Artifacts created like this in Kafka Container
 
-    /usr/bin/kafka-configs --zookeeper zookeeper:32181 --alter --add-config 'SCRAM-SHA-256=[password=password],SCRAM-SHA-512=[password=password]' --entity-type users --entity-name admin
+    /usr/bin/kafka-configs \
+        --zookeeper zookeeper:32181 \
+        --alter \
+        --add-config 'SCRAM-SHA-256=[password=password],SCRAM-SHA-512=[password=password]' \
+        --entity-type users \
+        --entity-name admin
+
     Completed Updating config for entity: user-principal 'admin'.
 
 yield this in zoo-keeper:
+
 {
     'SCRAM-SHA-512': {
         'salt': 'cXc3anM3YXJiZ3VoaHRkemIxaHFuM3U2ZA==',
@@ -45,6 +52,7 @@ yield this in zoo-keeper:
         'iterations': 4096
     }
 }
+
 This lib allows you to generate the same artifacts in python for insertion into ZK
 '''
 
