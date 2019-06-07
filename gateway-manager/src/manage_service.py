@@ -30,7 +30,7 @@ from requests.exceptions import HTTPError
 from helpers import request
 from settings import (
     BASE_HOST,
-    DOMAIN,
+    BASE_DOMAIN,
 
     KONG_URL,
     KONG_OIDC_PLUGIN,
@@ -87,7 +87,7 @@ def _get_service_oidc_payload(service_name, realm):
 
         'config.client_id': client_id,
         'config.client_secret': client_secret,
-        'config.cookie_domain': DOMAIN,
+        'config.cookie_domain': BASE_DOMAIN,
         'config.email_key': 'email',
         'config.scope': 'openid+profile+email+iss',
         'config.user_info_cache_enabled': 'true',
@@ -101,7 +101,7 @@ def _get_service_oidc_payload(service_name, realm):
     }
 
 
-def fill_template(template_str, replacements):
+def _fill_template(template_str, replacements):
     # take only the required values for formatting
     swaps = {
         k: v
@@ -128,7 +128,7 @@ def add_service(config, realm):
         for ep in endpoints:
             context = dict({'realm': realm}, **ep)
             ep_name = ep['name']
-            ep_url = fill_template(ep.get('url'), context)
+            ep_url = _fill_template(ep.get('url'), context)
             service_name = f'{name}_{ep_type}_{ep_name}'
             data = {
                 'name': service_name,
@@ -142,7 +142,7 @@ def add_service(config, realm):
 
             ROUTE_URL = f'{KONG_URL}/services/{service_name}/routes'
             if ep.get('template_path'):
-                path = fill_template(ep.get('template_path'), context)
+                path = _fill_template(ep.get('template_path'), context)
             else:
                 path = ep.get('route_path') or f'/{realm}/{name}{ep_url}'
             route_data = {
