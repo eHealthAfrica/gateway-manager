@@ -19,7 +19,6 @@
 # under the License.
 
 import fnmatch
-import json
 import os
 import sys
 
