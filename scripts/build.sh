@@ -20,20 +20,10 @@
 #
 set -Eeuo pipefail
 
-APP='gateway-manager'
-VERSION='latest'
-IMAGE_REPO='ehealthafrica'
-
-TAG="${IMAGE_REPO}/${APP}:${VERSION}"
-
-echo "Building image: ${TAG}"
 docker build \
     --pull \
     --no-cache \
     --force-rm \
     --quiet \
-    --tag $TAG \
+    --tag "gateway-manager:local" \
     ./gateway-manager
-
-echo "Pushing image: ${TAG}"
-docker push $TAG

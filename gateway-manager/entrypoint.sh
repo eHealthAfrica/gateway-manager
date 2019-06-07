@@ -24,6 +24,7 @@ function show_help {
     echo """
     Commands
     ----------------------------------------------------------------------------
+
     bash             : run bash
 
 
@@ -38,7 +39,14 @@ function show_help {
     Keycloak & Kong
     ----------------------------------------------------------------------------
 
-    setup_auth       : register Keycloak & Minio in Kong.
+    setup_auth       : register Keycloak in Kong.
+
+                       shortcut of: register_app keycloak {keycloak-internal-url}
+
+
+    register_app     : register App in Kong.
+
+                       usage: register_app {app-name} {app-internal-url}
 
 
     add_realm        : adds a new realm using a default realm template
@@ -49,20 +57,20 @@ function show_help {
     add_user         : adds a user to an existing realm.
 
                        usage: add_user {realm} {username}
-                              {*password} {*is_administrator}
-                              {*email} {*reset_password_on_login}
+                                       {*password} {*is_administrator}
+                                       {*email} {*reset_password_on_login}
 
 
 
     add_oidc_client  : adds the default kong client to a realm. Required for
                        any realm that will use OIDC for authentication.
 
-                       usage: add_oidc_client <realm>
+                       usage: add_oidc_client {realm}
 
 
     add_aether_client: adds the default aether client to a realm. Allows token generation
 
-                       usage: add_aether_client <realm>
+                       usage: add_aether_client {realm}
 
 
     add_service      : adds a service to an existing realm in Kong,
@@ -92,6 +100,7 @@ function show_help {
     keycloak_ready   : checks the keycloak connection. Returns status 0 on success.
 
                        usage: keycloak_ready
+
 
     Kafka
     ----------------------------------------------------------------------------
@@ -127,7 +136,11 @@ case "$1" in
     ;;
 
     setup_auth )
-        python /code/src/setup_auth.py
+        python /code/src/register_app.py keycloak $KEYCLOAK_INTERNAL
+    ;;
+
+    register_app )
+        python /code/src/register_app.py ${@:2}
     ;;
 
     add_realm )
