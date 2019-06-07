@@ -87,7 +87,7 @@ function show_help {
         Adds a service to an existing realm in Kong,
         using the service definition in /service directory.
 
-        Usage: add_service {service} {realm}
+        Usage: add_service {service} {realm} {oidc-client}
 
 
     remove_service:
@@ -101,7 +101,7 @@ function show_help {
         Adds a package of services to an existing realm in Kong,
         using the solution definition in /solution directory.
 
-        Usage: add_solution {solution} {realm}
+        Usage: add_solution {solution} {realm} {oidc-client}
 
 
     remove_solution:

@@ -27,7 +27,7 @@ from keycloak import KeycloakAdmin
 from keycloak.exceptions import KeycloakError
 from requests.exceptions import HTTPError
 
-from helpers import request
+from helpers import request, load_json_file
 from settings import (
     BASE_HOST,
     BASE_DOMAIN,
@@ -39,7 +39,6 @@ from settings import (
     KC_ADMIN_USER,
     KC_ADMIN_PASSWORD,
     KC_MASTER_REALM,
-    KEYCLOAK_KONG_CLIENT,
 
     SERVICES_PATH,
     SOLUTIONS_PATH,
@@ -50,8 +49,7 @@ EPT_OIDC = 'oidc'
 EPT_PUBLIC = 'public'
 
 
-def _get_service_oidc_payload(service_name, realm):
-    client_id = KEYCLOAK_KONG_CLIENT
+def _get_service_oidc_payload(service_name, realm, client_id):
     client_secret = None
 
     # must be the public url
@@ -111,14 +109,14 @@ def _fill_template(template_str, replacements):
     return template_str.format(**swaps)
 
 
-def add_service(config, realm):
+def add_service(config, realm, oidc_client):
     name = config['name']  # service name
     host = config['host']  # service host
 
     print(f'\nAdding realm "{realm}" to service "{name}"')
 
     # OIDC plugin settings (same for all OIDC endpoints)
-    oidc_data = _get_service_oidc_payload(name, realm)
+    oidc_data = _get_service_oidc_payload(name, realm, oidc_client)
 
     ep_types = [EPT_PUBLIC, EPT_OIDC]
     for ep_type in ep_types:
@@ -213,51 +211,54 @@ def load_definitions(def_path):
     _files = [f for f in os.listdir(def_path) if fnmatch.fnmatch(f, '*.json')]
 
     for f in _files:
-        with open(f'{def_path}/{f}') as _f:
-            config = json.load(_f)
-            name = config['name']
-            definitions[name] = config
+        config = load_json_file(f'{def_path}/{f}')
+        name = config['name']
+        definitions[name] = config
     return definitions
 
 
-def handle_service(command, name, realm):
+def handle_service(command, name, realm, oidc_client):
     if name not in SERVICE_DEFINITIONS:
-        raise KeyError(f'No service definition for name: "{name}"')
+        raise RuntimeError(f'No service definition for name: "{name}"')
 
     service_config = SERVICE_DEFINITIONS[name]
     if command == 'ADD':
-        add_service(service_config, realm)
+        add_service(service_config, realm, oidc_client)
     elif command == 'REMOVE':
         remove_service(service_config, realm)
 
 
-def handle_solution(command, name, realm):
+def handle_solution(command, name, realm, oidc_client):
     if name not in SOLUTION_DEFINITIONS:
-        raise KeyError(f'No solution definition for name: "{name}"')
+        raise RuntimeError(f'No solution definition for name: "{name}"')
 
     services = SOLUTION_DEFINITIONS[name].get('services', [])
     for service in services:
-        handle_service(command, service, realm)
+        handle_service(command, service, realm, oidc_client)
 
 
 if __name__ == '__main__':
     CMDS = ['ADD', 'REMOVE']
     command = sys.argv[1]
     if command not in CMDS:
-        raise KeyError(f'No command: {command}')
+        raise RuntimeError(f'No command: {command}')
 
     TYPES = ['SERVICE', 'SOLUTION']
     service_or_solution = sys.argv[2]
     if service_or_solution not in TYPES:
-        raise KeyError(f'No type: {service_or_solution}')
+        raise RuntimeError(f'No type: {service_or_solution}')
 
     name = sys.argv[3]
     realm = sys.argv[4]
+    if command == 'ADD':
+        oidc_client = sys.argv[5] if len(sys.argv) == 6 else None
+        if not oidc_client:
+            raise RuntimeError('Cannot execute command without OIDC client')
 
     SERVICE_DEFINITIONS = load_definitions(SERVICES_PATH)
     if service_or_solution == 'SERVICE':
-        handle_service(command, name, realm)
+        handle_service(command, name, realm, oidc_client)
 
     if service_or_solution == 'SOLUTION':
         SOLUTION_DEFINITIONS = load_definitions(SOLUTIONS_PATH)
-        handle_solution(command, name, realm)
+        handle_solution(command, name, realm, oidc_client)
