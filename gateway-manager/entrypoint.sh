@@ -25,99 +25,117 @@ function show_help {
     Commands
     ----------------------------------------------------------------------------
 
-    bash             : run bash
+    help:
+        Shows this message.
 
+    bash:
+        Run bash.
 
-    eval             : eval shell command
+    eval:
+        Eval shell command.
 
+    decode_token:
+        Decodes a JSON Web Token (JWT).
 
-    decode_token     : decodes a JSON Web Token (JWT)
-
-                       usage: decode_token {token}
+        Usage: decode_token {token}
 
 
     Keycloak & Kong
     ----------------------------------------------------------------------------
 
-    setup_auth       : register Keycloak in Kong.
+    setup_auth:
+        Register Keycloak in Kong.
 
-                       shortcut of: register_app keycloak {keycloak-internal-url}
-
-
-    register_app     : register App in Kong.
-
-                       usage: register_app {app-name} {app-internal-url}
+        Shortcut of: register_app keycloak {keycloak-internal-url}
 
 
-    add_realm        : adds a new realm using a default realm template
+    register_app:
+        Register App in Kong.
 
-                       usage: add_realm {realm} {description (optional)}
-
-
-    add_user         : adds a user to an existing realm.
-
-                       usage: add_user {realm} {username}
-                                       {*password} {*is_administrator}
-                                       {*email} {*reset_password_on_login}
+        Usage: register_app {app-name} {app-internal-url}
 
 
+    add_realm:
+        Adds a new realm using a default realm template.
 
-    add_oidc_client  : adds the default kong client to a realm. Required for
-                       any realm that will use OIDC for authentication.
-
-                       usage: add_oidc_client {realm}
-
-
-    add_aether_client: adds the default aether client to a realm. Allows token generation
-
-                       usage: add_aether_client {realm}
+        Usage: add_realm {realm} {description (optional)} {login theme (optional)}
 
 
-    add_service      : adds a service to an existing realm in Kong,
-                       using the service definition in /service directory.
+    add_user:
+        Adds a user to an existing realm.
 
-                       usage: add_service {service} {realm}
-
-
-    remove_service   : removes a service from an existing realm in Kong,
-                       using the service definition in /service directory.
-
-                       usage: remove_service {service} {realm}
+        Usage: add_user {realm} {username}
+                        {*password} {*is_administrator}
+                        {*email} {*reset_password_on_login}
 
 
-    add_solution     : adds a package of services to an existing realm in Kong,
-                       using the solution definition in /solution directory.
+    add_confidential_client :
+        Adds a confidential client to a realm.
+        Required for any realm that will use OIDC for authentication.
 
-                       usage: add_solution {solution} {realm}
-
-
-    remove_solution  : removes a package of services from an existing realm in Kong,
-                       using the solution definition in /solution directory.
-
-                       usage: remove_solution {solution} {realm}
+        Usage: add_confidential_client {realm} {client-name}
 
 
-    keycloak_ready   : checks the keycloak connection. Returns status 0 on success.
+    add_public_client:
+        Adds a public client client to a realm.
+        Allows token generation.
 
-                       usage: keycloak_ready
+        Usage: add_public_client {realm} {client-name}
+
+
+    add_service:
+        Adds a service to an existing realm in Kong,
+        using the service definition in /service directory.
+
+        Usage: add_service {service} {realm}
+
+
+    remove_service:
+        Removes a service from an existing realm in Kong,
+        using the service definition in /service directory.
+
+        Usage: remove_service {service} {realm}
+
+
+    add_solution:
+        Adds a package of services to an existing realm in Kong,
+        using the solution definition in /solution directory.
+
+        Usage: add_solution {solution} {realm}
+
+
+    remove_solution:
+        Removes a package of services from an existing realm in Kong,
+        using the solution definition in /solution directory.
+
+        Usage: remove_solution {solution} {realm}
+
+
+    keycloak_ready:
+        Checks the keycloak connection. Returns status 0 on success.
+
+        Usage: keycloak_ready
 
 
     Kafka
     ----------------------------------------------------------------------------
 
-    add_kafka_su     : Adds a Superuser to the Kafka Cluster
+    add_kafka_su:
+        Adds a Superuser to the Kafka Cluster.
 
-                       usage: add_kafka_su {username} {password}
-
-
-    add_kafka_tenant : Adds a kafka user for a tenant, and adds ACL to their namespace.
-
-                       usage: add_kafka_tenant {tenant}
+        Usage: add_kafka_su {username} {password}
 
 
-    get_kafka_creds  : Gets SASL Credential for a given kafka tenant
+    add_kafka_tenant:
+        Adds a kafka user for a tenant, and adds ACL to their namespace.
 
-                       usage: get_kafka_creds {tenant}
+        Usage: add_kafka_tenant {tenant}
+
+
+    get_kafka_creds:
+        Gets SASL Credential for a given kafka tenant.
+
+        Usage: get_kafka_creds {tenant}
 
     """
 }
@@ -127,12 +145,12 @@ case "$1" in
         bash
     ;;
 
-    decode_token )
-        python /code/src/decode_token.py "${@:2}"
-    ;;
-
     eval )
         eval "${@:2}"
+    ;;
+
+    decode_token )
+        python /code/src/decode_token.py "${@:2}"
     ;;
 
     setup_auth )
@@ -140,7 +158,7 @@ case "$1" in
     ;;
 
     register_app )
-        python /code/src/register_app.py ${@:2}
+        python /code/src/register_app.py "${@:2}"
     ;;
 
     add_realm )
@@ -151,12 +169,12 @@ case "$1" in
         python /code/src/manage_realm.py ADD_USER "${@:2}"
     ;;
 
-    add_oidc_client )
-        python /code/src/manage_realm.py ADD_OIDC_CLIENT "${@:2}"
+    add_confidential_client )
+        python /code/src/manage_realm.py ADD_CONFIDENTIAL_CLIENT "${@:2}"
     ;;
 
-    add_aether_client )
-        python /code/src/manage_realm.py ADD_AETHER_CLIENT "${@:2}"
+    add_public_client )
+        python /code/src/manage_realm.py ADD_PUBLIC_CLIENT "${@:2}"
     ;;
 
     add_service )
