@@ -22,7 +22,7 @@ set -Eeuo pipefail
 
 function build_and_push {
     APP=$1
-    VERSION=latest
+    VERSION=${VERSION:-latest}
     IMAGE_REPO=ehealthafrica
     TAG="${IMAGE_REPO}/${APP}:${VERSION}"
 
