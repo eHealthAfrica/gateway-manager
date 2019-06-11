@@ -32,20 +32,33 @@ BASE_DOMAIN = get_env('BASE_DOMAIN')
 SERVICES_PATH = '/code/service'
 SOLUTIONS_PATH = '/code/solution'
 
-_REALMS_PATH = '/code/realm'
-REALM_TEMPLATES = {
-    'realm': get_env('REALM_TEMPLATE_PATH',
-                     f'{_REALMS_PATH}/realm_template.json'),
+_TEMPLATES_PATH = '/code/templates'
+TEMPLATES = {
+    'cors': get_env(
+        'CORS_TEMPLATE_PATH',
+        f'{_TEMPLATES_PATH}/cors_template.json'
+    ),
 
-    'client': get_env('CLIENT_TEMPLATE_PATH',
-                      f'{_REALMS_PATH}/client_template.json'),
+    'realm': get_env(
+        'REALM_TEMPLATE_PATH',
+        f'{_TEMPLATES_PATH}/realm_template.json'
+    ),
+
+    'client': get_env(
+        'CLIENT_TEMPLATE_PATH',
+        f'{_TEMPLATES_PATH}/client_template.json'
+    ),
 
     'user': {
-        'admin': get_env('ADMIN_TEMPLATE_PATH',
-                         f'{_REALMS_PATH}/user_admin_template.json'),
+        'admin': get_env(
+            'ADMIN_TEMPLATE_PATH',
+            f'{_TEMPLATES_PATH}/user_admin_template.json'
+        ),
 
-        'standard': get_env('USER_TEMPLATE_PATH',
-                            f'{_REALMS_PATH}/user_standard_template.json'),
+        'standard': get_env(
+            'USER_TEMPLATE_PATH',
+            f'{_TEMPLATES_PATH}/user_standard_template.json'
+        ),
     },
 }
 

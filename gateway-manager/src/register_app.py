@@ -20,18 +20,8 @@
 
 import sys
 
-from helpers import request
-from settings import BASE_HOST, KONG_INTERNAL_URL
-
-DATA_CORS = {
-    'name': 'cors',
-    'config.credentials': 'true',
-    'config.exposed_headers': 'Authorization',
-    'config.headers': 'Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, Authorization',
-    'config.max_age': 3600,
-    'config.methods': ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    'config.origins': f'{BASE_HOST}/*',
-}
+from helpers import request, load_json_file
+from settings import BASE_HOST, KONG_INTERNAL_URL, TEMPLATES
 
 
 def register_app(name, url):
@@ -46,7 +36,10 @@ def register_app(name, url):
 
     # ADD CORS Plugin to Kong for whole domain CORS
     PLUGIN_URL = f'{KONG_INTERNAL_URL}/services/{name}/plugins'
-    request(method='post', url=PLUGIN_URL, data=DATA_CORS)
+
+    config = load_json_file(TEMPLATES['cors'])
+    config['config.origins'] = f'{BASE_HOST}/*'
+    request(method='post', url=PLUGIN_URL, data=config)
 
     # Routes
     # Add a route which we will NOT protect

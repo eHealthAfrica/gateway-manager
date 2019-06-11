@@ -34,7 +34,7 @@ from settings import (
     KC_ADMIN_PASSWORD,
     KC_ADMIN_REALM,
     KONG_PUBLIC_REALM,
-    REALM_TEMPLATES,
+    TEMPLATES,
 )
 
 
@@ -66,7 +66,7 @@ def create_realm(realm, description=None, login_theme=None):
     print(f'\nAdding realm "{realm}" to keycloak')
     keycloak_admin = client()
 
-    config = load_json_file(REALM_TEMPLATES['realm'])
+    config = load_json_file(TEMPLATES['realm'])
     config['realm'] = realm
     if description:
         config['displayName'] = description
@@ -97,7 +97,7 @@ def _create_realm_client(realm, name, isPublic):
     REALM_URL = f'{BASE_HOST}/{realm}/'
     PUBLIC_URL = f'{BASE_HOST}/{KONG_PUBLIC_REALM}/*'
 
-    config = load_json_file(REALM_TEMPLATES['client'])
+    config = load_json_file(TEMPLATES['client'])
     config['clientId'] = name
     config['baseUrl'] = REALM_URL
     config['publicClient'] = isPublic
@@ -117,7 +117,7 @@ def create_user(
     print(f'\nAdding user "{user}" to {realm}')
 
     user_type = 'admin' if bool(admin) else 'standard'
-    config = load_json_file(REALM_TEMPLATES['user'][user_type])
+    config = load_json_file(TEMPLATES['user'][user_type])
     config['username'] = user
     config['email'] = email
 
