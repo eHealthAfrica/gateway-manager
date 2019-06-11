@@ -29,10 +29,10 @@ from helpers import load_json_file
 
 from settings import (
     BASE_HOST,
-    KC_URL,
+    KC_ADMIN_URL,
     KC_ADMIN_USER,
     KC_ADMIN_PASSWORD,
-    KC_MASTER_REALM,
+    KC_ADMIN_REALM,
     KONG_PUBLIC_REALM,
     REALM_TEMPLATES,
 )
@@ -41,10 +41,10 @@ from settings import (
 def client():
     # connect to master realm
     try:
-        keycloak_admin = KeycloakAdmin(server_url=KC_URL,
+        keycloak_admin = KeycloakAdmin(server_url=KC_ADMIN_URL,
                                        username=KC_ADMIN_USER,
                                        password=KC_ADMIN_PASSWORD,
-                                       realm_name=KC_MASTER_REALM,
+                                       realm_name=KC_ADMIN_REALM,
                                        )
         return keycloak_admin
     except KeycloakError as ke:

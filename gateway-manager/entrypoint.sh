@@ -44,9 +44,9 @@ function show_help {
     ----------------------------------------------------------------------------
 
     setup_auth:
-        Register Keycloak in Kong.
+        Register Keycloak (the auth service) in Kong.
 
-        Shortcut of: register_app keycloak {keycloak-internal-url}
+        Shortcut of: register_app auth {keycloak-internal-url}
 
 
     register_app:
@@ -154,7 +154,7 @@ case "$1" in
     ;;
 
     setup_auth )
-        python /code/src/register_app.py keycloak $KEYCLOAK_INTERNAL
+        python /code/src/register_app.py auth $KEYCLOAK_INTERNAL
     ;;
 
     register_app )

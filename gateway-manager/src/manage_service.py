@@ -31,13 +31,14 @@ from settings import (
     BASE_HOST,
     BASE_DOMAIN,
 
-    KONG_URL,
+    KONG_INTERNAL_URL,
     KONG_OIDC_PLUGIN,
 
-    KC_URL,
+    KEYCLOAK_PUBLIC_URL,
+    KC_ADMIN_URL,
     KC_ADMIN_USER,
     KC_ADMIN_PASSWORD,
-    KC_MASTER_REALM,
+    KC_ADMIN_REALM,
 
     SERVICES_PATH,
     SOLUTIONS_PATH,
@@ -52,18 +53,18 @@ def _get_service_oidc_payload(service_name, realm, client_id):
     client_secret = None
 
     # must be the public url
-    KEYCLOAK_URL = f'{BASE_HOST}/keycloak/auth/realms'
-    OPENID_PATH = 'protocol/openid-connect'
+    _KC_REALMS = f'{KEYCLOAK_PUBLIC_URL}realms'
+    _OPENID_PATH = 'protocol/openid-connect'
 
     try:
         # https://bitbucket.org/agriness/python-keycloak
 
         # find out client secret
         # 1. connect to master realm
-        keycloak_admin = KeycloakAdmin(server_url=KC_URL,
+        keycloak_admin = KeycloakAdmin(server_url=KC_ADMIN_URL,
                                        username=KC_ADMIN_USER,
                                        password=KC_ADMIN_PASSWORD,
-                                       realm_name=KC_MASTER_REALM,
+                                       realm_name=KC_ADMIN_REALM,
                                        )
         # 2. change to given realm
         keycloak_admin.realm_name = realm
@@ -90,11 +91,11 @@ def _get_service_oidc_payload(service_name, realm, client_id):
         'config.user_info_cache_enabled': 'true',
 
         'config.app_login_redirect_url': f'{BASE_HOST}/{realm}/{service_name}/',
-        'config.authorize_url': f'{KEYCLOAK_URL}/{realm}/{OPENID_PATH}/auth',
-        'config.service_logout_url': f'{KEYCLOAK_URL}/{realm}/{OPENID_PATH}/logout',
-        'config.token_url': f'{KEYCLOAK_URL}/{realm}/{OPENID_PATH}/token',
-        'config.user_url': f'{KEYCLOAK_URL}/{realm}/{OPENID_PATH}/userinfo',
-        'config.realm': f'{realm}'
+        'config.authorize_url': f'{_KC_REALMS}/{realm}/{_OPENID_PATH}/auth',
+        'config.service_logout_url': f'{_KC_REALMS}/{realm}/{_OPENID_PATH}/logout',
+        'config.token_url': f'{_KC_REALMS}/{realm}/{_OPENID_PATH}/token',
+        'config.user_url': f'{_KC_REALMS}/{realm}/{_OPENID_PATH}/userinfo',
+        'config.realm': realm,
     }
 
 
@@ -132,12 +133,12 @@ def add_service(config, realm, oidc_client):
                 'url': f'{host}{ep_url}',
             }
             try:
-                request(method='post', url=f'{KONG_URL}/services/', data=data)
+                request(method='post', url=f'{KONG_INTERNAL_URL}/services/', data=data)
                 print(f'    + Added service "{ep_name}"')
             except HTTPError:
                 print(f'    - Could not add service "{ep_name}"')
 
-            ROUTE_URL = f'{KONG_URL}/services/{service_name}/routes'
+            ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{service_name}/routes'
             if ep.get('template_path'):
                 path = _fill_template(ep.get('template_path'), context)
             else:
@@ -157,7 +158,7 @@ def add_service(config, realm, oidc_client):
                     _oidc_config.update(ep.get('oidc_override', {}))
                     request(
                         method='post',
-                        url=f'{KONG_URL}/routes/{protected_route_id}/plugins',
+                        url=f'{KONG_INTERNAL_URL}/routes/{protected_route_id}/plugins',
                         data=_oidc_config,
                     )
 
@@ -190,14 +191,14 @@ def remove_service(config, realm):
             ep_name = ep['name']
             service_name = f'{name}_{ep_type}_{ep_name}'
 
-            routes_url = f'{KONG_URL}/services/{service_name}/routes'
+            routes_url = f'{KONG_INTERNAL_URL}/services/{service_name}/routes'
             try:
                 res = request(method='get', url=routes_url)
                 for service in res['data']:
                     if purge or _realm_in_service(realm, service):
                         ep_des = f'"{ep_name}"  >>  {service["paths"]}'
                         try:
-                            request(method='delete', url=f'{KONG_URL}/routes/{service["id"]}')
+                            request(method='delete', url=f'{KONG_INTERNAL_URL}/routes/{service["id"]}')
                             print(f'    + Removed endpoint {ep_des}')
                         except HTTPError:
                             print(f'    - Could not remove endpoint {ep_des}')

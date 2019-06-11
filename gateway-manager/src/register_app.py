@@ -21,7 +21,7 @@
 import sys
 
 from helpers import request
-from settings import BASE_HOST, KONG_URL
+from settings import BASE_HOST, KONG_INTERNAL_URL
 
 DATA_CORS = {
     'name': 'cors',
@@ -41,16 +41,16 @@ def register_app(name, url):
         'name': name,
         'url': url,
     }
-    client_info = request(method='post', url=f'{KONG_URL}/services/', data=data)
+    client_info = request(method='post', url=f'{KONG_INTERNAL_URL}/services/', data=data)
     client_id = client_info['id']
 
     # ADD CORS Plugin to Kong for whole domain CORS
-    PLUGIN_URL = f'{KONG_URL}/services/{name}/plugins'
+    PLUGIN_URL = f'{KONG_INTERNAL_URL}/services/{name}/plugins'
     request(method='post', url=PLUGIN_URL, data=DATA_CORS)
 
     # Routes
     # Add a route which we will NOT protect
-    ROUTE_URL = f'{KONG_URL}/services/{name}/routes'
+    ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{name}/routes'
     data_route = {
         'paths': [f'/{name}'],
         'strip_path': 'false',

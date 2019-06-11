@@ -25,7 +25,8 @@ def get_env(name, default=None):
 
 DEBUG = bool(get_env('DEBUG'))
 
-BASE_HOST = get_env('BASE_HOST')  # External URL for host
+# External URL for host (includes protocol)
+BASE_HOST = get_env('BASE_HOST')
 BASE_DOMAIN = get_env('BASE_DOMAIN')
 
 SERVICES_PATH = '/code/service'
@@ -50,18 +51,20 @@ REALM_TEMPLATES = {
 
 # Keycloak Information
 
-KEYCLOAK_INTERNAL = get_env('KEYCLOAK_INTERNAL')
+_KEYCLOAK_INTERNAL = get_env('KEYCLOAK_INTERNAL')
+_KEYCLOAK_PATH = get_env('KEYCLOAK_PATH', '/auth/')
+KEYCLOAK_PUBLIC_URL = f'{BASE_HOST}{_KEYCLOAK_PATH}'
 
 # Use internal URL with KeycloakAdmin
-KC_URL = f'{KEYCLOAK_INTERNAL}/keycloak/auth/'
+KC_ADMIN_URL = f'{_KEYCLOAK_INTERNAL}{_KEYCLOAK_PATH}'
 KC_ADMIN_USER = get_env('KEYCLOAK_GLOBAL_ADMIN')
 KC_ADMIN_PASSWORD = get_env('KEYCLOAK_GLOBAL_PASSWORD')
-KC_MASTER_REALM = 'master'
+KC_ADMIN_REALM = get_env('KEYCLOAK_MASTER_REALM', 'master')
 
 
 # Kong Information
 
-KONG_URL = get_env('KONG_INTERNAL')
+KONG_INTERNAL_URL = get_env('KONG_INTERNAL')
 KONG_OIDC_PLUGIN = 'kong-oidc-auth'
 KONG_PUBLIC_REALM = get_env('PUBLIC_REALM', '-')
 
