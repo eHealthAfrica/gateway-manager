@@ -50,7 +50,7 @@ The expected format for each service file is:
       //     http://my-service:8888/testing-realm/service-name/protect-me-please/my-path
       "oidc_override": {
         // [optional & advanced!]
-        // provide overrides to the standard oidc configuration passed to Kong-Oidc        
+        // provide overrides to the standard oidc configuration passed to Kong-Oidc
         // Do not use this unless you absolutely have to.
         "config.user_keys": ["preferred_username", "email"]
       }
