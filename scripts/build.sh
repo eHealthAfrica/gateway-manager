@@ -20,10 +20,19 @@
 #
 set -Eeuo pipefail
 
-docker build \
-    --pull \
-    --no-cache \
-    --force-rm \
-    --quiet \
-    --tag "gateway-manager:local" \
-    ./gateway-manager
+function build_image {
+    APP=$1
+    VERSION=local
+    TAG="${APP}:${VERSION}"
+
+    echo "Building image: ${TAG}"
+    docker build \
+        --pull \
+        --no-cache \
+        --force-rm \
+        --tag $TAG \
+        ./$APP
+}
+
+build_image gateway-manager
+build_image gateway-kong

@@ -20,20 +20,23 @@
 #
 set -Eeuo pipefail
 
-APP='gateway-manager'
-VERSION='latest'
-IMAGE_REPO='ehealthafrica'
+function build_and_push {
+    APP=$1
+    VERSION=latest
+    IMAGE_REPO=ehealthafrica
+    TAG="${IMAGE_REPO}/${APP}:${VERSION}"
 
-TAG="${IMAGE_REPO}/${APP}:${VERSION}"
+    echo "Building image: ${TAG}"
+    docker build \
+        --pull \
+        --no-cache \
+        --force-rm \
+        --tag $TAG \
+        ./$APP
 
-echo "Building image: ${TAG}"
-docker build \
-    --pull \
-    --no-cache \
-    --force-rm \
-    --quiet \
-    --tag $TAG \
-    ./gateway-manager
+    echo "Pushing image: ${TAG}"
+    docker push $TAG
+}
 
-echo "Pushing image: ${TAG}"
-docker push $TAG
+build_and_push gateway-manager
+build_and_push gateway-kong
