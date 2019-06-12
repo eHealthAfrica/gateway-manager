@@ -25,8 +25,7 @@ from settings import BASE_HOST, KONG_INTERNAL_URL, TEMPLATES
 
 
 def register_app(name, url):
-    # Register Client with Kong
-    # Single API Service
+    # Register service in Kong
     data = {
         'name': name,
         'url': url,
@@ -45,7 +44,7 @@ def register_app(name, url):
     # Add a route which we will NOT protect
     ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{name}/routes'
     data_route = {
-        'paths': [f'/{name}'],
+        'paths': [f'/{name}', ],
         'strip_path': 'false',
         'preserve_host': 'false',  # This is keycloak specific.
     }

@@ -112,7 +112,7 @@ def create_user(
     password=None,
     admin=False,
     email=None,
-    temporary_password=False
+    temporary_password=False,
 ):
     print(f'\nAdding user "{user}" to {realm}')
 
@@ -128,7 +128,7 @@ def create_user(
         keycloak_admin.set_user_password(
             user_id,
             password,
-            temporary=bool(temporary_password)
+            temporary=bool(temporary_password),
         )
     print(f'    + Added user {user} >> {realm}')
 
@@ -147,7 +147,7 @@ if __name__ == '__main__':
         'ADD_USER': create_user,
         'ADD_CONFIDENTIAL_CLIENT': create_confidential_client,
         'ADD_PUBLIC_CLIENT': create_public_client,
-        'KEYCLOAK_READY': keycloak_ready
+        'KEYCLOAK_READY': keycloak_ready,
     }
     command = sys.argv[1]
     args = sys.argv[2:]
