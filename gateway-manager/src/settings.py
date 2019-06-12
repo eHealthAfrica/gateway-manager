@@ -29,10 +29,10 @@ DEBUG = bool(get_env('DEBUG'))
 BASE_HOST = get_env('BASE_HOST')
 BASE_DOMAIN = get_env('BASE_DOMAIN')
 
-SERVICES_PATH = '/code/service'
-SOLUTIONS_PATH = '/code/solution'
+SERVICES_PATH = get_env('SERVICES_PATH', '/code/service')
+SOLUTIONS_PATH = get_env('SOLUTIONS_PATH', '/code/solution')
 
-_TEMPLATES_PATH = '/code/templates'
+_TEMPLATES_PATH = get_env('TEMPLATES_PATH', '/code/templates')
 TEMPLATES = {
     'cors': get_env(
         'CORS_TEMPLATE_PATH',
