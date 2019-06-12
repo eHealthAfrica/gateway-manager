@@ -1,9 +1,9 @@
 {
-  "publicClient": true,
   "clientAuthenticatorType": "client-secret",
   "directAccessGrantsEnabled": true,
-  "redirectUris": ["*"],
   "enabled": true,
+  "publicClient": true,
+  "redirectUris": ["*"],
   "protocolMappers": [
     {
       "name": "groups",
@@ -11,13 +11,13 @@
       "protocolMapper": "oidc-usermodel-realm-role-mapper",
       "consentRequired": false,
       "config": {
-        "multivalued": true,
-        "userinfo.token.claim": true,
-        "user.attribute": "foo",
-        "id.token.claim": true,
         "access.token.claim": true,
         "claim.name": "groups",
-        "jsonType.label": "String"
+        "id.token.claim": true,
+        "jsonType.label": "String",
+        "multivalued": true,
+        "user.attribute": "foo",
+        "userinfo.token.claim": true
       }
     }
   ]
