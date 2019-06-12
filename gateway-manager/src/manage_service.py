@@ -143,10 +143,14 @@ def add_service(config, realm, oidc_client):
                 path = _fill_template(ep.get('template_path'), context)
             else:
                 path = ep.get('route_path') or f'/{realm}/{name}{ep_url}'
+
             route_data = {
+                'hosts': [BASE_DOMAIN, ],
+                'preserve_host': 'true',
                 'paths': [path, ],
                 'strip_path': ep.get('strip_path', 'false'),
             }
+
             try:
                 route_info = request(method='post', url=ROUTE_URL, data=route_data)
 
