@@ -35,19 +35,11 @@ function show_help {
         Evals shell command.
 
 
-    Keycloak & Kong
+    Keycloak
     ----------------------------------------------------------------------------
 
-    setup_auth:
-        Registers Keycloak (the auth service) in Kong.
-
-        Shortcut of: register_app auth {keycloak-internal-url}
-
-
-    register_app:
-        Registers App in Kong.
-
-        Usage: register_app {app-name} {app-internal-url}
+    keycloak_ready:
+        Checks the keycloak connection. Returns status 0 on success.
 
 
     add_realm:
@@ -65,7 +57,7 @@ function show_help {
 
 
     add_confidential_client | add_oidc_client:
-        Adds a confidential client to a realm.
+        Adds a confidential client to an existing realm.
         Required for any realm that will use OIDC for authentication.
 
         Usage: add_confidential_client {realm} {client-name}
@@ -73,48 +65,59 @@ function show_help {
 
 
     add_public_client:
-        Adds a public client client to a realm.
+        Adds a public client to an existing realm.
         Allows token generation.
 
         Usage: add_public_client {realm} {client-name}
-
-
-    add_service:
-        Adds a service to an existing realm in Kong,
-        using the service definition in /service directory.
-
-        Usage: add_service {service} {realm} {oidc-client}
-
-
-    remove_service:
-        Removes a service from an existing realm in Kong,
-        using the service definition in /service directory.
-
-        Usage: remove_service {service} {realm}
-
-
-    add_solution:
-        Adds a package of services to an existing realm in Kong,
-        using the solution definition in /solution directory.
-
-        Usage: add_solution {solution} {realm} {oidc-client}
-
-
-    remove_solution:
-        Removes a package of services from an existing realm in Kong,
-        using the solution definition in /solution directory.
-
-        Usage: remove_solution {solution} {realm}
-
-
-    keycloak_ready:
-        Checks the keycloak connection. Returns status 0 on success.
 
 
     decode_token:
         Decodes a Keycloak JSON Web Token (JWT).
 
         Usage: decode_token {token}
+
+
+    Kong
+    ----------------------------------------------------------------------------
+
+    setup_auth:
+        Registers Keycloak (the auth service) in Kong.
+
+        Alias of: register_app auth $KEYCLOAK_INTERNAL
+
+
+    register_app:
+        Registers App in Kong.
+
+        Usage: register_app {app-name} {app-internal-url}
+
+
+    add_service:
+        Adds a service to an existing realm in Kong,
+        using the service definition in ${SERVICES_PATH:-/code/service} directory.
+
+        Usage: add_service {service} {realm} {oidc-client}
+
+
+    remove_service:
+        Removes a service from an existing realm in Kong,
+        using the service definition in ${SERVICES_PATH:-/code/service} directory.
+
+        Usage: remove_service {service} {realm}
+
+
+    add_solution:
+        Adds a package of services to an existing realm in Kong,
+        using the solution definition in ${SOLUTION_PATH:-/code/solution} directory.
+
+        Usage: add_solution {solution} {realm} {oidc-client}
+
+
+    remove_solution:
+        Removes a package of services from an existing realm in Kong,
+        using the solution definition in ${SOLUTION_PATH:-/code/solution} directory.
+
+        Usage: remove_solution {solution} {realm}
 
 
     Kafka
@@ -143,15 +146,11 @@ function show_help {
 case "$1" in
 
     # --------------------------------------------------------------------------
-    # Keycloak & Kong
+    # Keycloak
     # --------------------------------------------------------------------------
 
-    setup_auth )
-        python /code/src/register_app.py auth $KEYCLOAK_INTERNAL
-    ;;
-
-    register_app )
-        python /code/src/register_app.py "${@:2}"
+    keycloak_ready )
+        python /code/src/manage_realm.py KEYCLOAK_READY
     ;;
 
     add_realm )
@@ -170,6 +169,23 @@ case "$1" in
         python /code/src/manage_realm.py ADD_PUBLIC_CLIENT "${@:2}"
     ;;
 
+    decode_token )
+        python /code/src/decode_token.py "${@:2}"
+    ;;
+
+
+    # --------------------------------------------------------------------------
+    # Kong
+    # --------------------------------------------------------------------------
+
+    setup_auth )
+        python /code/src/register_app.py auth $KEYCLOAK_INTERNAL
+    ;;
+
+    register_app )
+        python /code/src/register_app.py "${@:2}"
+    ;;
+
     add_service )
         python /code/src/manage_service.py ADD SERVICE "${@:2}"
     ;;
@@ -184,14 +200,6 @@ case "$1" in
 
     remove_solution )
         python /code/src/manage_service.py REMOVE SOLUTION "${@:2}"
-    ;;
-
-    keycloak_ready )
-        python /code/src/manage_realm.py KEYCLOAK_READY
-    ;;
-
-    decode_token )
-        python /code/src/decode_token.py "${@:2}"
     ;;
 
 

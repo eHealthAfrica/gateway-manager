@@ -1,129 +1,214 @@
-## Gateway Manager
+# Gateway Manager
 
-This application is used to configure Keycloak+Kong installations, locally or as part of a cluster.
+This application is used to configure Keycloak+Kong installations,
+locally or as part of a cluster.
 
-For usage instructions and a guide to the shared auth infrastructure, please see the [API Layer Demo Repository](https://github.com/eHealthAfrica/api-layer-demo)
+## Service
 
-This application is referenced there via docker-compose.
+A service represents an application and defines a set of public and protected
+URLs and the routes to access to them.
 
-### Service Definitions:
+Continues in [Service README](/gateway-manager/service/README.md)
 
-A service represents an application and defines a set of public and protected urls
-and the route to access to them.
+## Solution
 
-The expected format for each service file is:
+A solution gathers a set of services.
 
-```javascript
-{
-  // service name (unique among rest of services)
-  "name": "service-name",
+Continues in [Solution README](/gateway-manager/solution/README.md)
 
-  // internal host (behind kong)
-  "host": "http://my-service:8888",
+## Commands
 
-  // list of urls protected by "kong-oidc-auth" plugin
-  // all of these urls provide the X-Outh-Token header
-  // or are redirected to keycloak to authenticate
-  "oidc_endpoints": [
-    {
-      // endpoint name (unique among rest of OIDC endpoints in this service)
-      "name": "protected",
-
-      // internal url
-      "url": "/protect-me-please",
-
-      // [optional] external url, defaults to "/{realm}/{name}{url}" where
-      // {realm} is the realm name,
-      // {name} is the service name and
-      // {url} is the endpoint url.
-      // use case: if the endpoint does not depend on any realm
-      "route_path": null,
-
-      // [optional] template to create an external url. Overrides default route_path.
-      // Creates a path dynamically based on the following variables using string substitution.
-      // {realm} is the realm name,
-      // {name} is the service name
-      // {url} is the endpoint url
-      "template_path": null, // "/{realm}/#{name}" -> /testing-realm/#protected
-
-      // [optional] (defaults to "false")
-      // indicates if the route path will be used to build the url to execute the internal call
-      // use case: if the endpoint does not depend on any realm
-      "strip_path": "false"
-
-      // in this case:
-      //   external call:
-      //     http://external-domain/testing-realm/service-name/protect-me-please/my-path
-      //   internal call:
-      //     http://my-service:8888/testing-realm/service-name/protect-me-please/my-path
-      "oidc_override": {
-        // [optional & advanced!]
-        // provide overrides to the standard oidc configuration passed to Kong-Oidc
-        // Do not use this unless you absolutely have to.
-        "config.user_keys": ["preferred_username", "email"]
-      }
-
-    },
-    // ...
-  ],
-
-  // list of urls that are not protected by "kong-oidc-auth" plugin
-  // the urls can be open or protected by another authentication method
-  // like BASIC authentication, token authentication...
-  "public_endpoints": [
-    {
-      // endpoint name (unique among rest of public endpoints in this service)
-      "name": "public",
-
-      // internal url
-      "url": "/i-am-public/",
-
-      // [optional] external url, defaults to "/{realm}/{name}{url}" where
-      // {realm} is the realm name,
-      // {name} is the service name and
-      // {url} is the endpoint url.
-      // use case: if the endpoint does not depend on any realm
-      "route_path": "/my-service/public/",
-
-      // [optional] template to create an external url. Overrides default route_path.
-      // Creates a path dynamically based on the following variables using string substitution.
-      // {realm} is the realm name,
-      // {name} is the service name
-      // {url} is the endpoint url
-      "template_path": null, // "/{realm}/#{name}" -> /testing-realm/#public
-
-      // [optional] (defaults to "false")
-      // indicates if the route path will be used to build the url to execute the internal call
-      // use case: if the endpoint does not depend on any realm
-      "strip_path": "true"
-
-      // in this case:
-      //   external call:
-      //     http://external-domain/my-service/public/my-path
-      //   internal call:
-      //     http://my-service:8888/i-am-public/my-path
-    },
-    // ...
-  ]
-}
-```
-
-This container's entrypoint is usually mounted via docker-compose, as in the [API Layer Demo Repository](https://github.com/eHealthAfrica/api-layer-demo).
-
-To add a service to an existing realm in Kong
+All the commands are defined in the [`entrypoint.sh`](/gateway-manager/entrypoint.sh) file.
 
 ```bash
-{this_container} add_service "service-name" "realm-name"
+entrypoint.sh {command-name} {rest-of-arguments}
 ```
 
-To remove a service from an existing realm in Kong
+### Generic
+
+#### `help`
+Shows the help message with all the possible commands.
+
+#### `bash`
+Runs bash inside the container.
+
+#### `eval`
+Evals shell command inside the container.
+
+### Keycloak
+
+#### `keycloak_ready`
+Checks the Keycloak connection. Returns status `0` on success.
+
+#### `add_realm`
+Adds a new realm in Keycloak using a default realm template.
 
 ```bash
-{this_container} remove_service "service-name" "realm-name"
+add_realm {realm} {description (optional)} {login theme (optional)}
 ```
 
-To remove a service from ALL existing realms in Kong
+#### `add_user`
+Adds a user to an existing realm in Keycloak.
 
 ```bash
-{this_container} remove_service "service-name" "*"
+add_user {realm} {username} \
+         {*password} {*is_administrator} \
+         {*email} {*reset_password_on_login}
 ```
+
+#### `add_confidential_client` or `add_oidc_client`
+Adds a confidential client to an existing realm in Keycloak.
+Required for any realm that will use OIDC for authentication.
+
+```bash
+add_confidential_client {realm} {client-name}
+# or
+add_oidc_client {realm} {client-name}
+```
+
+#### `add_public_client`
+Adds a public client to an existing realm in Keycloak.
+Allows token generation.
+
+```bash
+add_public_client {realm} {client-name}
+```
+
+#### `decode_token`
+Decodes a Keycloak JSON Web Token (JWT).
+
+```bash
+decode_token {token}
+```
+
+### Kong
+
+#### `register_app`
+Registers an app as a service in Kong and serves it behind Kong (like NGINX).
+
+```bash
+register_app {app-name} {app-internal-url}
+```
+
+#### `setup_auth`
+Registers Keycloak (the **auth** service) in Kong.
+
+Alias of:
+
+```bash
+register_app auth $KEYCLOAK_INTERNAL
+```
+
+#### `add_service`
+Adds a service to an existing realm in Kong,
+using the service definition in `SERVICES_PATH` directory.
+
+```bash
+add_service {service} {realm} {oidc-client}decode_token {token}
+```
+
+#### `remove_service`
+Removes a service from an existing realm in Kong,
+using the service definition in `SERVICES_PATH` directory.
+
+```bash
+remove_service {service} {realm}
+```
+
+#### `add_solution`
+Adds a package of services to an existing realm in Kong,
+using the solution definition in `SOLUTION_PATH` directory.
+
+```bash
+add_solution {solution} {realm} {oidc-client}
+```
+
+#### `remove_solution`
+Removes a package of services from an existing realm in Kong,
+using the solution definition in `SOLUTION_PATH` directory.
+
+```bash
+remove_solution {solution} {realm}
+```
+
+### Kafka
+
+#### `add_kafka_su`
+Adds a Superuser to the Kafka Cluster.
+
+```bash
+add_kafka_su {username} {password}
+```
+
+#### `add_kafka_tenant`
+Adds a kafka user for a tenant, and adds ACL to their namespace.
+
+```bash
+add_kafka_tenant {tenant}
+```
+
+#### `get_kafka_creds`
+Gets SASL Credential for a given kafka tenant.
+
+```bash
+get_kafka_creds {tenant}
+```
+
+## Environment variables
+
+### Generic
+
+- `DEBUG`: Enables debug mode. Is `false` if unset or set to empty string,
+  anything else is considered `true`.
+
+- `BASE_DOMAIN`: Installation hostname.
+
+- `BASE_HOST`: Installation hostname with protocol.
+
+- `SERVICES_PATH`: Path to service files directory. Defaults to `/code/service`.
+
+- `SOLUTIONS_PATH`: Path to solution files directory. Defaults to `/code/solution`.
+
+- `TEMPLATES_PATH`: Path to template files directory.
+  Defaults to `/code/templates`.
+
+- `CORS_TEMPLATE_PATH`: Path to Kong service CORS plugin template file.
+  This template is used with the `register_app` command.
+  Defaults to `{TEMPLATES_PATH}/cors_template.json`.
+
+- `REALM_TEMPLATE_PATH`: Path to keycloak realm template file.
+  This template is used with the `add_solution` and `add_service` commands.
+  Defaults to `{TEMPLATES_PATH}/realm_template.json`.
+
+- `CLIENT_TEMPLATE_PATH`: Path to keycloak client template file.
+  This template is used with the `add_confidential_client`, `add_oidc_client`
+  and `add_public_client` commands.
+  Defaults to `{TEMPLATES_PATH}/client_template.json`.
+
+- `ADMIN_TEMPLATE_PATH`: Path to Keycloak admin user template file.
+  This template is used with the `add_user` command while creating admin users.
+  Defaults to `{TEMPLATES_PATH}/user_admin_template.json`.
+
+- `USER_TEMPLATE_PATH`: Path to Keycloak standard user template file.
+  This template is used with the `add_user` command while creating non admin users.
+  Defaults to `{TEMPLATES_PATH}/user_standard_template.json`.
+
+### Keycloak
+
+- `KEYCLOAK_INTERNAL`: Keycloak internal URL. Usually `http://keycloak:8080`.
+- `KEYCLOAK_PATH`: Keycloak path to the authorization section. Defaults to `/auth/`.
+- `KEYCLOAK_MASTER_REALM`: Keycloak master realm name. Defaults to `master`.
+- `KEYCLOAK_GLOBAL_ADMIN`: Keycloak admin user name in the master realm.
+- `KEYCLOAK_GLOBAL_PASSWORD`: Keycloak admin user password in the master realm.
+
+### Kong
+
+- `KONG_INTERNAL`: Kong internal URL. Usually `http://kong:8001`.
+- `PUBLIC_REALM`: Kong public realm. Defaults to `-`.
+
+### Kafka && Zookeeper
+
+- `ZOOKEEPER_HOST`: Zookeeper host address. Usually `127.0.0.1:32181`.
+- `ZOOKEEPER_USER`: Zookeeper user name.
+- `ZOOKEEPER_PW`: Zookeeper user password.
+- `KAFKA_SECRET`: Kafka registered administrative credentials.
