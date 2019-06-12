@@ -29,28 +29,23 @@ function show_help {
         Shows this message.
 
     bash:
-        Run bash.
+        Runs bash.
 
     eval:
-        Eval shell command.
-
-    decode_token:
-        Decodes a JSON Web Token (JWT).
-
-        Usage: decode_token {token}
+        Evals shell command.
 
 
     Keycloak & Kong
     ----------------------------------------------------------------------------
 
     setup_auth:
-        Register Keycloak (the auth service) in Kong.
+        Registers Keycloak (the auth service) in Kong.
 
         Shortcut of: register_app auth {keycloak-internal-url}
 
 
     register_app:
-        Register App in Kong.
+        Registers App in Kong.
 
         Usage: register_app {app-name} {app-internal-url}
 
@@ -69,11 +64,12 @@ function show_help {
                         {*email} {*reset_password_on_login}
 
 
-    add_confidential_client :
+    add_confidential_client | add_oidc_client:
         Adds a confidential client to a realm.
         Required for any realm that will use OIDC for authentication.
 
         Usage: add_confidential_client {realm} {client-name}
+               add_oidc_client {realm} {client-name}
 
 
     add_public_client:
@@ -114,7 +110,11 @@ function show_help {
     keycloak_ready:
         Checks the keycloak connection. Returns status 0 on success.
 
-        Usage: keycloak_ready
+
+    decode_token:
+        Decodes a Keycloak JSON Web Token (JWT).
+
+        Usage: decode_token {token}
 
 
     Kafka
@@ -141,17 +141,10 @@ function show_help {
 }
 
 case "$1" in
-    bash )
-        bash
-    ;;
 
-    eval )
-        eval "${@:2}"
-    ;;
-
-    decode_token )
-        python /code/src/decode_token.py "${@:2}"
-    ;;
+    # --------------------------------------------------------------------------
+    # Keycloak & Kong
+    # --------------------------------------------------------------------------
 
     setup_auth )
         python /code/src/register_app.py auth $KEYCLOAK_INTERNAL
@@ -169,7 +162,7 @@ case "$1" in
         python /code/src/manage_realm.py ADD_USER "${@:2}"
     ;;
 
-    add_confidential_client )
+    add_confidential_client | add_oidc_client )
         python /code/src/manage_realm.py ADD_CONFIDENTIAL_CLIENT "${@:2}"
     ;;
 
@@ -197,6 +190,15 @@ case "$1" in
         python /code/src/manage_realm.py KEYCLOAK_READY
     ;;
 
+    decode_token )
+        python /code/src/decode_token.py "${@:2}"
+    ;;
+
+
+    # --------------------------------------------------------------------------
+    # Kafka
+    # --------------------------------------------------------------------------
+
     add_kafka_su )
         python /code/src/manage_kafka.py ADD_SUPERUSER "${@:2}"
     ;;
@@ -207,6 +209,19 @@ case "$1" in
 
     get_kafka_creds )
         python /code/src/manage_kafka.py KAFKA_CREDS "${@:2}"
+    ;;
+
+
+    # --------------------------------------------------------------------------
+    # Generic
+    # --------------------------------------------------------------------------
+
+    bash )
+        bash
+    ;;
+
+    eval )
+        eval "${@:2}"
     ;;
 
     help )
