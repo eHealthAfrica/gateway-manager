@@ -1,6 +1,6 @@
 # Service
 
-A service represents an application and defines a set of public and protected urls
+A service represents an application and defines a set of public and protected URLs
 and the route to access to them.
 
 The expected format for each service file is:
@@ -21,21 +21,22 @@ The expected format for each service file is:
       // endpoint name (unique among rest of OIDC endpoints in this service)
       "name": "protected",
 
-      // internal url
+      // internal endpoint url
       "url": "/protect-me-please",
 
-      // [optional] external url, defaults to "/{realm}/{name}{url}" where
-      // {realm} is the realm name,
-      // {name} is the service name and
-      // {url} is the endpoint url.
+      // [optional] external url,
+      // defaults to "/{realm}/{name}{url}" where
+      //    {realm} is the realm name,
+      //    {name} is the service name and
+      //    {url} is the endpoint url.
       // use case: if the endpoint does not depend on any realm
       "route_path": null,
 
       // [optional] template to create an external url. Overrides default route_path.
       // Creates a path dynamically based on the following variables using string substitution.
-      // {realm} is the realm name,
-      // {name} is the service name
-      // {url} is the endpoint url
+      //    {realm} is the realm name,
+      //    {name} is the service name
+      //    {url} is the endpoint url
       "template_path": null, // "/{realm}/#{name}" -> /testing-realm/#protected
 
       // [optional] (defaults to "false")
@@ -54,7 +55,6 @@ The expected format for each service file is:
         // Do not use this unless you absolutely have to.
         "config.user_keys": ["preferred_username", "email"]
       }
-
     },
     // ...
   ],
@@ -67,21 +67,22 @@ The expected format for each service file is:
       // endpoint name (unique among rest of public endpoints in this service)
       "name": "public",
 
-      // internal url
+      // internal endpoint url
       "url": "/i-am-public/",
 
-      // [optional] external url, defaults to "/{realm}/{name}{url}" where
-      // {realm} is the realm name,
-      // {name} is the service name and
-      // {url} is the endpoint url.
+      // [optional] external url,
+      // defaults to "/{realm}/{name}{url}" where
+      //    {realm} is the realm name,
+      //    {name} is the service name and
+      //    {url} is the endpoint url.
       // use case: if the endpoint does not depend on any realm
-      "route_path": "/my-service/public/",
+      "route_path": "/my-endpoint/public/",
 
       // [optional] template to create an external url. Overrides default route_path.
       // Creates a path dynamically based on the following variables using string substitution.
-      // {realm} is the realm name,
-      // {name} is the service name
-      // {url} is the endpoint url
+      //    {realm} is the realm name,
+      //    {name} is the service name
+      //    {url} is the endpoint url
       "template_path": null, // "/{realm}/#{name}" -> /testing-realm/#public
 
       // [optional] (defaults to "false")
@@ -91,7 +92,7 @@ The expected format for each service file is:
 
       // in this case:
       //   external call:
-      //     http://external-domain/my-service/public/my-path
+      //     http://external-domain/my-endpoint/public/my-path
       //   internal call:
       //     http://my-service:8888/i-am-public/my-path
     },
