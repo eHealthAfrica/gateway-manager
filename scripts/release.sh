@@ -22,7 +22,7 @@ set -Eeuo pipefail
 
 function build_and_push {
     APP=$1
-    VERSION=${VERSION:-latest}
+    VERSION=${2:-latest}
     IMAGE_REPO=ehealthafrica
     TAG="${IMAGE_REPO}/${APP}:${VERSION}"
 
@@ -39,4 +39,8 @@ function build_and_push {
 }
 
 build_and_push gateway-manager
-build_and_push gateway-kong
+build_and_push kong
+
+# Use HELM chart tag
+# https://github.com/helm/charts/tree/master/stable/kong
+build_and_push kong 1.1

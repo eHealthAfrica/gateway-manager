@@ -35,4 +35,4 @@ function build_image {
 }
 
 build_image gateway-manager
-build_image gateway-kong
+build_image kong
