@@ -104,7 +104,7 @@ Adds a service to an existing realm in Kong,
 using the service definition in `SERVICES_PATH` directory.
 
 ```bash
-add_service {service} {realm} {oidc-client}decode_token {token}
+add_service {service} {realm} {oidc-client}
 ```
 
 #### `remove_service`
