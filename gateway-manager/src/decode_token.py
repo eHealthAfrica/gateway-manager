@@ -18,25 +18,25 @@
 # specific language governing permissions and limitations
 # under the License.
 
-import json
 import jwt
 import sys
 
-from helpers import request
+from helpers import request, get_logger, print_json
 from settings import BASE_HOST
 
 
 def check_jwt(token):
     tokeninfo = jwt.decode(token, verify=False)
-    print_json(tokeninfo)
+    print_json(logger.info, tokeninfo)
 
     iss_url = tokeninfo['iss']
     if not iss_url.startswith(BASE_HOST):
-        raise RuntimeError(f'This token does not belong to our host {BASE_HOST}')
+        logger.critical(f'This token does not belong to our host {BASE_HOST}')
+        sys.exit(1)
 
     # go to iss
     realminfo = request(method='get', url=iss_url)
-    print_json(realminfo)
+    print_json(logger.info, realminfo)
 
     # if this call fails the token is not longer valid
     userinfo = request(
@@ -44,15 +44,11 @@ def check_jwt(token):
         url=realminfo['token-service'] + '/userinfo',
         headers={'Authorization': '{} {}'.format(tokeninfo['typ'], token)},
     )
-    print_json(userinfo)
-
-
-def print_json(data):
-    print(json.dumps(data, indent=2))
-    print('---------------------------------------')
+    print_json(logger.info, userinfo)
 
 
 if __name__ == '__main__':
-    token = sys.argv[1]
+    logger = get_logger('Keycloak')
 
+    token = sys.argv[1]
     check_jwt(token)
