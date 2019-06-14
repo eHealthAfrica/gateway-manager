@@ -150,23 +150,23 @@ case "$1" in
     # --------------------------------------------------------------------------
 
     keycloak_ready )
-        python /code/src/manage_realm.py KEYCLOAK_READY
+        python /code/src/manage_keycloak.py KEYCLOAK_READY
     ;;
 
     add_realm )
-        python /code/src/manage_realm.py ADD_REALM "${@:2}"
+        python /code/src/manage_keycloak.py ADD_REALM "${@:2}"
     ;;
 
     add_user )
-        python /code/src/manage_realm.py ADD_USER "${@:2}"
+        python /code/src/manage_keycloak.py ADD_USER "${@:2}"
     ;;
 
     add_confidential_client | add_oidc_client )
-        python /code/src/manage_realm.py ADD_CONFIDENTIAL_CLIENT "${@:2}"
+        python /code/src/manage_keycloak.py ADD_CONFIDENTIAL_CLIENT "${@:2}"
     ;;
 
     add_public_client )
-        python /code/src/manage_realm.py ADD_PUBLIC_CLIENT "${@:2}"
+        python /code/src/manage_keycloak.py ADD_PUBLIC_CLIENT "${@:2}"
     ;;
 
     decode_token )
