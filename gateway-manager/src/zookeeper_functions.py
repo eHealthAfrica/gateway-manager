@@ -60,13 +60,13 @@ def loot(zk, path):
         except json.decoder.JSONDecodeError:
             readable = data
         acl = zk.get_acls(path)
-        logger.info(f'{path} has data:\n{acl}\n\t{readable}')
+        logger.info(f'{path} has data:\n\t{acl}\n\t\t{readable}')
     for i in zk.get_children(path):
         new_path = f'{path}/{i}'
         try:
             loot(zk, new_path)
         except kazoo.exceptions.NoAuthError as noer:
-            logger.error(f'!! Could not access {new_path}\n{zk.get_acls(path)}\n{noer}')
+            logger.error(f'Could not access {new_path}!!!\n\t{zk.get_acls(path)}\n\t{noer}')
 
 
 # Get the ID of the next change
@@ -76,11 +76,7 @@ def get_next_change(zk, path=None, format=None):
         next_change = str(0)
     else:
         # get a string representing the 1 + the last number included in existing changes
-        next_change = str(
-            1 + max(
-                [int(i.split(format)[1]) for i in changes]
-            )
-        )
+        next_change = str(1 + max([int(i.split(format)[1]) for i in changes]))
     # make a template of zeros of correct length
     template = '0' * 10
     # format it and return

@@ -34,7 +34,7 @@ ZK_LAG_TIME = 3
 
 def create_superuser(name, password):
     # make user for name
-    logger.info(f'\nCreating Kafka SuperUser: {name}')
+    logger.info(f'Creating SuperUser: {name}')
     make_user(zookeeper, name, password)
     sleep(ZK_LAG_TIME)
     # give user permission on all name artifacts in kafka
@@ -55,7 +55,7 @@ def create_superuser(name, password):
 
 def create_tenant(realm):
     # make user for realm
-    logger.info(f'\nCreating Kafka Tenant for realm: {realm}')
+    logger.info(f'Creating tenant for realm: {realm}')
     pw = get_tenant_password(realm)
     make_user(zookeeper, realm, pw)
     sleep(ZK_LAG_TIME)

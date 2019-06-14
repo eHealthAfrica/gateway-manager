@@ -90,7 +90,7 @@ def get_logger(name):
 
     coloredlogs.install(
         level='DEBUG' if DEBUG else 'INFO',
-        fmt='%(message)s',
+        fmt='[%(name)s]  %(message)s',
         logger=logger,
         level_styles={
             'critical': {'color': 'red', 'bright': True, 'bold': True},
