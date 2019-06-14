@@ -83,11 +83,20 @@ decode_token {token}
 
 ### Kong
 
-#### `register_app`
+#### `add_app` or `register_app`
 Registers an app as a service in Kong and serves it behind Kong (like NGINX).
 
 ```bash
+add_app {app-name} {app-internal-url}
+# or
 register_app {app-name} {app-internal-url}
+```
+
+#### `remove_app`
+Removes an app in Kong.
+
+```bash
+remove_app {app_name}
 ```
 
 #### `setup_auth`
@@ -113,7 +122,14 @@ using the service definition in `SERVICES_PATH` directory.
 
 ```bash
 remove_service {service} {realm}
+
+# removes service from all realms
+remove_service {service}
+# or
+remove_service {service} "*"
 ```
+
+> Note: the service will not be enterily removed if it's still used by another realm.
 
 #### `add_solution`
 Adds a package of services to an existing realm in Kong,
@@ -129,7 +145,14 @@ using the solution definition in `SOLUTION_PATH` directory.
 
 ```bash
 remove_solution {solution} {realm}
+
+# removes solution from all realms
+remove_solution {solution}
+# or
+remove_solution {solution} "*"
 ```
+
+> Note: the solution will not be enterily removed if it's still used by another realm.
 
 ### Kafka
 

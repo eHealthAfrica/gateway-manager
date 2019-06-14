@@ -45,36 +45,36 @@ function show_help {
     add_realm:
         Adds a new realm using a default realm template.
 
-        Usage: add_realm {realm} {description (optional)} {login theme (optional)}
+        Usage:  add_realm {realm} {description (optional)} {login theme (optional)}
 
 
     add_user:
         Adds a user to an existing realm.
 
-        Usage: add_user {realm} {username}
-                        {*password} {*is_administrator}
-                        {*email} {*reset_password_on_login}
+        Usage:  add_user {realm} {username}
+                         {*password} {*is_administrator}
+                         {*email} {*reset_password_on_login}
 
 
     add_confidential_client | add_oidc_client:
         Adds a confidential client to an existing realm.
         Required for any realm that will use OIDC for authentication.
 
-        Usage: add_confidential_client {realm} {client-name}
-               add_oidc_client {realm} {client-name}
+        Usage:  add_confidential_client {realm} {client-name}
+                add_oidc_client {realm} {client-name}
 
 
     add_public_client:
         Adds a public client to an existing realm.
         Allows token generation.
 
-        Usage: add_public_client {realm} {client-name}
+        Usage:  add_public_client {realm} {client-name}
 
 
     decode_token:
         Decodes a Keycloak JSON Web Token (JWT).
 
-        Usage: decode_token {token}
+        Usage:  decode_token {token}
 
 
     Kong
@@ -83,41 +83,52 @@ function show_help {
     setup_auth:
         Registers Keycloak (the auth service) in Kong.
 
-        Alias of: register_app auth $KEYCLOAK_INTERNAL
+        Alias of:  add_app auth $KEYCLOAK_INTERNAL
 
 
-    register_app:
-        Registers App in Kong.
+    register_app | add_app:
+        Registers an app in Kong.
 
-        Usage: register_app {app-name} {app-internal-url}
+        Usage:  register_app {app-name} {app-internal-url}
+                add_app {app-name} {app-internal-url}
+
+
+    remove_app:
+        Removes an app in Kong.
+
+        Usage:  remove_app {app-name}
 
 
     add_service:
         Adds a service to an existing realm in Kong,
         using the service definition in ${SERVICES_PATH:-/code/service} directory.
 
-        Usage: add_service {service} {realm} {oidc-client}
+        Usage:  add_service {service} {realm} {oidc-client}
 
 
     remove_service:
         Removes a service from an existing realm in Kong,
         using the service definition in ${SERVICES_PATH:-/code/service} directory.
 
-        Usage: remove_service {service} {realm}
+        Usage:  remove_service {service} {realm}
+
+        Remove in all realms:  remove_service {service}
 
 
     add_solution:
         Adds a package of services to an existing realm in Kong,
         using the solution definition in ${SOLUTION_PATH:-/code/solution} directory.
 
-        Usage: add_solution {solution} {realm} {oidc-client}
+        Usage:  add_solution {solution} {realm} {oidc-client}
 
 
     remove_solution:
         Removes a package of services from an existing realm in Kong,
         using the solution definition in ${SOLUTION_PATH:-/code/solution} directory.
 
-        Usage: remove_solution {solution} {realm}
+        Usage:  remove_solution {solution} {realm}
+
+        Remove in all realms:  remove_solution {solution}
 
 
     Kafka
@@ -126,19 +137,19 @@ function show_help {
     add_kafka_su:
         Adds a Superuser to the Kafka Cluster.
 
-        Usage: add_kafka_su {username} {password}
+        Usage:  add_kafka_su {username} {password}
 
 
     add_kafka_tenant:
         Adds a kafka user for a tenant, and adds ACL to their namespace.
 
-        Usage: add_kafka_tenant {tenant}
+        Usage:  add_kafka_tenant {tenant}
 
 
     get_kafka_creds:
         Gets SASL Credential for a given kafka tenant.
 
-        Usage: get_kafka_creds {tenant}
+        Usage:  get_kafka_creds {tenant}
 
     """
 }
@@ -179,27 +190,31 @@ case "$1" in
     # --------------------------------------------------------------------------
 
     setup_auth )
-        python /code/src/register_app.py auth $KEYCLOAK_INTERNAL
+        python /code/src/manage_kong.py APP ADD auth $KEYCLOAK_INTERNAL
     ;;
 
-    register_app )
-        python /code/src/register_app.py "${@:2}"
+    register_app | add_app )
+        python /code/src/manage_kong.py APP ADD "${@:2}"
+    ;;
+
+    remove_app )
+        python /code/src/manage_kong.py APP REMOVE "${@:2}"
     ;;
 
     add_service )
-        python /code/src/manage_service.py ADD SERVICE "${@:2}"
+        python /code/src/manage_kong.py SERVICE ADD "${@:2}"
     ;;
 
     remove_service )
-        python /code/src/manage_service.py REMOVE SERVICE "${@:2}"
+        python /code/src/manage_kong.py SERVICE REMOVE "${@:2}"
     ;;
 
     add_solution )
-        python /code/src/manage_service.py ADD SOLUTION "${@:2}"
+        python /code/src/manage_kong.py SOLUTION ADD "${@:2}"
     ;;
 
     remove_solution )
-        python /code/src/manage_service.py REMOVE SOLUTION "${@:2}"
+        python /code/src/manage_kong.py SOLUTION REMOVE "${@:2}"
     ;;
 
 
