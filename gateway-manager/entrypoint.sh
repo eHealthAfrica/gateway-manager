@@ -24,147 +24,203 @@ function show_help {
     echo """
     Commands
     ----------------------------------------------------------------------------
-    bash             : run bash
+
+    help:
+        Shows this message.
+
+    bash:
+        Runs bash.
+
+    eval:
+        Evals shell command.
 
 
-    eval             : eval shell command
-
-
-    decode_token     : decodes a JSON Web Token (JWT)
-
-                       usage: decode_token {token}
-
-
-    Keycloak & Kong
+    Keycloak
     ----------------------------------------------------------------------------
 
-    setup_auth       : register Keycloak & Minio in Kong.
+    keycloak_ready:
+        Checks the keycloak connection. Returns status 0 on success.
 
 
-    add_realm        : adds a new realm using a default realm template
+    add_realm:
+        Adds a new realm using a default realm template.
 
-                       usage: add_realm {realm} {description (optional)}
-
-
-    add_user         : adds a user to an existing realm.
-
-                       usage: add_user {realm} {username}
-                              {*password} {*is_administrator}
-                              {*email} {*reset_password_on_login}
+        Usage:  add_realm {realm} {description (optional)} {login theme (optional)}
 
 
+    add_user:
+        Adds a user to an existing realm.
 
-    add_oidc_client  : adds the default kong client to a realm. Required for
-                       any realm that will use OIDC for authentication.
-
-                       usage: add_oidc_client <realm>
-
-
-    add_aether_client: adds the default aether client to a realm. Allows token generation
-
-                       usage: add_aether_client <realm>
+        Usage:  add_user {realm} {username}
+                         {*password} {*is_administrator}
+                         {*email} {*reset_password_on_login}
 
 
-    add_service      : adds a service to an existing realm in Kong,
-                       using the service definition in /service directory.
+    add_confidential_client | add_oidc_client:
+        Adds a confidential client to an existing realm.
+        Required for any realm that will use OIDC for authentication.
 
-                       usage: add_service {service} {realm}
-
-
-    remove_service   : removes a service from an existing realm in Kong,
-                       using the service definition in /service directory.
-
-                       usage: remove_service {service} {realm}
+        Usage:  add_confidential_client {realm} {client-name}
+                add_oidc_client {realm} {client-name}
 
 
-    add_solution     : adds a package of services to an existing realm in Kong,
-                       using the solution definition in /solution directory.
+    add_public_client:
+        Adds a public client to an existing realm.
+        Allows token generation.
 
-                       usage: add_solution {solution} {realm}
-
-
-    remove_solution  : removes a package of services from an existing realm in Kong,
-                       using the solution definition in /solution directory.
-
-                       usage: remove_solution {solution} {realm}
+        Usage:  add_public_client {realm} {client-name}
 
 
-    keycloak_ready   : checks the keycloak connection. Returns status 0 on success.
+    decode_token:
+        Decodes a Keycloak JSON Web Token (JWT).
 
-                       usage: keycloak_ready
+        Usage:  decode_token {token}
+
+
+    Kong
+    ----------------------------------------------------------------------------
+
+    setup_auth:
+        Registers Keycloak (the auth service) in Kong.
+
+        Alias of:  add_app auth $KEYCLOAK_INTERNAL
+
+
+    register_app | add_app:
+        Registers an app in Kong.
+
+        Usage:  register_app {app-name} {app-internal-url}
+                add_app {app-name} {app-internal-url}
+
+
+    remove_app:
+        Removes an app in Kong.
+
+        Usage:  remove_app {app-name}
+
+
+    add_service:
+        Adds a service to an existing realm in Kong,
+        using the service definition in ${SERVICES_PATH:-/code/service} directory.
+
+        Usage:  add_service {service} {realm} {oidc-client}
+
+
+    remove_service:
+        Removes a service from an existing realm in Kong,
+        using the service definition in ${SERVICES_PATH:-/code/service} directory.
+
+        Usage:  remove_service {service} {realm}
+
+        Remove in all realms:  remove_service {service}
+
+
+    add_solution:
+        Adds a package of services to an existing realm in Kong,
+        using the solution definition in ${SOLUTION_PATH:-/code/solution} directory.
+
+        Usage:  add_solution {solution} {realm} {oidc-client}
+
+
+    remove_solution:
+        Removes a package of services from an existing realm in Kong,
+        using the solution definition in ${SOLUTION_PATH:-/code/solution} directory.
+
+        Usage:  remove_solution {solution} {realm}
+
+        Remove in all realms:  remove_solution {solution}
+
 
     Kafka
     ----------------------------------------------------------------------------
 
-    add_kafka_su     : Adds a Superuser to the Kafka Cluster
+    add_kafka_su:
+        Adds a Superuser to the Kafka Cluster.
 
-                       usage: add_kafka_su {username} {password}
-
-
-    add_kafka_tenant : Adds a kafka user for a tenant, and adds ACL to their namespace.
-
-                       usage: add_kafka_tenant {tenant}
+        Usage:  add_kafka_su {username} {password}
 
 
-    get_kafka_creds  : Gets SASL Credential for a given kafka tenant
+    add_kafka_tenant:
+        Adds a kafka user for a tenant, and adds ACL to their namespace.
 
-                       usage: get_kafka_creds {tenant}
+        Usage:  add_kafka_tenant {tenant}
+
+
+    get_kafka_creds:
+        Gets SASL Credential for a given kafka tenant.
+
+        Usage:  get_kafka_creds {tenant}
 
     """
 }
 
 case "$1" in
-    bash )
-        bash
+
+    # --------------------------------------------------------------------------
+    # Keycloak
+    # --------------------------------------------------------------------------
+
+    keycloak_ready )
+        python /code/src/manage_keycloak.py KEYCLOAK_READY
+    ;;
+
+    add_realm )
+        python /code/src/manage_keycloak.py ADD_REALM "${@:2}"
+    ;;
+
+    add_user )
+        python /code/src/manage_keycloak.py ADD_USER "${@:2}"
+    ;;
+
+    add_confidential_client | add_oidc_client )
+        python /code/src/manage_keycloak.py ADD_CONFIDENTIAL_CLIENT "${@:2}"
+    ;;
+
+    add_public_client )
+        python /code/src/manage_keycloak.py ADD_PUBLIC_CLIENT "${@:2}"
     ;;
 
     decode_token )
         python /code/src/decode_token.py "${@:2}"
     ;;
 
-    eval )
-        eval "${@:2}"
-    ;;
+
+    # --------------------------------------------------------------------------
+    # Kong
+    # --------------------------------------------------------------------------
 
     setup_auth )
-        python /code/src/setup_auth.py
+        python /code/src/manage_kong.py APP ADD auth $KEYCLOAK_INTERNAL
     ;;
 
-    add_realm )
-        python /code/src/manage_realm.py ADD_REALM "${@:2}"
+    register_app | add_app )
+        python /code/src/manage_kong.py APP ADD "${@:2}"
     ;;
 
-    add_user )
-        python /code/src/manage_realm.py ADD_USER "${@:2}"
-    ;;
-
-    add_oidc_client )
-        python /code/src/manage_realm.py ADD_OIDC_CLIENT "${@:2}"
-    ;;
-
-    add_aether_client )
-        python /code/src/manage_realm.py ADD_AETHER_CLIENT "${@:2}"
+    remove_app )
+        python /code/src/manage_kong.py APP REMOVE "${@:2}"
     ;;
 
     add_service )
-        python /code/src/manage_service.py ADD SERVICE "${@:2}"
+        python /code/src/manage_kong.py SERVICE ADD "${@:2}"
     ;;
 
     remove_service )
-        python /code/src/manage_service.py REMOVE SERVICE "${@:2}"
+        python /code/src/manage_kong.py SERVICE REMOVE "${@:2}"
     ;;
 
     add_solution )
-        python /code/src/manage_service.py ADD SOLUTION "${@:2}"
+        python /code/src/manage_kong.py SOLUTION ADD "${@:2}"
     ;;
 
     remove_solution )
-        python /code/src/manage_service.py REMOVE SOLUTION "${@:2}"
+        python /code/src/manage_kong.py SOLUTION REMOVE "${@:2}"
     ;;
 
-    keycloak_ready )
-        python /code/src/manage_realm.py KEYCLOAK_READY
-    ;;
+
+    # --------------------------------------------------------------------------
+    # Kafka
+    # --------------------------------------------------------------------------
 
     add_kafka_su )
         python /code/src/manage_kafka.py ADD_SUPERUSER "${@:2}"
@@ -176,6 +232,19 @@ case "$1" in
 
     get_kafka_creds )
         python /code/src/manage_kafka.py KAFKA_CREDS "${@:2}"
+    ;;
+
+
+    # --------------------------------------------------------------------------
+    # Generic
+    # --------------------------------------------------------------------------
+
+    bash )
+        bash
+    ;;
+
+    eval )
+        eval "${@:2}"
     ;;
 
     help )

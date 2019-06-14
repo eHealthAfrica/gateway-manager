@@ -18,10 +18,10 @@
 # specific language governing permissions and limitations
 # under the License.
 
-
 import sys
 from time import sleep
 
+from helpers import get_logger
 from zookeeper_functions import (
     make_user,
     upsert_permission,
@@ -34,7 +34,7 @@ ZK_LAG_TIME = 3
 
 def create_superuser(name, password):
     # make user for name
-    print(f'\nCreating Kafka SuperUser: {name}')
+    logger.info(f'Creating SuperUser: {name}')
     make_user(zookeeper, name, password)
     sleep(ZK_LAG_TIME)
     # give user permission on all name artifacts in kafka
@@ -55,7 +55,7 @@ def create_superuser(name, password):
 
 def create_tenant(realm):
     # make user for realm
-    print(f'\nCreating Kafka Tenant for realm: {realm}')
+    logger.info(f'Creating tenant for realm: {realm}')
     pw = get_tenant_password(realm)
     make_user(zookeeper, realm, pw)
     sleep(ZK_LAG_TIME)
@@ -77,18 +77,23 @@ def create_tenant(realm):
 
 def tenant_creds(realm):
     pw = get_tenant_password(realm)
-    print(f'{realm} : {pw}')
+    logger.info(f'{realm} : {pw}')
 
 
 if __name__ == "__main__":
-    commands = {
+    logger = get_logger('Kafka')
+
+    COMMANDS = {
         'ADD_SUPERUSER': create_superuser,
         'ADD_TENANT': create_tenant,
         'KAFKA_CREDS': tenant_creds
     }
+
     command = sys.argv[1]
+    if command.upper() not in COMMANDS.keys():
+        logger.critical(f'No command: {command}')
+        sys.exit(1)
+
+    fn = COMMANDS[command]
     args = sys.argv[2:]
-    if command.upper() not in commands.keys():
-        raise KeyError(f'No command: {command}')
-    fn = commands[command]
     fn(*args)

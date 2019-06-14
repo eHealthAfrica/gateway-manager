@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Copyright (C) 2019 by eHealth Africa : http://www.eHealthAfrica.org
 #
 # See the NOTICE file distributed with this work for additional information
@@ -18,7 +16,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
-
+import coloredlogs
+import logging
 import json
 import requests
 from requests.exceptions import HTTPError
@@ -26,33 +25,83 @@ from requests.exceptions import HTTPError
 from settings import DEBUG
 
 
-def request(method, url, data={}):
+def request(*args, **kwargs):
+    _logger = get_logger('request')
+
     try:
-        res = requests.request(method=method, url=url, data=data, verify=False)
+        # don't verify SSL certificate internally
+        res = requests.request(*args, **kwargs, verify=False)
         res.raise_for_status()
         if res.status_code != 204:
             data = res.json()
-            __print(json.dumps(data, indent=2))
+            print_json(_logger.verbose, data)
             return data
         return None
     except HTTPError as he:
-        __handle_exception(he, res)
+        __handle_exception(_logger, he, res)
     except Exception as e:
-        __handle_exception(e)
+        __handle_exception(_logger, e)
 
 
-def __print(msg):
-    if DEBUG:
-        print(msg)
+def load_json_file(json_file_path):
+    _logger = get_logger('json')
+
+    try:
+        with open(json_file_path) as _f:
+            data = json.load(_f)
+        return data
+    except Exception as e:
+        __handle_exception(_logger, e)
 
 
-def __handle_exception(exception, res=None):
-    __print('---------------------------------------')
-    print(' >> ', str(exception))
+def print_json(printer, data):
+    printer(json.dumps(data, indent=2))
+
+
+def __handle_exception(logger, exception, res=None):
+    logger.error(str(exception))
 
     if res:
-        print(' >>> ', res)
+        logger.error(str(res))
         if res.status_code != 204:
-            __print(json.dumps(res.json(), indent=2))
-    __print('---------------------------------------')
+            print_json(logger.verbose, res.json())
     raise exception
+
+
+def get_logger(name):
+    logger = logging.getLogger(name)
+
+    logging.addLevelName(15, 'VERBOSE')
+    logging.addLevelName(25, 'NOTICE')
+    logging.addLevelName(35, 'SUCCESS')
+
+    def _verbose(msg):
+        logger.log(15, msg)
+
+    def _success(msg):
+        logger.log(35, msg)
+
+    def _notice(msg):
+        logger.log(25, msg)
+
+    logger.verbose = _verbose
+    logger.notice = _notice
+    logger.success = _success
+
+    coloredlogs.install(
+        level='DEBUG' if DEBUG else 'INFO',
+        fmt='[%(name)s]  %(message)s',
+        logger=logger,
+        level_styles={
+            'critical': {'color': 'red', 'bright': True, 'bold': True},
+            'debug': {'color': 245},
+            'error': {'color': 'red'},
+            'info': {},
+            'notice': {'color': 'magenta'},
+            'success': {'color': 'green', 'bright': True},
+            'verbose': {'color': 'cyan'},
+            'warning': {'color': 'yellow'},
+        },
+    )
+
+    return logger

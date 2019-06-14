@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Copyright (C) 2019 by eHealth Africa : http://www.eHealthAfrica.org
 #
 # See the NOTICE file distributed with this work for additional information
@@ -18,22 +16,28 @@
 # specific language governing permissions and limitations
 # under the License.
 
-
 import base64
 import binascii
-from passlib.hash import scram
 import hashlib
 import hmac
-import string
 import random
+import string
+from passlib.hash import scram
 
-'''  # noqa
+'''
 Artifacts created like this in Kafka Container
 
-    /usr/bin/kafka-configs --zookeeper zookeeper:32181 --alter --add-config 'SCRAM-SHA-256=[password=password],SCRAM-SHA-512=[password=password]' --entity-type users --entity-name admin
+    /usr/bin/kafka-configs \
+        --zookeeper zookeeper:32181 \
+        --alter \
+        --add-config 'SCRAM-SHA-256=[password=password],SCRAM-SHA-512=[password=password]' \
+        --entity-type users \
+        --entity-name admin
+
     Completed Updating config for entity: user-principal 'admin'.
 
 yield this in zoo-keeper:
+
 {
     'SCRAM-SHA-512': {
         'salt': 'cXc3anM3YXJiZ3VoaHRkemIxaHFuM3U2ZA==',
@@ -48,6 +52,7 @@ yield this in zoo-keeper:
         'iterations': 4096
     }
 }
+
 This lib allows you to generate the same artifacts in python for insertion into ZK
 '''
 
@@ -118,6 +123,6 @@ def zk_config(password, salt=None, rounds=4096):
     }
     confs = generate_artifacts(password, salt, rounds)
     for key, conf in confs.items():
-        stringified = ','.join(['='.join([str(k),str(v)]) for k,v in conf.items()])
+        stringified = ','.join(['='.join([str(k), str(v)]) for k, v in conf.items()])
         res['config'][key] = stringified
     return res

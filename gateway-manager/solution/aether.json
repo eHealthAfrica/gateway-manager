@@ -1,8 +1,0 @@
-{
-  "name": "aether",
-  "services": [
-    "kernel",
-    "ui",
-    "odk"
-  ]
-}

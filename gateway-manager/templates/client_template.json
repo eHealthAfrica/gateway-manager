@@ -1,0 +1,24 @@
+{
+  "clientAuthenticatorType": "client-secret",
+  "directAccessGrantsEnabled": true,
+  "enabled": true,
+  "publicClient": true,
+  "redirectUris": ["*"],
+  "protocolMappers": [
+    {
+      "name": "groups",
+      "protocol": "openid-connect",
+      "protocolMapper": "oidc-usermodel-realm-role-mapper",
+      "consentRequired": false,
+      "config": {
+        "access.token.claim": true,
+        "claim.name": "groups",
+        "id.token.claim": true,
+        "jsonType.label": "String",
+        "multivalued": true,
+        "user.attribute": "foo",
+        "userinfo.token.claim": true
+      }
+    }
+  ]
+}

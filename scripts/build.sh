@@ -20,12 +20,10 @@
 #
 set -Eeuo pipefail
 
-IMAGE_REPO=ehealthafrica
-VERSION=${VERSION:-latest}
-
-function build_and_push {
+function build_image {
     APP=$1
-    TAG="${IMAGE_REPO}/${APP}:${VERSION}"
+    VERSION=local
+    TAG="${APP}:${VERSION}"
 
     echo "Building image: ${TAG}"
     docker build \
@@ -34,17 +32,7 @@ function build_and_push {
         --force-rm \
         --tag $TAG \
         ./$APP
-
-    echo "Pushing image: ${TAG}"
-    docker push $TAG
 }
 
-build_and_push gateway-manager
-build_and_push kong
-
-# Use HELM chart tag
-# https://github.com/helm/charts/tree/master/stable/kong
-KONG_TAG="${IMAGE_REPO}/kong:1.1"
-
-docker tag "${IMAGE_REPO}/kong:${VERSION}" ${KONG_TAG}
-docker push ${KONG_TAG}
+build_image gateway-manager
+build_image kong
