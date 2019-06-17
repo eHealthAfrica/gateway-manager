@@ -25,17 +25,18 @@ from helpers import get_logger
 from zookeeper_functions import (
     make_user,
     upsert_permission,
-    zookeeper,
+    get_zookeeper,
     get_tenant_password
 )
 
 ZK_LAG_TIME = 3
+ZOOKEEPER = get_zookeeper()
 
 
 def create_superuser(name, password):
     # make user for name
     logger.info(f'Creating SuperUser: {name}')
-    make_user(zookeeper, name, password)
+    make_user(ZOOKEEPER, name, password)
     sleep(ZK_LAG_TIME)
     # give user permission on all name artifacts in kafka
     for resource_type, resource_id in [
@@ -44,7 +45,7 @@ def create_superuser(name, password):
         ('cluster', 'kafka-cluster'),
     ]:
         upsert_permission(
-            zookeeper,
+            ZOOKEEPER,
             name,
             resource_id,
             resource_type=resource_type,
@@ -57,7 +58,7 @@ def create_tenant(realm):
     # make user for realm
     logger.info(f'Creating tenant for realm: {realm}')
     pw = get_tenant_password(realm)
-    make_user(zookeeper, realm, pw)
+    make_user(ZOOKEEPER, realm, pw)
     sleep(ZK_LAG_TIME)
     # give user permission on all realm artifacts in kafka
     allowed_resource = f'{realm}.'
@@ -66,7 +67,7 @@ def create_tenant(realm):
         ('group', allowed_resource, 'All', True)
     ]:
         upsert_permission(
-            zookeeper,
+            ZOOKEEPER,
             realm,
             resource_id,
             resource_type=resource_type,
