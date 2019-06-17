@@ -223,10 +223,7 @@ def make_user(zk, name, pw):
     report_user_change(zk, name)
 
 
-if __name__ == '__main__':
-    logger = get_logger('Zookeeper')
-
-    # constructor components
+def get_zookeeper():
     default_acl = kazoo.security.make_acl('sasl', ZK_USER, all=True)
     sasl_options = {
         'mechanism': 'DIGEST-MD5',
@@ -243,7 +240,11 @@ if __name__ == '__main__':
         default_acl=[default_acl]
     )
     zookeeper.start()
+    return zookeeper
 
+if __name__ == '__main__':
+    logger = get_logger('Zookeeper')
+    zookeeper = get_zookeeper()
     # when run directly, you can view entities within zookeeper for debugging
     starting_path = sys.argv[1] or ''
     loot(zookeeper, starting_path)
