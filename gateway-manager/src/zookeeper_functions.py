@@ -44,6 +44,8 @@ ACL_PATH = '/kafka-acl'
 ACL_CHANGES_PATH = '/kafka-acl-changes'
 ACL_CHANGES_FORMAT = 'acl_changes_'
 
+LOGGER = get_logger('Zookeeper')
+
 
 # Use the shared (internally) KafkaSecret to get the password for a user
 def get_tenant_password(tenant_name):
@@ -60,13 +62,13 @@ def loot(zk, path):
         except json.decoder.JSONDecodeError:
             readable = data
         acl = zk.get_acls(path)
-        logger.info(f'{path} has data:\n\t{acl}\n\t\t{readable}')
+        LOGGER.info(f'{path} has data:\n\t{acl}\n\t\t{readable}')
     for i in zk.get_children(path):
         new_path = f'{path}/{i}'
         try:
             loot(zk, new_path)
         except kazoo.exceptions.NoAuthError as noer:
-            logger.error(f'Could not access {new_path}!!!\n\t{zk.get_acls(path)}\n\t{noer}')
+            LOGGER.error(f'Could not access {new_path}!!!\n\t{zk.get_acls(path)}\n\t{noer}')
 
 
 # Get the ID of the next change
@@ -139,7 +141,7 @@ def remove_permission(
     resource_type = resource_type.capitalize()
     acl_path = f'{acl_path}/{resource_type}/{resource_id}'
     principal = f'User:{user}'
-    logger.info(f'{acl_path}  {principal}')
+    LOGGER.info(f'{acl_path}  {principal}')
     try:
         data, _ = zk.get(acl_path)
         data = json.loads(data)
@@ -175,7 +177,7 @@ def upsert_permission(
     acl_path = EXTENDED_ACL_PATH if extended_acl else ACL_PATH
     acl_path = f'{acl_path}/{resource_type}/{resource_id}'
     principal = f'User:{user}'
-    logger.info(f'{acl_path}  {principal}')
+    LOGGER.info(f'{acl_path}  {principal}')
     try:
         data, _ = zk.get(acl_path)
         data = json.loads(data)
