@@ -38,6 +38,10 @@ def create_superuser(name, password):
     logger.info(f'Creating SuperUser: {name}')
     make_user(ZOOKEEPER, name, password)
     sleep(ZK_LAG_TIME)
+    grant_superuser(name)
+
+
+def grant_superuser(name):
     # give user permission on all name artifacts in kafka
     for resource_type, resource_id in [
         ('topic', '*'),
@@ -86,6 +90,7 @@ if __name__ == "__main__":
 
     COMMANDS = {
         'ADD_SUPERUSER': create_superuser,
+        'GRANT_SUPERUSER': grant_superuser,
         'ADD_TENANT': create_tenant,
         'KAFKA_CREDS': tenant_creds
     }
