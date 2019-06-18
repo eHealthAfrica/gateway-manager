@@ -139,6 +139,10 @@ function show_help {
 
         Usage:  add_kafka_su {username} {password}
 
+    grant_kafka_su:
+        Give an existing user superuser status.
+
+        Usage:  grant_kafka_su {username}
 
     add_kafka_tenant:
         Adds a kafka user for a tenant, and adds ACL to their namespace.
@@ -224,6 +228,10 @@ case "$1" in
 
     add_kafka_su )
         python /code/src/manage_kafka.py ADD_SUPERUSER "${@:2}"
+    ;;
+
+    grant_kafka_su )
+        python /code/src/manage_kafka.py GRANT_SUPERUSER "${@:2}"
     ;;
 
     add_kafka_tenant )
