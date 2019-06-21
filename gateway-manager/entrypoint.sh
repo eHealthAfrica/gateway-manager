@@ -155,6 +155,19 @@ function show_help {
 
         Usage:  get_kafka_creds {tenant}
 
+    ElasticSearch
+    ----------------------------------------------------------------------------
+
+    setup_elasticsearch:
+        Prepares ElasticSearch
+
+        Usage:  setup_elasticsearch
+
+    add_elasticsearch_tenant:
+        Adds a tenant to ElasticSearch
+
+        Usage:  add_elasticsearch_tenant {tenant}
+
     """
 }
 
@@ -242,6 +255,18 @@ case "$1" in
         python /code/src/manage_kafka.py KAFKA_CREDS "${@:2}"
     ;;
 
+
+    # --------------------------------------------------------------------------
+    # ElasticSearch
+    # --------------------------------------------------------------------------
+
+    setup_elasticsearch )
+        python /code/src/manage_elasticsearch.py SETUP
+    ;;
+
+    add_elasticsearch_tenant )
+        python /code/src/manage_elasticsearch.py ADD_TENANT "${@:2}"
+    ;;
 
     # --------------------------------------------------------------------------
     # Generic

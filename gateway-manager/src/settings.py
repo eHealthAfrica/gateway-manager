@@ -89,3 +89,10 @@ ZK_USER = get_env('ZOOKEEPER_USER')             # 'zk-admin'
 ZK_PW = get_env('ZOOKEEPER_PW')                 # 'password'
 # registered administrative credentials
 KAFKA_ADMIN_SECRET = get_env('KAFKA_SECRET')
+
+
+# ElasticSearch / Kibana
+
+ES_HOST = get_env('ELASTICSEARCH_HOST')
+ES_USER = get_env('ELASTICSEARCH_USER')
+ES_PW = get_env('ELASTICSEARCH_PW')
