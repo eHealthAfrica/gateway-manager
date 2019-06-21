@@ -48,29 +48,8 @@ def create_tenant(tenant):
                     'indices:admin/get'
                 ]
             },
-            '?kibana': {
-                '*': [
-                    'MANAGE',
-                    'INDEX',
-                    'READ',
-                    'DELETE'
-                ]
-            },
-            '?kibana-6': {
-                '*': [
-                    'MANAGE',
-                    'INDEX',
-                    'READ',
-                    'DELETE'
-                ]
-            },
-            '?kibana_*': {
-                '*': [
-                    'MANAGE',
-                    'INDEX',
-                    'READ',
-                    'DELETE'
-                ]
+            f'?kibana*{tenant}': {
+                '*': ['MANAGE', 'INDEX', 'READ', 'DELETE']
             },
             '?management-beats': {
                 '*': [
