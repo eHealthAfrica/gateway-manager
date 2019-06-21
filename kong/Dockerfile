@@ -12,3 +12,5 @@ RUN apk -U add --no-cache --virtual .build-deps git unzip gcc libc-dev openssl-d
     cd $KONG_OIDC_HOME && \
     luarocks make *.rockspec && \
     apk del .build-deps
+
+COPY ./nginx_templates/nginx_kong.lua /usr/local/share/lua/5.1/kong/templates/
