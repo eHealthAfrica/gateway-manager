@@ -135,7 +135,7 @@ server {
             -- # match /*-app/ url being routed to the base, which is incorrect.
             local m, err = ngx.re.match(ngx.var.uri, "/(?<app>[^/]+)-app(?<url>.+)", "ao")
             if err then
-                ngx.log(ngx.ERR, err)
+                ngx.log(ngx.WARN, err)
             elseif (ngx.var["cookie_EOAuthRealm"] ~= nil and m ~= nil) then
                 local service  = m["app"]
                 local remaining_url = m["url"]
@@ -143,10 +143,10 @@ server {
                 local args = ngx.req.get_uri_args()
                 if args ~= nil then
                     local friendly_args = ngx.encode_args(args)
-                    ngx.log(ngx.ERR, realm .. "/" .. service .. "/" .. service .. "-app" .. remaining_url .. "?" .. friendly_args)
+                    ngx.log(ngx.INFO, realm .. "/" .. service .. "/" .. service .. "-app" .. remaining_url .. "?" .. friendly_args)
                     ngx.header.location = "/" .. realm .. "/" .. service .. "/" .. service .. "-app" .. remaining_url .. "?" .. friendly_args   
                 else
-                    ngx.log(ngx.ERR, realm .. "/" .. service .. "/" .. service .. "-app" .. remaining_url)
+                    ngx.log(ngx.INFO, realm .. "/" .. service .. "/" .. service .. "-app" .. remaining_url)
                     ngx.header.location = "/" .. realm .. "/" .. service .. "/" .. service .. "-app" .. remaining_url
                 end
                 ngx.exit(308)
