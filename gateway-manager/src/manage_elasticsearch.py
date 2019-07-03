@@ -44,8 +44,7 @@ def create_tenant(tenant):
                 '*': [
                     'indices:data/read/field_caps*',
                     'indices:data/read/xpack/rollup*',
-                    'indices:admin/mappings/get*',
-                    'indices:admin/get'
+                    'indices:admin/mappings/get*'
                 ]
             },
             f'?kibana*{tenant}': {

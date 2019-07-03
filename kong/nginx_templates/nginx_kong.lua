@@ -149,7 +149,7 @@ server {
                     ngx.log(ngx.INFO, realm .. "/" .. service .. "/" .. service .. "-app" .. remaining_url)
                     ngx.header.location = "/" .. realm .. "/" .. service .. "/" .. service .. "-app" .. remaining_url
                 end
-                ngx.exit(308)
+                ngx.exit(307)
             end
         }
 
