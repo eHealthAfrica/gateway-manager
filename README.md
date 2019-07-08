@@ -192,6 +192,8 @@ get_kafka_creds {tenant}
 
 - `SOLUTIONS_PATH`: Path to solution files directory. Defaults to `/code/solution`.
 
+### Templates
+
 - `TEMPLATES_PATH`: Path to template files directory.
   Defaults to `/code/templates`.
 
@@ -223,6 +225,24 @@ get_kafka_creds {tenant}
 - `ES_ROLE_TEMPLATE_PATH`: Path to ElasticSearch role template file.
   This template is used with the `add_elasticsearch_tenant` command.
   Defaults to `{TEMPLATES_PATH}/es_role_template.json`.
+
+All of these templates are going to be parsed using the
+[python template strings feature](https://docs.python.org/3/library/string.html#template-strings).
+This means that even the keys or the values can contain `$-based` strings that
+will be replaced with the environment variable or command argument values.
+
+Some of the expected `$-based` strings are:
+- `domain`: replaced with `BASE_DOMAIN` environment variable value.
+- `host`: replaced with `BASE_HOST` environment variable value.
+- `realm`: replaced with the `realm`command argument value.
+- `tenant`: replaced with the `tenant` command argument value.
+- `publicRealm`: replaced with `PUBLIC_REALM` environment variable value.
+- `oidc_client_id`: replaced with the `oidc-client` command argument value.
+- `oidc_client_secret`: replaced with `oidc` client secret fetched form Keycloak.
+- `username`: replaced with the `username` command argument value.
+- `email`: replaced with the `email` command argument value.
+
+Review the code to get the expected strings in each case.
 
 ### Keycloak
 
