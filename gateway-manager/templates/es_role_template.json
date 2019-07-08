@@ -1,0 +1,41 @@
+{
+  "cluster": [
+    "INDICES_MONITOR",
+    "CLUSTER_COMPOSITE_OPS"
+  ],
+  "indices": {
+    "*": {
+      "*": [
+        "indices:data/read/field_caps*",
+        "indices:data/read/xpack/rollup*",
+        "indices:admin/mappings/get*"
+      ]
+    },
+    "?kibana*${tenant}": {
+      "*": [
+        "MANAGE",
+        "INDEX",
+        "READ",
+        "DELETE"
+      ]
+    },
+    "?management-beats": {
+      "*": [
+        "INDICES_ALL"
+      ]
+    },
+    "?tasks": {
+      "*": [
+        "INDICES_ALL"
+      ]
+    },
+    "${tenant}*": {
+      "*": [
+        "UNLIMITED"
+      ]
+    }
+  },
+  "tenants": {
+    "${tenant}": "RW"
+  }
+}

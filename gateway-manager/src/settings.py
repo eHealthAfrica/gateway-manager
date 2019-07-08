@@ -60,6 +60,13 @@ TEMPLATES = {
             f'{_TEMPLATES_PATH}/user_standard_template.json'
         ),
     },
+
+    'es': {
+        'role': get_env(
+            'ES_ROLE_TEMPLATE_PATH',
+            f'{_TEMPLATES_PATH}/es_role_template.json'
+        ),
+    }
 }
 
 # Keycloak Information

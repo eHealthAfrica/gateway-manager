@@ -216,6 +216,10 @@ get_kafka_creds {tenant}
   This template is used with the `add_user` command while creating non admin users.
   Defaults to `{TEMPLATES_PATH}/user_standard_template.json`.
 
+- `ES_ROLE_TEMPLATE_PATH`: Path to ElasticSearch role template file.
+  This template is used with the `add_elasticsearch_tenant` command.
+  Defaults to `{TEMPLATES_PATH}/es_role_template.json`.
+
 ### Keycloak
 
 - `KEYCLOAK_INTERNAL`: Keycloak internal URL. Usually `http://keycloak:8080`.

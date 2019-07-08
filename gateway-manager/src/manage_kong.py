@@ -25,7 +25,7 @@ from typing import Callable, Dict
 from requests.exceptions import HTTPError
 
 from manage_keycloak import get_client_secret
-from helpers import request, load_json_file, get_logger
+from helpers import request, load_json_file, fill_template, get_logger
 from settings import (
     BASE_HOST,
     BASE_DOMAIN,
@@ -72,16 +72,6 @@ def _get_service_oidc_payload(service_name, realm, client_id):
         'config.user_url': f'{_KC_REALMS}/{realm}/{_OPENID_PATH}/userinfo',
         'config.realm': realm,
     }
-
-
-def _fill_template(template_str, replacements):
-    # take only the required values for formatting
-    swaps = {
-        k: v
-        for k, v in replacements.items()
-        if ('{%s}' % k) in template_str
-    }
-    return template_str.format(**swaps)
 
 
 def _check_realm_in_action(action, realm):
@@ -189,7 +179,7 @@ def add_service(service_config, realm, oidc_client):
         for ep in endpoints:
             context = dict({'realm': realm}, **ep)
             ep_name = ep['name']
-            ep_url = _fill_template(ep.get('url'), context)
+            ep_url = fill_template(ep.get('url'), context)
             service_name = f'{name}_{ep_type}_{ep_name}'
             data = {
                 'name': service_name,
@@ -204,7 +194,7 @@ def add_service(service_config, realm, oidc_client):
 
             ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{service_name}/routes'
             if ep.get('template_path'):
-                path = _fill_template(ep.get('template_path'), context)
+                path = fill_template(ep.get('template_path'), context)
             else:
                 path = ep.get('route_path') or f'/{realm}/{name}{ep_url}'
 
