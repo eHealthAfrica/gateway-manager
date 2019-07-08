@@ -199,6 +199,10 @@ get_kafka_creds {tenant}
   This template is used with the `register_app` command.
   Defaults to `{TEMPLATES_PATH}/cors_template.json`.
 
+- `OIDC_TEMPLATE_PATH`: Path to Kong service OIDC plugin template file.
+  This template is used with the `add_service` and `add_solution` commands.
+  Defaults to `{TEMPLATES_PATH}/oidc_template.json`.
+
 - `REALM_TEMPLATE_PATH`: Path to keycloak realm template file.
   This template is used with the `add_solution` and `add_service` commands.
   Defaults to `{TEMPLATES_PATH}/realm_template.json`.
@@ -222,8 +226,8 @@ get_kafka_creds {tenant}
 
 ### Keycloak
 
-- `KEYCLOAK_INTERNAL`: Keycloak internal URL. Usually `http://keycloak:8080`.
-- `KEYCLOAK_PATH`: Keycloak path to the authorization section. Defaults to `/auth/`.
+- `KEYCLOAK_INTERNAL`: Keycloak internal URL. Usually `http://keycloak:8080/auth/`.
+  **Note**: Ending `/` is required to connect to admin console.
 - `KEYCLOAK_MASTER_REALM`: Keycloak master realm name. Defaults to `master`.
 - `KEYCLOAK_GLOBAL_ADMIN`: Keycloak admin user name in the master realm.
 - `KEYCLOAK_GLOBAL_PASSWORD`: Keycloak admin user password in the master realm.

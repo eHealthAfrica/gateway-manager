@@ -31,9 +31,6 @@ from settings import (
     BASE_DOMAIN,
 
     KONG_INTERNAL_URL,
-    KONG_OIDC_PLUGIN,
-
-    KEYCLOAK_PUBLIC_URL,
 
     SERVICES_PATH,
     SOLUTIONS_PATH,
@@ -50,28 +47,14 @@ ENDPOINT_TYPES = [EPT_PUBLIC, EPT_OIDC]
 def _get_service_oidc_payload(service_name, realm, client_id):
     client_secret = get_client_secret(realm, client_id)
 
-    # must be the public url
-    _KC_REALMS = f'{KEYCLOAK_PUBLIC_URL}realms'
-    _OPENID_PATH = 'protocol/openid-connect'
-
-    # OIDC plugin settings (same for all endpoints)
-    return {
-        'name': KONG_OIDC_PLUGIN,
-
-        'config.client_id': client_id,
-        'config.client_secret': client_secret,
-        'config.cookie_domain': BASE_DOMAIN,
-        'config.email_key': 'email',
-        'config.scope': 'openid+profile+email+iss',
-        'config.user_info_cache_enabled': 'true',
-
-        'config.app_login_redirect_url': f'{BASE_HOST}/{realm}/{service_name}/',
-        'config.authorize_url': f'{_KC_REALMS}/{realm}/{_OPENID_PATH}/auth',
-        'config.service_logout_url': f'{_KC_REALMS}/{realm}/{_OPENID_PATH}/logout',
-        'config.token_url': f'{_KC_REALMS}/{realm}/{_OPENID_PATH}/token',
-        'config.user_url': f'{_KC_REALMS}/{realm}/{_OPENID_PATH}/userinfo',
-        'config.realm': realm,
-    }
+    return load_json_file(TEMPLATES['oidc'], {
+        'host': BASE_HOST,
+        'domain': BASE_DOMAIN,
+        'realm': realm,
+        'oidc_client_id': client_id,
+        'oidc_client_secret': client_secret,
+        'service': service_name,
+    })
 
 
 def _check_realm_in_action(action, realm):
@@ -135,8 +118,7 @@ def add_app(name, url):
         # ADD CORS Plugin to Kong for whole domain CORS
         PLUGIN_URL = f'{KONG_INTERNAL_URL}/services/{name}/plugins'
 
-        config = load_json_file(TEMPLATES['cors'])
-        config['config.origins'] = f'{BASE_HOST}/*'
+        config = load_json_file(TEMPLATES['cors'], {'host': BASE_HOST})
         request(method='post', url=PLUGIN_URL, data=config)
 
         # Routes
