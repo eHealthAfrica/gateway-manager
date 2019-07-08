@@ -139,10 +139,12 @@ function show_help {
 
         Usage:  add_kafka_su {username} {password}
 
+
     grant_kafka_su:
         Give an existing user superuser status.
 
         Usage:  grant_kafka_su {username}
+
 
     add_kafka_tenant:
         Adds a kafka user for a tenant, and adds ACL to their namespace.
@@ -155,6 +157,7 @@ function show_help {
 
         Usage:  get_kafka_creds {tenant}
 
+
     ElasticSearch
     ----------------------------------------------------------------------------
 
@@ -162,6 +165,7 @@ function show_help {
         Prepares ElasticSearch
 
         Usage:  setup_elasticsearch
+
 
     add_elasticsearch_tenant:
         Adds a tenant to ElasticSearch
@@ -267,6 +271,7 @@ case "$1" in
     add_elasticsearch_tenant )
         python /code/src/manage_elasticsearch.py ADD_TENANT "${@:2}"
     ;;
+
 
     # --------------------------------------------------------------------------
     # Generic
