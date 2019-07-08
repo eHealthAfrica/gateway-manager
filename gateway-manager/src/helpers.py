@@ -60,7 +60,6 @@ def load_json_file(json_file_path, mapping=None):
 
     try:
         with open(json_file_path) as _f:
-            # data = json.load(_f)
             content = _f.read().replace('\n', '')
             if mapping:
                 content = Template(content).safe_substitute(mapping)
