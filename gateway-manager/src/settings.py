@@ -38,6 +38,10 @@ TEMPLATES = {
         'CORS_TEMPLATE_PATH',
         f'{_TEMPLATES_PATH}/cors_template.json'
     ),
+    'oidc': get_env(
+        'OIDC_TEMPLATE_PATH',
+        f'{_TEMPLATES_PATH}/oidc_template.json'
+    ),
 
     'realm': get_env(
         'REALM_TEMPLATE_PATH',
@@ -60,16 +64,19 @@ TEMPLATES = {
             f'{_TEMPLATES_PATH}/user_standard_template.json'
         ),
     },
+
+    'es': {
+        'role': get_env(
+            'ES_ROLE_TEMPLATE_PATH',
+            f'{_TEMPLATES_PATH}/es_role_template.json'
+        ),
+    }
 }
+
 
 # Keycloak Information
 
-_KEYCLOAK_INTERNAL = get_env('KEYCLOAK_INTERNAL')
-_KEYCLOAK_PATH = get_env('KEYCLOAK_PATH', '/auth/')
-KEYCLOAK_PUBLIC_URL = f'{BASE_HOST}{_KEYCLOAK_PATH}'
-
-# Use internal URL with KeycloakAdmin
-KC_ADMIN_URL = f'{_KEYCLOAK_INTERNAL}{_KEYCLOAK_PATH}'
+KC_ADMIN_URL = get_env('KEYCLOAK_INTERNAL')     # http://keycloak:8080/auth/
 KC_ADMIN_USER = get_env('KEYCLOAK_GLOBAL_ADMIN')
 KC_ADMIN_PASSWORD = get_env('KEYCLOAK_GLOBAL_PASSWORD')
 KC_ADMIN_REALM = get_env('KEYCLOAK_MASTER_REALM', 'master')
@@ -77,16 +84,15 @@ KC_ADMIN_REALM = get_env('KEYCLOAK_MASTER_REALM', 'master')
 
 # Kong Information
 
-KONG_INTERNAL_URL = get_env('KONG_INTERNAL')
-KONG_OIDC_PLUGIN = 'kong-oidc-auth'
+KONG_INTERNAL_URL = get_env('KONG_INTERNAL')    # http://kong:8001
 KONG_PUBLIC_REALM = get_env('PUBLIC_REALM', '-')
 
 
 # Kafka && Zookeeper
 
-ZK_HOST = get_env('ZOOKEEPER_HOST')             # '127.0.0.1:32181'
-ZK_USER = get_env('ZOOKEEPER_USER')             # 'zk-admin'
-ZK_PW = get_env('ZOOKEEPER_PW')                 # 'password'
+ZK_HOST = get_env('ZOOKEEPER_HOST')             # 127.0.0.1:32181
+ZK_USER = get_env('ZOOKEEPER_USER')             # zk-admin
+ZK_PW = get_env('ZOOKEEPER_PW')                 # password
 # registered administrative credentials
 KAFKA_ADMIN_SECRET = get_env('KAFKA_SECRET')
 

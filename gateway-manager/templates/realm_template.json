@@ -1,5 +1,9 @@
 {
+  "realm": "${realm}",
+  "displayName": "${displayName}",
+  "loginTheme": "${loginTheme}",
   "enabled": true,
+  "sslRequired": "NONE",
   "requiredCredentials": ["password"],
   "roles": {
     "realm": [

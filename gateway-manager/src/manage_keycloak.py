@@ -37,8 +37,6 @@ from settings import (
     TEMPLATES,
 )
 
-PUBLIC_URL = f'{BASE_HOST}/{KONG_PUBLIC_REALM}/*'
-
 
 def get_client():
     try:
@@ -95,12 +93,15 @@ def create_realm(realm, description=None, login_theme=None):
     logger.info(f'Adding realm "{realm}"...')
     keycloak_admin = get_client()
 
-    config = load_json_file(TEMPLATES['realm'])
-    config['realm'] = realm
-    if description:
-        config['displayName'] = description
-    if login_theme:
-        config['loginTheme'] = login_theme
+    config = load_json_file(TEMPLATES['realm'], {
+        'realm': realm,
+        'displayName': description or '',
+        'loginTheme': login_theme or '',
+    })
+    if not description:
+        config['displayName'] = None
+    if not login_theme:
+        config['loginTheme'] = None
 
     _status = keycloak_admin.create_realm(config, skip_exists=True)
     if _status:
@@ -119,9 +120,12 @@ def create_user(
     logger.info(f'Adding user "{user}" to realm "{realm}"...')
 
     user_type = 'admin' if bool(admin) else 'standard'
-    config = load_json_file(TEMPLATES['user'][user_type])
-    config['username'] = user
-    config['email'] = email
+    config = load_json_file(TEMPLATES['user'][user_type], {
+        'username': user,
+        'email': email or '',
+    })
+    if not email:
+        config['email'] = None
 
     keycloak_admin = client_for_realm(realm)
     _status = keycloak_admin.create_user(config)
@@ -151,11 +155,15 @@ def create_public_client(realm, name):
 
 
 def create_client(realm, name, isPublic):
-    config = load_json_file(TEMPLATES['client'])
-    config['clientId'] = name
-    config['baseUrl'] = f'{BASE_HOST}/{realm}/'
-    config['publicClient'] = isPublic
-    config['redirectUris'] = ['*', PUBLIC_URL] if isPublic else ['*']
+    config = load_json_file(TEMPLATES['client'], {
+        'name': name,
+        'host': BASE_HOST,
+        'realm': realm,
+        'publicRealm': KONG_PUBLIC_REALM,
+    })
+    if not isPublic:
+        config['publicClient'] = False
+        config['redirectUris'] = ['*']
 
     keycloak_admin = client_for_realm(realm)
     _status = keycloak_admin.create_client(config, skip_exists=True)

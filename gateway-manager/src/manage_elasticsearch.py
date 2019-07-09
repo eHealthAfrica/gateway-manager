@@ -21,55 +21,20 @@
 from requests.auth import HTTPBasicAuth
 import sys
 
-from helpers import get_logger, request
+from helpers import get_logger, load_json_file, request
 from settings import (
     ES_HOST,
     ES_USER,
-    ES_PW
+    ES_PW,
+    TEMPLATES,
 )
 
-AUTH = HTTPBasicAuth(ES_USER, ES_PW)
 API = f'{ES_HOST}/_opendistro/_security/api/'
 
 
 def create_tenant(tenant):
 
-    role = {
-        'cluster': [
-            'INDICES_MONITOR',
-            'CLUSTER_COMPOSITE_OPS'
-        ],
-        'indices': {
-            '*': {
-                '*': [
-                    'indices:data/read/field_caps*',
-                    'indices:data/read/xpack/rollup*',
-                    'indices:admin/mappings/get*'
-                ]
-            },
-            f'?kibana*{tenant}': {
-                '*': ['MANAGE', 'INDEX', 'READ', 'DELETE']
-            },
-            '?management-beats': {
-                '*': [
-                    'INDICES_ALL'
-                ]
-            },
-            '?tasks': {
-                '*': [
-                    'INDICES_ALL'
-                ]
-            },
-            f'{tenant}*': {
-                '*': [
-                    'UNLIMITED'
-                ]
-            }
-        },
-        'tenants': {
-            tenant: 'RW'
-        }
-    }
+    role = load_json_file(TEMPLATES['es']['role'], {'tenant': tenant})
 
     url = f'{API}roles/{tenant}'
     ok = request(method='put', url=url, auth=AUTH, json=role)
@@ -107,6 +72,8 @@ if __name__ == "__main__":
     if command.upper() not in COMMANDS.keys():
         logger.critical(f'No command: {command}')
         sys.exit(1)
+
+    AUTH = HTTPBasicAuth(ES_USER, ES_PW)
 
     fn = COMMANDS[command]
     args = sys.argv[2:]
