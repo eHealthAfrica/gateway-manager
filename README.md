@@ -163,6 +163,13 @@ Adds a Superuser to the Kafka Cluster.
 add_kafka_su {username} {password}
 ```
 
+#### `grant_kafka_su`
+Give an existing user superuser status.
+
+```bash
+grant_kafka_su {username}
+```
+
 #### `add_kafka_tenant`
 Adds a kafka user for a tenant, and adds ACL to their namespace.
 
@@ -175,6 +182,22 @@ Gets SASL Credential for a given kafka tenant.
 
 ```bash
 get_kafka_creds {tenant}
+```
+
+### ElasticSearch
+
+#### `setup_elasticsearch`
+Prepares ElasticSearch.
+
+```bash
+setup_elasticsearch
+```
+
+#### `add_elasticsearch_tenant`
+Adds a tenant to ElasticSearch.
+
+```bash
+add_elasticsearch_tenant {tenant}
 ```
 
 ## Environment variables
@@ -235,3 +258,9 @@ get_kafka_creds {tenant}
 - `ZOOKEEPER_USER`: Zookeeper user name.
 - `ZOOKEEPER_PW`: Zookeeper user password.
 - `KAFKA_SECRET`: Kafka registered administrative credentials.
+
+### ElasticSearch
+
+- `ELASTICSEARCH_HOST`: Elasticsearch internal URL. Usually `http://elasticsearch:9200`.
+- `ELASTICSEARCH_USER`: Elasticsearch user name.
+- `ELASTICSEARCH_PW`: Elasticsearch user password.
