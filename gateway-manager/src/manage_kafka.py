@@ -30,7 +30,6 @@ from zookeeper_functions import (
 )
 
 ZK_LAG_TIME = 3
-ZOOKEEPER = get_zookeeper()
 
 
 def create_superuser(name, password):
@@ -85,7 +84,7 @@ def tenant_creds(realm):
     logger.info(f'{realm} : {pw}')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     logger = get_logger('Kafka')
 
     COMMANDS = {
@@ -99,6 +98,8 @@ if __name__ == "__main__":
     if command.upper() not in COMMANDS.keys():
         logger.critical(f'No command: {command}')
         sys.exit(1)
+
+    ZOOKEEPER = get_zookeeper()
 
     fn = COMMANDS[command]
     args = sys.argv[2:]

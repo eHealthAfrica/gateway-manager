@@ -20,6 +20,8 @@ import coloredlogs
 import logging
 import json
 import requests
+
+from string import Template
 from requests.exceptions import HTTPError
 
 from settings import DEBUG
@@ -43,12 +45,25 @@ def request(*args, **kwargs):
         __handle_exception(_logger, e)
 
 
-def load_json_file(json_file_path):
+def fill_template(template_str, mapping):
+    # take only the required values for formatting
+    swaps = {
+        k: v
+        for k, v in mapping.items()
+        if ('{%s}' % k) in template_str
+    }
+    return template_str.format(**swaps)
+
+
+def load_json_file(json_file_path, mapping=None):
     _logger = get_logger('json')
 
     try:
         with open(json_file_path) as _f:
-            data = json.load(_f)
+            content = _f.read().replace('\n', '')
+            if mapping:
+                content = Template(content).safe_substitute(mapping)
+            data = json.loads(content)
         return data
     except Exception as e:
         __handle_exception(_logger, e)

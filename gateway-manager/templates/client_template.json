@@ -1,9 +1,11 @@
 {
+  "clientId": "${name}",
+  "baseUrl": "${host}/${realm}/",
   "clientAuthenticatorType": "client-secret",
   "directAccessGrantsEnabled": true,
   "enabled": true,
   "publicClient": true,
-  "redirectUris": ["*"],
+  "redirectUris": ["*", "${host}/${publicRealm}/*"],
   "protocolMappers": [
     {
       "name": "groups",

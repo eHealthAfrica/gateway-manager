@@ -215,12 +215,18 @@ add_elasticsearch_tenant {tenant}
 
 - `SOLUTIONS_PATH`: Path to solution files directory. Defaults to `/code/solution`.
 
+### Templates
+
 - `TEMPLATES_PATH`: Path to template files directory.
   Defaults to `/code/templates`.
 
 - `CORS_TEMPLATE_PATH`: Path to Kong service CORS plugin template file.
   This template is used with the `register_app` command.
   Defaults to `{TEMPLATES_PATH}/cors_template.json`.
+
+- `OIDC_TEMPLATE_PATH`: Path to Kong service OIDC plugin template file.
+  This template is used with the `add_service` and `add_solution` commands.
+  Defaults to `{TEMPLATES_PATH}/oidc_template.json`.
 
 - `REALM_TEMPLATE_PATH`: Path to keycloak realm template file.
   This template is used with the `add_solution` and `add_service` commands.
@@ -239,10 +245,32 @@ add_elasticsearch_tenant {tenant}
   This template is used with the `add_user` command while creating non admin users.
   Defaults to `{TEMPLATES_PATH}/user_standard_template.json`.
 
+- `ES_ROLE_TEMPLATE_PATH`: Path to ElasticSearch role template file.
+  This template is used with the `add_elasticsearch_tenant` command.
+  Defaults to `{TEMPLATES_PATH}/es_role_template.json`.
+
+All of these templates are going to be parsed using the
+[python template strings feature](https://docs.python.org/3/library/string.html#template-strings).
+This means that even the keys or the values can contain `$-based` strings that
+will be replaced with the environment variable or command argument values.
+
+Some of the expected `$-based` strings are:
+- `domain`: replaced with `BASE_DOMAIN` environment variable value.
+- `host`: replaced with `BASE_HOST` environment variable value.
+- `realm`: replaced with the `realm`command argument value.
+- `tenant`: replaced with the `tenant` command argument value.
+- `publicRealm`: replaced with `PUBLIC_REALM` environment variable value.
+- `oidc_client_id`: replaced with the `oidc-client` command argument value.
+- `oidc_client_secret`: replaced with `oidc` client secret fetched form Keycloak.
+- `username`: replaced with the `username` command argument value.
+- `email`: replaced with the `email` command argument value.
+
+Review the code to get the expected strings in each case.
+
 ### Keycloak
 
-- `KEYCLOAK_INTERNAL`: Keycloak internal URL. Usually `http://keycloak:8080`.
-- `KEYCLOAK_PATH`: Keycloak path to the authorization section. Defaults to `/auth/`.
+- `KEYCLOAK_INTERNAL`: Keycloak internal URL. Usually `http://keycloak:8080/auth/`.
+  **Note**: Ending `/` is required to connect to admin console.
 - `KEYCLOAK_MASTER_REALM`: Keycloak master realm name. Defaults to `master`.
 - `KEYCLOAK_GLOBAL_ADMIN`: Keycloak admin user name in the master realm.
 - `KEYCLOAK_GLOBAL_PASSWORD`: Keycloak admin user password in the master realm.
