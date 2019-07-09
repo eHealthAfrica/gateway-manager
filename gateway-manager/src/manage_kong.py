@@ -174,6 +174,19 @@ def add_service(service_config, realm, oidc_client):
 
     logger.info(f'Exposing service "{name}" at {host} for realm "{realm}"...')
 
+    try:
+        data = {
+            'name': name,
+            'url': host,
+        }
+        service_info = request(method='post', url=f'{KONG_INTERNAL_URL}/services/', data=data)
+        service_id = service_info['id']
+        logger.success(f'Added service "{name}: {service_id}')
+    except HTTPError:
+        logger.warning(f'Could not add service "{name}" ({host})')
+
+    ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{name}/routes'
+
     # OIDC plugin settings (same for all OIDC endpoints)
     oidc_data = {}
     if service_config.get(f'{EPT_OIDC}_endpoints'):
@@ -190,30 +203,20 @@ def add_service(service_config, realm, oidc_client):
             context = dict({'realm': realm}, **ep)
             ep_name = ep['name']
             ep_url = _fill_template(ep.get('url'), context)
-            service_name = f'{name}_{ep_type}_{ep_name}'
-            data = {
-                'name': service_name,
-                'url': f'{host}{ep_url}',
-            }
-            try:
-                service_info = request(method='post', url=f'{KONG_INTERNAL_URL}/services/', data=data)
-                service_id = service_info['id']
-                logger.success(f'Added endpoint "{ep_name} ({service_name})": {service_id}')
-            except HTTPError:
-                logger.warning(f'Could not add endpoint "{ep_name}" ({service_name})')
+            route_name = f'{name}__{ep_type}__{ep_name}__{realm}'
 
-            ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{service_name}/routes'
             if ep.get('template_path'):
                 path = _fill_template(ep.get('template_path'), context)
             else:
                 path = ep.get('route_path') or f'/{realm}/{name}{ep_url}'
 
             route_data = {
-                'name': f'{service_name}__{realm}',
+                'name': route_name,
                 'hosts': [BASE_DOMAIN, ],
                 'preserve_host': 'true',
                 'paths': [path, ],
                 'strip_path': ep.get('strip_path', 'false'),
+                'tags': [realm, ]  # use tags to identify assigned realm
             }
 
             try:
@@ -246,23 +249,16 @@ def add_service(service_config, realm, oidc_client):
 def remove_service(service_config, realm):
 
     def _realm_in_route(route):
-        if route['name']:
-            return route['name'].endswith(f'__{realm}')
-        return any([path.strip('/').startswith(realm) for path in route['paths']])
+        return realm in route.get('tags', []) or route['name'].endswith(f'__{realm}')
 
     name = service_config['name']  # service name
-    routes_fn = None if not realm else _realm_in_route
-
     if not realm:
         logger.info(f'Removing service "{name}" from ALL realms...')
     else:
         logger.info(f'Removing service "{name}" from realm "{realm}"...')
 
-    for ep_type in ENDPOINT_TYPES:
-        logger.info(f'Removing {ep_type} services...')
-        endpoints = service_config.get(f'{ep_type}_endpoints', [])
-        for ep in endpoints:
-            _remove_service_and_routes(f'{name}_{ep_type}_{ep["name"]}', routes_fn)
+    routes_fn = None if not realm else _realm_in_route
+    _remove_service_and_routes(name, routes_fn)
 
 
 def handle_app(action, name, url=None):
