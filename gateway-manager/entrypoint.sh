@@ -80,12 +80,6 @@ function show_help {
     Kong
     ----------------------------------------------------------------------------
 
-    setup_auth:
-        Registers Keycloak (the auth service) in Kong.
-
-        Alias of:  add_app auth $KEYCLOAK_INTERNAL
-
-
     register_app | add_app:
         Registers an app in Kong.
 
@@ -141,7 +135,7 @@ function show_help {
 
 
     grant_kafka_su:
-        Give an existing user superuser status.
+        Gives an existing user superuser status.
 
         Usage:  grant_kafka_su {username}
 
@@ -162,13 +156,13 @@ function show_help {
     ----------------------------------------------------------------------------
 
     setup_elasticsearch:
-        Prepares ElasticSearch
+        Prepares ElasticSearch.
 
         Usage:  setup_elasticsearch
 
 
     add_elasticsearch_tenant:
-        Adds a tenant to ElasticSearch
+        Adds a tenant to ElasticSearch.
 
         Usage:  add_elasticsearch_tenant {tenant}
 
@@ -209,10 +203,6 @@ case "$1" in
     # --------------------------------------------------------------------------
     # Kong
     # --------------------------------------------------------------------------
-
-    setup_auth )
-        python /code/src/manage_kong.py APP ADD auth $KEYCLOAK_INTERNAL
-    ;;
 
     register_app | add_app )
         python /code/src/manage_kong.py APP ADD "${@:2}"

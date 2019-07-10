@@ -29,6 +29,7 @@ DEBUG = bool(get_env('DEBUG'))
 BASE_HOST = get_env('BASE_HOST')
 BASE_DOMAIN = get_env('BASE_DOMAIN')
 
+APPS_PATH = get_env('APPS_PATH', '/code/app')
 SERVICES_PATH = get_env('SERVICES_PATH', '/code/service')
 SOLUTIONS_PATH = get_env('SOLUTIONS_PATH', '/code/solution')
 
