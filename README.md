@@ -90,6 +90,9 @@ decode_token {token}
 
 ### Kong
 
+#### `kong_ready`
+Checks the Kong connection. Returns status `0` on success.
+
 #### `add_app` or `register_app`
 Registers an app as a service in Kong,
 using the app definition in `APPS_PATH` directory.
@@ -196,6 +199,9 @@ get_kafka_creds {tenant}
 ```
 
 ### ElasticSearch
+
+#### `elasticsearch_ready`
+Checks the ElasticSearch connection. Returns status `0` on success.
 
 #### `setup_elasticsearch`
 Prepares ElasticSearch.

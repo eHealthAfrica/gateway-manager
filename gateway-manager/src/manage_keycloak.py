@@ -84,7 +84,7 @@ def get_client_secret(realm, client_id):
         sys.exit(1)
 
 
-def keycloak_ready():
+def is_keycloak_ready():
     get_client()
     logger.success('Keycloak is ready!')
 
@@ -176,7 +176,7 @@ if __name__ == '__main__':
     logger = get_logger('Keycloak')
 
     COMMANDS: Dict[str, Callable] = {
-        'KEYCLOAK_READY': keycloak_ready,
+        'READY': is_keycloak_ready,
         'ADD_REALM': create_realm,
         'ADD_USER': create_user,
         'ADD_CONFIDENTIAL_CLIENT': create_confidential_client,

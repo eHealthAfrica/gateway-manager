@@ -80,6 +80,10 @@ function show_help {
     Kong
     ----------------------------------------------------------------------------
 
+    kong_ready:
+        Checks the Kong connection. Returns status 0 on success.
+
+
     register_app | add_app:
         Registers an app in Kong.
 
@@ -155,6 +159,10 @@ function show_help {
     ElasticSearch
     ----------------------------------------------------------------------------
 
+    elasticsearch_ready:
+        Checks the ElasticSearch connection. Returns status 0 on success.
+
+
     setup_elasticsearch:
         Prepares ElasticSearch.
 
@@ -176,7 +184,7 @@ case "$1" in
     # --------------------------------------------------------------------------
 
     keycloak_ready )
-        python /code/src/manage_keycloak.py KEYCLOAK_READY
+        python /code/src/manage_keycloak.py READY
     ;;
 
     add_realm )
@@ -203,6 +211,10 @@ case "$1" in
     # --------------------------------------------------------------------------
     # Kong
     # --------------------------------------------------------------------------
+
+    kong_ready )
+        python /code/src/manage_kong.py READY
+    ;;
 
     register_app | add_app )
         python /code/src/manage_kong.py APP ADD "${@:2}"
@@ -253,6 +265,10 @@ case "$1" in
     # --------------------------------------------------------------------------
     # ElasticSearch
     # --------------------------------------------------------------------------
+
+    elasticsearch_ready )
+        python /code/src/manage_elasticsearch.py READY
+    ;;
 
     setup_elasticsearch )
         python /code/src/manage_elasticsearch.py SETUP

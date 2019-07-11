@@ -295,10 +295,19 @@ def handle_solution(action, name, realm=None, oidc_client=None):
         handle_service(action, service, realm, oidc_client)
 
 
+def is_kong_ready():
+    try:
+        request(method='get', url=KONG_INTERNAL_URL)
+        logger.success('Kong is ready!')
+    except Exception:
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     logger = get_logger('Kong')
 
     COMMANDS: Dict[str, Callable] = {
+        'READY': is_kong_ready,
         'APP': handle_app,
         'SERVICE': handle_service,
         'SOLUTION': handle_solution,
