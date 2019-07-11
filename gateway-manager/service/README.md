@@ -7,7 +7,7 @@ The expected format for each service file is:
 
 ```javascript
 {
-  // service name (unique among rest of services)
+  // kong service name (unique among rest of services)
   "name": "service-name",
 
   // internal host (behind kong)

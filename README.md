@@ -3,6 +3,13 @@
 This application is used to configure Keycloak+Kong installations,
 locally or as part of a cluster.
 
+## App
+
+An app represents an application and defines a set of public URLs.
+The main difference between an app and a service is that the app cannot be added to a realm.
+
+Continues in [App README](/gateway-manager/app/README.md)
+
 ## Service
 
 A service represents an application and defines a set of public and protected
@@ -84,50 +91,50 @@ decode_token {token}
 ### Kong
 
 #### `add_app` or `register_app`
-Registers an app as a service in Kong and serves it behind Kong (like NGINX).
+Registers an app as a service in Kong,
+using the app definition in `APPS_PATH` directory.
 
 ```bash
-add_app {app-name} {app-internal-url}
+add_app {app-name}
 # or
-register_app {app-name} {app-internal-url}
+register_app {app-name}
 ```
+
+> Note: The expected app file is `{APPS_PATH}/{app-name}.json`.
 
 #### `remove_app`
-Removes an app in Kong.
+Removes an app in Kong,
+using the app definition in `APPS_PATH` directory.
 
 ```bash
-remove_app {app_name}
+remove_app {app-name}
 ```
-
-#### `setup_auth`
-Registers Keycloak (the **auth** service) in Kong.
-
-Alias of:
-
-```bash
-register_app auth $KEYCLOAK_INTERNAL
-```
+> Note: The expected app file is `{APPS_PATH}/{app-name}.json`.
 
 #### `add_service`
 Adds a service to an existing realm in Kong,
 using the service definition in `SERVICES_PATH` directory.
 
 ```bash
-add_service {service} {realm} {oidc-client}
+add_service {service-name} {realm} {oidc-client}
 ```
+
+> Note: The expected service file is `{SERVICES_PATH}/{service-name}.json`.
 
 #### `remove_service`
 Removes a service from an existing realm in Kong,
 using the service definition in `SERVICES_PATH` directory.
 
 ```bash
-remove_service {service} {realm}
+remove_service {service-name} {realm}
 
 # removes service from all realms
-remove_service {service}
+remove_service {service-name}
 # or
-remove_service {service} "*"
+remove_service {service-name} "*"
 ```
+
+> Note: The expected service file is `{SERVICES_PATH}/{service-name}.json`.
 
 > Note: the service will not be enterily removed if it's still used by another realm.
 
@@ -136,21 +143,25 @@ Adds a package of services to an existing realm in Kong,
 using the solution definition in `SOLUTION_PATH` directory.
 
 ```bash
-add_solution {solution} {realm} {oidc-client}
+add_solution {solution-name} {realm} {oidc-client}
 ```
+
+> Note: The expected solution file is `{SOLUTION_PATH}/{solution-name}.json`.
 
 #### `remove_solution`
 Removes a package of services from an existing realm in Kong,
 using the solution definition in `SOLUTION_PATH` directory.
 
 ```bash
-remove_solution {solution} {realm}
+remove_solution {solution-name} {realm}
 
 # removes solution from all realms
-remove_solution {solution}
+remove_solution {solution-name}
 # or
-remove_solution {solution} "*"
+remove_solution {solution-name} "*"
 ```
+
+> Note: The expected solution file is `{SOLUTION_PATH}/{solution-name}.json`.
 
 > Note: the solution will not be enterily removed if it's still used by another realm.
 
@@ -164,7 +175,7 @@ add_kafka_su {username} {password}
 ```
 
 #### `grant_kafka_su`
-Give an existing user superuser status.
+Gives an existing user superuser status.
 
 ```bash
 grant_kafka_su {username}
@@ -210,6 +221,8 @@ add_elasticsearch_tenant {tenant}
 - `BASE_DOMAIN`: Installation hostname.
 
 - `BASE_HOST`: Installation hostname with protocol.
+
+- `APPS_PATH`: Path to app files directory. Defaults to `/code/app`.
 
 - `SERVICES_PATH`: Path to service files directory. Defaults to `/code/service`.
 

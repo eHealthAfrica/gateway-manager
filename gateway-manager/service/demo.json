@@ -1,5 +1,5 @@
 {
-  "name": "demo",
+  "name": "demo-service",
   "host": "http://demo-service:3013",
   "oidc_endpoints": [
     {

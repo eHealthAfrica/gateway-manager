@@ -32,6 +32,7 @@ from settings import (
 
     KONG_INTERNAL_URL,
 
+    APPS_PATH,
     SERVICES_PATH,
     SOLUTIONS_PATH,
     TEMPLATES,
@@ -70,6 +71,27 @@ def _check_realm_in_action(action, realm):
     return realm
 
 
+def _add_service(config):
+    name = config['name']  # service name
+    host = config['host']  # service host
+
+    logger.info(f'Exposing service "{name}" at {host}...')
+
+    try:
+        # Register service
+        data = {
+            'name': name,
+            'url': host,
+        }
+        service_info = request(method='post', url=f'{KONG_INTERNAL_URL}/services/', data=data)
+        service_id = service_info['id']
+        logger.success(f'Added service "{name}": {service_id}')
+
+    except Exception as e:
+        logger.critical(f'Could not add service "{name}" at {host}')
+        raise e
+
+
 def _remove_service_and_routes(name, routes_fn=None):
     logger.info(f'Removing service "{name}"...')
 
@@ -102,61 +124,48 @@ def _remove_service_and_routes(name, routes_fn=None):
         logger.critical(f'Could not remove service "{name}"')
 
 
-def add_app(name, url):
-    logger.info(f'Exposing service "{name}" at {url}...')
-
+def add_app(app_config):
     try:
-        # Register service
-        data = {
-            'name': name,
-            'url': url,
-        }
-        service_info = request(method='post', url=f'{KONG_INTERNAL_URL}/services/', data=data)
-        service_id = service_info['id']
-        logger.success(f'Added service "{name}": {service_id}')
+        # Register app as service
+        _add_service(app_config)
+
+        name = app_config['name']  # app name
 
         # ADD CORS Plugin to Kong for whole domain CORS
-        PLUGIN_URL = f'{KONG_INTERNAL_URL}/services/{name}/plugins'
-
         config = load_json_file(TEMPLATES['cors'], {'host': BASE_HOST})
+        PLUGIN_URL = f'{KONG_INTERNAL_URL}/services/{name}/plugins'
         request(method='post', url=PLUGIN_URL, data=config)
 
-        # Routes
-        # Add a route which we will NOT protect
-        ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{name}/routes'
+        # Add a public route
+        paths = app_config.get('paths', [f'/{name}'])
         data_route = {
             'name': name,
             'hosts': [BASE_DOMAIN, ],
             'preserve_host': 'true',
-            'paths': [f'/{name}', ],
+            'paths': paths,
             'strip_path': 'false',
         }
+
+        ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{name}/routes'
         request(method='post', url=ROUTE_URL, data=data_route)
-        logger.success(f'Route {url} now being served at {BASE_HOST}/{name}')
+        logger.success(f'Route paths {paths} now being served at {BASE_HOST}')
 
     except Exception as e:
-        logger.critical(f'Could not add service "{name}"')
         logger.error(str(e))
         sys.exit(1)
 
 
 def add_service(service_config, realm, oidc_client):
+    try:
+        # Register service
+        _add_service(service_config)
+    except HTTPError:
+        pass
+
     name = service_config['name']  # service name
     host = service_config['host']  # service host
 
-    logger.info(f'Exposing service "{name}" at {host} for realm "{realm}"...')
-
-    try:
-        data = {
-            'name': name,
-            'url': host,
-        }
-        service_info = request(method='post', url=f'{KONG_INTERNAL_URL}/services/', data=data)
-        service_id = service_info['id']
-        logger.success(f'Added service "{name}: {service_id}')
-    except HTTPError:
-        logger.warning(f'Could not add service "{name}" ({host})')
-
+    logger.info(f'Exposing service "{name}" routes for realm "{realm}"...')
     ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{name}/routes'
 
     # OIDC plugin settings (same for all OIDC endpoints)
@@ -215,15 +224,14 @@ def add_service(service_config, realm, oidc_client):
             except HTTPError:
                 logger.error(f'Could not add route {host}{ep_url}')
 
-    logger.success(f'Service "{name}" now being served and protected for realm "{realm}"')
+    logger.success(f'Service "{name}" routes now being served and protected for realm "{realm}"')
 
 
-def remove_service(service_config, realm):
+def remove_service(name, realm):
 
     def _realm_in_route(route):
         return realm in route.get('tags', []) or route['name'].endswith(f'__{realm}')
 
-    name = service_config['name']  # service name
     if not realm:
         logger.info(f'Removing service "{name}" from ALL realms...')
     else:
@@ -233,16 +241,19 @@ def remove_service(service_config, realm):
     _remove_service_and_routes(name, routes_fn)
 
 
-def handle_app(action, name, url=None):
-    if action == 'ADD' and not url:
-        logger.critical('Cannot execute command without URL')
+def handle_app(action, name):
+    try:
+        app_config = load_json_file(f'{APPS_PATH}/{name}.json')
+    except Exception:
+        logger.critical(f'No app definition for name: "{name}"')
         sys.exit(1)
 
     if action == 'ADD':
-        add_app(name, url)
+        add_app(app_config)
 
     elif action == 'REMOVE':
-        _remove_service_and_routes(name)
+        service_name = app_config['name']
+        _remove_service_and_routes(service_name)
 
 
 def handle_service(action, name, realm=None, oidc_client=None):
@@ -258,7 +269,8 @@ def handle_service(action, name, realm=None, oidc_client=None):
         add_service(service_config, realm, oidc_client)
 
     elif action == 'REMOVE':
-        remove_service(service_config, realm)
+        service_name = service_config['name']
+        remove_service(service_name, realm)
 
 
 def handle_solution(action, name, realm=None, oidc_client=None):
