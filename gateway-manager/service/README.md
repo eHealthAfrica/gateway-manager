@@ -21,34 +21,25 @@ The expected format for each service file is:
       // endpoint name (unique among rest of OIDC endpoints in this service)
       "name": "protected",
 
-      // internal endpoint url
-      "url": "/protect-me-please",
-
-      // [optional] external url,
-      // defaults to "/{realm}/{name}{url}" where
+      // list of regex paths
+      // Evaluates a path dynamically based on the following variables
+      // using string substitution:
       //    {realm} is the realm name,
-      //    {name} is the service name and
-      //    {url} is the endpoint url.
-      // use case: if the endpoint does not depend on any realm
-      "route_path": null,
-
-      // [optional] template to create an external url. Overrides default route_path.
-      // Creates a path dynamically based on the following variables using string substitution.
-      //    {realm} is the realm name,
-      //    {name} is the service name
-      //    {url} is the endpoint url
-      "template_path": null, // "/{realm}/#{name}" -> /testing-realm/#protected
+      //    {name}  is the service name
+      "paths": [
+        "/{realm}/{name}/",
+        "/{realm}/{name}-profile/path/to/resource",
+        "/{realm}/{name}-version/\\d+/"
+      ],
 
       // [optional] (defaults to "false")
-      // indicates if the route path will be used to build the url to execute the internal call
-      // use case: if the endpoint does not depend on any realm
-      "strip_path": "false"
+      // https://docs.konghq.com/1.1.x/proxy/
+      "strip_path": "false",
 
-      // in this case:
-      //   external call:
-      //     http://external-domain/testing-realm/service-name/protect-me-please/my-path
-      //   internal call:
-      //     http://my-service:8888/testing-realm/service-name/protect-me-please/my-path
+      // [optional] (defaults to "0")
+      // https://docs.konghq.com/1.1.x/proxy/#evaluation-order
+      "regex_priority": 0,
+
       "oidc_override": {
         // [optional & advanced!]
         // provide overrides to the standard oidc configuration passed to Kong-Oidc
@@ -67,34 +58,24 @@ The expected format for each service file is:
       // endpoint name (unique among rest of public endpoints in this service)
       "name": "public",
 
-      // internal endpoint url
-      "url": "/i-am-public/",
-
-      // [optional] external url,
-      // defaults to "/{realm}/{name}{url}" where
+      // list of regex paths
+      // Evaluates a path dynamically based on the following variables
+      // using string substitution:
+      //    {public_realm} is the kong public realm name (used in public endpoints),
       //    {realm} is the realm name,
-      //    {name} is the service name and
-      //    {url} is the endpoint url.
-      // use case: if the endpoint does not depend on any realm
-      "route_path": "/my-endpoint/public/",
-
-      // [optional] template to create an external url. Overrides default route_path.
-      // Creates a path dynamically based on the following variables using string substitution.
-      //    {realm} is the realm name,
-      //    {name} is the service name
-      //    {url} is the endpoint url
-      "template_path": null, // "/{realm}/#{name}" -> /testing-realm/#public
+      //    {name}  is the service name
+      "paths": [
+        "/{public_realm}/{name}/",
+        "/{name}/public/endpoint-2/\\d+"
+      ],
 
       // [optional] (defaults to "false")
-      // indicates if the route path will be used to build the url to execute the internal call
-      // use case: if the endpoint does not depend on any realm
-      "strip_path": "true"
+      // https://docs.konghq.com/1.1.x/proxy/
+      "strip_path": "true",
 
-      // in this case:
-      //   external call:
-      //     http://external-domain/my-endpoint/public/my-path
-      //   internal call:
-      //     http://my-service:8888/i-am-public/my-path
+      // [optional] (defaults to "0")
+      // https://docs.konghq.com/1.1.x/proxy/#evaluation-order
+      "regex_priority": 0
     },
     // ...
   ]

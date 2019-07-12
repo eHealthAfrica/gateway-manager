@@ -4,15 +4,24 @@
   "oidc_endpoints": [
     {
       "name": "base",
-      "url": "/",
-      "strip_path": "true"
+      "paths": [
+        "/{realm}/{name}/",
+        "/{realm}/\\d+/{name}/"
+      ],
+      "strip_path": "false",
+      "regex_priority": 1
     }
   ],
   "public_endpoints": [
     {
       "name": "public",
-      "url": "/public",
-      "strip_path": "true"
+      "paths": [
+        "/{public_realm}/{name}/",
+        "/~/{name}/public",
+        "/-/\\d+/{name}/"
+      ],
+      "strip_path": "true",
+      "regex_priority": 0
     }
   ]
 }
