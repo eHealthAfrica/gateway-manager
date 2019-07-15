@@ -3,6 +3,6 @@
   "host": "http://demo-app:8080",
   "paths": [
     "/endpoint-1",
-    "endpoint-2"
+    "/endpoint-2"
   ]
 }
