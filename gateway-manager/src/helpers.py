@@ -27,6 +27,9 @@ from requests.exceptions import HTTPError
 from settings import DEBUG
 
 
+def do_nothing(*args, **kwargs):
+    pass
+
 def request(*args, **kwargs):
     _logger = get_logger('request')
 

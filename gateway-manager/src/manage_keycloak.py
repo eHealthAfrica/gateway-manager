@@ -25,7 +25,11 @@ from typing import Callable, Dict
 from keycloak import KeycloakAdmin
 from keycloak.exceptions import KeycloakError
 
-from helpers import load_json_file, get_logger
+from helpers import (
+    do_nothing,
+    get_logger,
+    load_json_file,
+)
 
 from settings import (
     BASE_HOST,
@@ -49,7 +53,7 @@ def get_client():
         return keycloak_admin
 
     except KeycloakError as ke:
-        logger.error('Keycloak is NOT ready.')
+        logger.critical('Keycloak is NOT ready!')
         logger.error(str(ke))
         sys.exit(1)
 
@@ -176,7 +180,7 @@ if __name__ == '__main__':
     logger = get_logger('Keycloak')
 
     COMMANDS: Dict[str, Callable] = {
-        'READY': is_keycloak_ready,
+        'READY': do_nothing,
         'ADD_REALM': create_realm,
         'ADD_USER': create_user,
         'ADD_CONFIDENTIAL_CLIENT': create_confidential_client,
@@ -187,6 +191,8 @@ if __name__ == '__main__':
     if command.upper() not in COMMANDS.keys():
         logger.critical(f'No command: {command}')
         sys.exit(1)
+
+    is_keycloak_ready()
 
     fn = COMMANDS[command]
     args = sys.argv[2:]

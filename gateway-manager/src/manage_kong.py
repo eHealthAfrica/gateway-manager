@@ -25,7 +25,13 @@ from typing import Callable, Dict
 from requests.exceptions import HTTPError
 
 from manage_keycloak import get_client_secret
-from helpers import request, load_json_file, fill_template, get_logger
+from helpers import (
+    do_nothing,
+    fill_template,
+    get_logger,
+    load_json_file,
+    request,
+)
 from settings import (
     BASE_HOST,
     BASE_DOMAIN,
@@ -299,7 +305,9 @@ def is_kong_ready():
     try:
         request(method='get', url=KONG_INTERNAL_URL)
         logger.success('Kong is ready!')
-    except Exception:
+    except Exception as e:
+        logger.critical('Kong is NOT ready!')
+        logger.error(str(e))
         sys.exit(1)
 
 
@@ -307,7 +315,7 @@ if __name__ == '__main__':
     logger = get_logger('Kong')
 
     COMMANDS: Dict[str, Callable] = {
-        'READY': is_kong_ready,
+        'READY': do_nothing,
         'APP': handle_app,
         'SERVICE': handle_service,
         'SOLUTION': handle_solution,
@@ -317,6 +325,8 @@ if __name__ == '__main__':
     if command.upper() not in COMMANDS.keys():
         logger.critical(f'No command: {command}')
         sys.exit(1)
+
+    is_kong_ready()
 
     fn = COMMANDS[command]
     args = sys.argv[2:]

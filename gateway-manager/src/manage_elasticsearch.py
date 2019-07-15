@@ -21,7 +21,12 @@
 from requests.auth import HTTPBasicAuth
 import sys
 
-from helpers import get_logger, load_json_file, request
+from helpers import (
+    do_nothing,
+    get_logger,
+    load_json_file,
+    request,
+)
 from settings import (
     ES_HOST,
     ES_USER,
@@ -51,15 +56,20 @@ def setup_es():
 
 
 def is_es_ready():
-    request(method='get', url=ES_HOST, auth=AUTH)
-    logger.success('ElasticSearch is ready!')
+    try:
+        request(method='get', url=ES_HOST, auth=AUTH)
+        logger.success('ElasticSearch is ready!')
+    except Exception as e:
+        logger.critical('ElasticSearch is NOT ready!')
+        logger.error(str(e))
+        sys.exit(1)
 
 
 if __name__ == "__main__":
     logger = get_logger('ElasticSearch')
 
     COMMANDS = {
-        'READY': is_es_ready,
+        'READY': do_nothing,
         'ADD_TENANT': create_tenant,
         'SETUP': setup_es,
     }
@@ -70,6 +80,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     AUTH = HTTPBasicAuth(ES_USER, ES_PW)
+    is_es_ready()
 
     fn = COMMANDS[command]
     args = sys.argv[2:]
