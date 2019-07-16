@@ -88,6 +88,12 @@ def _add_service(config):
         service_id = service_info['id']
         logger.success(f'Added service "{name}": {service_id}')
 
+        # ADD CORS Plugin to Kong for whole domain CORS
+        config = load_json_file(TEMPLATES['cors'], {'host': BASE_HOST})
+        PLUGIN_URL = f'{KONG_INTERNAL_URL}/services/{name}/plugins'
+        request(method='post', url=PLUGIN_URL, data=config)
+        logger.success(f'Added CORS plugin to service "{name}"')
+
     except Exception as e:
         logger.critical(f'Could not add service "{name}" at {host}')
         raise e
@@ -131,11 +137,6 @@ def add_app(app_config):
         _add_service(app_config)
 
         name = app_config['name']  # app name
-
-        # ADD CORS Plugin to Kong for whole domain CORS
-        config = load_json_file(TEMPLATES['cors'], {'host': BASE_HOST})
-        PLUGIN_URL = f'{KONG_INTERNAL_URL}/services/{name}/plugins'
-        request(method='post', url=PLUGIN_URL, data=config)
 
         # Add a public route
         paths = app_config.get('paths', [f'/{name}'])
