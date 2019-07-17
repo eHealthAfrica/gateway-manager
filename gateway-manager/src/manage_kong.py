@@ -37,6 +37,7 @@ from settings import (
     BASE_DOMAIN,
 
     KONG_INTERNAL_URL,
+    KONG_PUBLIC_REALM,
 
     APPS_PATH,
     SERVICES_PATH,
@@ -93,6 +94,12 @@ def _add_service(config):
         service_id = service_info['id']
         logger.success(f'Added service "{name}": {service_id}')
 
+        # ADD CORS Plugin to Kong for whole domain CORS
+        config = load_json_file(TEMPLATES['cors'], {'host': BASE_HOST})
+        PLUGIN_URL = f'{KONG_INTERNAL_URL}/services/{name}/plugins'
+        request(method='post', url=PLUGIN_URL, data=config)
+        logger.success(f'Added CORS plugin to service "{name}"')
+
     except Exception as e:
         logger.critical(f'Could not add service "{name}" at {host}')
         raise e
@@ -137,11 +144,6 @@ def add_app(app_config):
 
         name = app_config['name']  # app name
 
-        # ADD CORS Plugin to Kong for whole domain CORS
-        config = load_json_file(TEMPLATES['cors'], {'host': BASE_HOST})
-        PLUGIN_URL = f'{KONG_INTERNAL_URL}/services/{name}/plugins'
-        request(method='post', url=PLUGIN_URL, data=config)
-
         # Add a public route
         paths = app_config.get('paths', [f'/{name}'])
         data_route = {
@@ -169,7 +171,6 @@ def add_service(service_config, realm, oidc_client):
         pass
 
     name = service_config['name']  # service name
-    host = service_config['host']  # service host
 
     logger.info(f'Exposing service "{name}" routes for realm "{realm}"...')
     ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{name}/routes'
@@ -185,30 +186,32 @@ def add_service(service_config, realm, oidc_client):
     for ep_type in ENDPOINT_TYPES:
         logger.info(f'Adding {ep_type} endpoints...')
 
+        context = {
+            'realm': realm,
+            'name': name,
+        }
+        if ep_type != EPT_OIDC:  # not available in protected routes
+            context['public_realm'] = KONG_PUBLIC_REALM
+
         endpoints = service_config.get(f'{ep_type}_endpoints', [])
         for ep in endpoints:
-            context = dict({'realm': realm}, **ep)
             ep_name = ep['name']
-            ep_url = fill_template(ep.get('url'), context)
             route_name = f'{name}__{ep_type}__{ep_name}__{realm}'
-
-            if ep.get('template_path'):
-                path = fill_template(ep.get('template_path'), context)
-            else:
-                path = ep.get('route_path') or f'/{realm}/{name}{ep_url}'
+            paths = [fill_template(p, context) for p in ep.get('paths')]
 
             route_data = {
                 'name': route_name,
                 'hosts': [BASE_DOMAIN, ],
                 'preserve_host': 'true',
-                'paths': [path, ],
+                'paths': paths,
                 'strip_path': ep.get('strip_path', 'false'),
+                'regex_priority': ep.get('regex_priority', 0),
                 'tags': [realm, ]  # use tags to identify assigned realm
             }
 
             try:
                 route_info = request(method='post', url=ROUTE_URL, data=route_data)
-                logger.success(f'Route {host}{ep_url} now being served at {BASE_HOST}{path}')
+                logger.success(f'Route paths {paths} now being served at {BASE_HOST}')
 
                 # OIDC routes are protected using the "Kong-oidc-auth" plugin
                 if ep_type == EPT_OIDC:
@@ -223,12 +226,12 @@ def add_service(service_config, realm, oidc_client):
                             url=f'{KONG_INTERNAL_URL}/routes/{protected_route_id}/plugins',
                             data=_oidc_config,
                         )
-                        logger.success(f'Route {BASE_HOST}{path} now being protected')
+                        logger.success(f'Route paths {paths} now being protected')
                     except HTTPError:
-                        logger.error(f'Could not protect route {BASE_HOST}{path}')
+                        logger.error(f'Could not protect route {paths}')
 
             except HTTPError:
-                logger.error(f'Could not add route {host}{ep_url}')
+                logger.error(f'Could not add route paths {paths}')
 
     logger.success(f'Service "{name}" routes now being served and protected for realm "{realm}"')
 
