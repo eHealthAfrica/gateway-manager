@@ -1,6 +1,7 @@
 # Use HELM chart tag
 # https://github.com/helm/charts/tree/master/stable/kong
-FROM kong:1.1
+ARG VERSION=1.1
+FROM kong:$VERSION
 
 # Kong install dir
 ENV KONG_OIDC_HOME /usr/local/share/lua/5.1/kong/plugins/kong-oidc-auth

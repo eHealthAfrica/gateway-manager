@@ -17,4 +17,9 @@ RUN pip install -q --upgrade pip && \
 
 COPY . /code
 
+ARG VERSION
+
+RUN mkdir -p /var/tmp && \
+    echo $VERSION > /var/tmp/VERSION
+
 ENTRYPOINT ["/code/entrypoint.sh"]

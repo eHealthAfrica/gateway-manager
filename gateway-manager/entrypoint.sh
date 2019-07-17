@@ -20,6 +20,11 @@
 #
 set -Eeuo pipefail
 
+VERSION_FILE=/tmp/apt-packages.txt
+if [ -f "$VERSION_FILE" ]; then
+    VERSION=`cat /var/tmp/VERSION`
+fi
+
 function show_help {
     echo """
     Commands
@@ -174,6 +179,10 @@ function show_help {
 
         Usage:  add_elasticsearch_tenant {tenant}
 
+
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Current version:  [${VERSION:-latest}]
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     """
 }
 

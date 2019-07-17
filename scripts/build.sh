@@ -22,16 +22,25 @@ set -Eeuo pipefail
 
 function build_image {
     APP=$1
-    VERSION=local
+    VERSION=latest
     TAG="${APP}:${VERSION}"
+    LINE="~~~~~~~~~~~~~~~"
 
-    echo "Building image: ${TAG}"
+    echo -e ""
+    echo -e "\e[2m${LINE}\e[0m Building image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
+    echo -e ""
+
     docker build \
         --pull \
         --no-cache \
         --force-rm \
         --tag $TAG \
+        --build-arg VERSION=$VERSION \
         ./$APP
+
+    echo -e ""
+    echo -e "\e[2m${LINE}\e[0m Built image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
+    echo -e ""
 }
 
 build_image gateway-manager
