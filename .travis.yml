@@ -19,7 +19,10 @@ matrix:
 
     - name: "Gateway Manager release"
       stage: deploy
-      script: ./scripts/release.sh
+      script:
+        # Login in dockerhub with write permissions (repos are public)
+        - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASSWORD
+        - ./scripts/release.sh
       # release only in:
       #   - branch   master
       #   - tag      #.#.#
