@@ -59,7 +59,7 @@ def _get_service_oidc_payload(service_name, realm, client_id):
     return load_json_file(TEMPLATES['oidc'], {
         'host': BASE_HOST,
         'domain': BASE_DOMAIN,
-        'use_ssl': BASE_USE_SSL,
+        'use_ssl': str(BASE_USE_SSL).lower(),
         'realm': realm,
         'oidc_client_id': client_id,
         'oidc_client_secret': client_secret,
