@@ -15,5 +15,6 @@
   "config.token_url": "${host}/auth/realms/${realm}/protocol/openid-connect/token",
   "config.user_url": "${host}/auth/realms/${realm}/protocol/openid-connect/userinfo",
 
+  "config.use_ssl": "${use_ssl}",
   "config.realm": "${realm}"
 }
