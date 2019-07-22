@@ -20,9 +20,9 @@
 #
 set -Eeuo pipefail
 
-VERSION_FILE=/tmp/apt-packages.txt
+VERSION_FILE="/var/tmp/VERSION"
 if [ -f "$VERSION_FILE" ]; then
-    VERSION=`cat /var/tmp/VERSION`
+    VERSION=`cat $VERSION_FILE`
 fi
 
 function show_help {
