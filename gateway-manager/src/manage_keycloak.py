@@ -132,7 +132,13 @@ def create_user(
         config['email'] = None
 
     keycloak_admin = client_for_realm(realm)
-    _status = keycloak_admin.create_user(config)
+
+    _user_id = keycloak_admin.get_user_id(username=user)
+    if _user_id:
+        _status = keycloak_admin.update_user(_user_id, config)
+    else:
+        _status = keycloak_admin.create_user(config)
+
     if _status:
         logger.warning(f'- {str(_status)}')
 
