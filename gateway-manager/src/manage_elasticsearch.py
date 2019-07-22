@@ -61,8 +61,7 @@ def is_es_ready():
         logger.success('ElasticSearch is ready!')
     except Exception as e:
         logger.critical('ElasticSearch is NOT ready!')
-        logger.error(str(e))
-        sys.exit(1)
+        raise e
 
 
 if __name__ == "__main__":
@@ -79,13 +78,12 @@ if __name__ == "__main__":
         logger.critical(f'No command: {command}')
         sys.exit(1)
 
-    AUTH = HTTPBasicAuth(ES_USER, ES_PW)
-    is_es_ready()
-
-    fn = COMMANDS[command]
-    args = sys.argv[2:]
-
     try:
+        AUTH = HTTPBasicAuth(ES_USER, ES_PW)
+        is_es_ready()
+
+        fn = COMMANDS[command]
+        args = sys.argv[2:]
         fn(*args)
     except Exception as e:
         logger.error(str(e))
