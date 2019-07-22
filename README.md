@@ -299,7 +299,7 @@ Review the code to get the expected strings in each case.
 - `KONG_INTERNAL`: Kong internal URL. Usually `http://kong:8001`.
 - `PUBLIC_REALM`: Kong public realm. Defaults to `-`.
 
-### Kafka && Zookeeper
+### Kafka & Zookeeper
 
 - `ZOOKEEPER_HOST`: Zookeeper host address. Usually `127.0.0.1:32181`.
 - `ZOOKEEPER_USER`: Zookeeper user name.
