@@ -28,6 +28,7 @@ DEBUG = bool(get_env('DEBUG'))
 # External URL for host (includes protocol)
 BASE_HOST = get_env('BASE_HOST')
 BASE_DOMAIN = get_env('BASE_DOMAIN')
+BASE_USE_SSL = BASE_HOST.startswith('https://')
 
 APPS_PATH = get_env('APPS_PATH', '/code/app')
 SERVICES_PATH = get_env('SERVICES_PATH', '/code/service')
