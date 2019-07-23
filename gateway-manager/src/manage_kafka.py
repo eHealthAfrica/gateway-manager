@@ -30,11 +30,12 @@ from zookeeper_functions import (
 )
 
 ZK_LAG_TIME = 3
+LOGGER = get_logger('Kafka')
 
 
 def create_superuser(name, password):
     # make user for name
-    logger.info(f'Creating SuperUser: {name}')
+    LOGGER.info(f'Creating SuperUser: {name}')
     make_user(ZOOKEEPER, name, password)
     sleep(ZK_LAG_TIME)
     grant_superuser(name)
@@ -59,7 +60,7 @@ def grant_superuser(name):
 
 def create_tenant(realm):
     # make user for realm
-    logger.info(f'Creating tenant for realm: {realm}')
+    LOGGER.info(f'Creating tenant for realm: {realm}')
     pw = get_tenant_password(realm)
     make_user(ZOOKEEPER, realm, pw)
     sleep(ZK_LAG_TIME)
@@ -81,12 +82,10 @@ def create_tenant(realm):
 
 def tenant_creds(realm):
     pw = get_tenant_password(realm)
-    logger.info(f'{realm} : {pw}')
+    LOGGER.info(f'{realm} : {pw}')
 
 
 if __name__ == '__main__':
-    logger = get_logger('Kafka')
-
     COMMANDS = {
         'ADD_SUPERUSER': create_superuser,
         'GRANT_SUPERUSER': grant_superuser,
@@ -96,11 +95,15 @@ if __name__ == '__main__':
 
     command = sys.argv[1]
     if command.upper() not in COMMANDS.keys():
-        logger.critical(f'No command: {command}')
+        LOGGER.critical(f'No command: {command}')
         sys.exit(1)
 
-    ZOOKEEPER = get_zookeeper()
+    try:
+        ZOOKEEPER = get_zookeeper()
 
-    fn = COMMANDS[command]
-    args = sys.argv[2:]
-    fn(*args)
+        fn = COMMANDS[command]
+        args = sys.argv[2:]
+        fn(*args)
+    except Exception as e:
+        LOGGER.error(str(e))
+        sys.exit(1)

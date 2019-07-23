@@ -35,38 +35,37 @@ from settings import (
 )
 
 API = f'{ES_HOST}/_opendistro/_security/api/'
+LOGGER = get_logger('ElasticSearch')
 
 
 def create_tenant(tenant):
     ROLES_URL = f'{API}roles/{tenant}'
     role = load_json_file(TEMPLATES['es']['role'], {'tenant': tenant})
     ok = request(method='put', url=ROLES_URL, auth=AUTH, json=role)
-    logger.info(f'tenant role: {ok}')
+    LOGGER.info(f'tenant role: {ok}')
 
     ROLES_MAPPING_URL = f'{API}rolesmapping/{tenant}'
     mapping = {'backendroles': [tenant]}
     ok = request(method='put', url=ROLES_MAPPING_URL, auth=AUTH, json=mapping)
-    logger.info(f'rolesmapping: {ok}')
+    LOGGER.info(f'rolesmapping: {ok}')
 
 
 def setup_es():
     OWN_INDEX_URL = f'{API}rolesmapping/own_index'
     ok = request(method='delete', url=OWN_INDEX_URL, auth=AUTH)
-    logger.info(f'remove user indexes: {ok}')
+    LOGGER.info(f'remove user indexes: {ok}')
 
 
 def is_es_ready():
     try:
         request(method='get', url=ES_HOST, auth=AUTH)
-        logger.success('ElasticSearch is ready!')
+        LOGGER.success('ElasticSearch is ready!')
     except Exception as e:
-        logger.critical('ElasticSearch is NOT ready!')
+        LOGGER.critical('ElasticSearch is NOT ready!')
         raise e
 
 
 if __name__ == "__main__":
-    logger = get_logger('ElasticSearch')
-
     COMMANDS = {
         'READY': do_nothing,
         'ADD_TENANT': create_tenant,
@@ -75,7 +74,7 @@ if __name__ == "__main__":
 
     command = sys.argv[1]
     if command.upper() not in COMMANDS.keys():
-        logger.critical(f'No command: {command}')
+        LOGGER.critical(f'No command: {command}')
         sys.exit(1)
 
     try:
@@ -86,5 +85,5 @@ if __name__ == "__main__":
         args = sys.argv[2:]
         fn(*args)
     except Exception as e:
-        logger.error(str(e))
+        LOGGER.error(str(e))
         sys.exit(1)
