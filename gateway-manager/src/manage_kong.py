@@ -52,6 +52,8 @@ EPT_PUBLIC = 'public'
 
 ENDPOINT_TYPES = [EPT_PUBLIC, EPT_OIDC]
 
+LOGGER = get_logger('Kong')
+
 
 def _get_service_oidc_payload(service_name, realm, client_id):
     client_secret = get_client_secret(realm, client_id)
@@ -70,7 +72,7 @@ def _get_service_oidc_payload(service_name, realm, client_id):
 def _check_realm_in_action(action, realm):
     if action == 'ADD':
         if not realm:
-            logger.critical('Cannot execute command without realm')
+            LOGGER.critical('Cannot execute command without realm')
             sys.exit(1)
 
     elif action == 'REMOVE':
@@ -94,38 +96,63 @@ def _add_service(config):
     name = config['name']  # service name
     host = config['host']  # service host
 
-    logger.info(f'Exposing service "{name}" at {host}...')
+    LOGGER.info(f'Exposing service "{name}" at {host}...')
 
     try:
         if not _check_404(f'{KONG_INTERNAL_URL}/services/{name}'):
-            logger.warning(f'Service "{name}" already exists!')
+            LOGGER.warning(f'Service "{name}" already exists!')
             return
 
         # Register service
-        data = {
+        service_data = {
             'name': name,
             'url': host,
         }
-        service_info = request(method='post', url=f'{KONG_INTERNAL_URL}/services/', data=data)
+        service_info = request(method='post', url=f'{KONG_INTERNAL_URL}/services/', data=service_data)
         service_id = service_info['id']
-        logger.success(f'Added service "{name}": {service_id}')
+        LOGGER.success(f'Added service "{name}": {service_id}')
 
-        # ADD CORS Plugin to Kong for whole domain CORS
-        config = load_json_file(TEMPLATES['cors'], {'host': BASE_HOST})
+        # Add CORS plugin for whole domain
+        cors_data = load_json_file(TEMPLATES['cors'], {'host': BASE_HOST})
         PLUGIN_URL = f'{KONG_INTERNAL_URL}/services/{name}/plugins'
-        request(method='post', url=PLUGIN_URL, data=config)
-        logger.success(f'Added CORS plugin to service "{name}"')
+        request(method='post', url=PLUGIN_URL, data=cors_data)
+        LOGGER.success(f'Added CORS plugin to service "{name}"')
+
+        # Add the public routes (non realm dependant)
+        context = {
+            'public_realm': KONG_PUBLIC_REALM,
+            'name': name,
+        }
+        paths = [fill_template(p, context) for p in config.get('paths', [])]
+        if paths:
+            # check route
+            if not _check_404(f'{KONG_INTERNAL_URL}/services/{name}/routes/{name}'):
+                LOGGER.warning(f'Route "{name}" for service "{name}" already exists!')
+                return
+
+            route_data = {
+                'name': name,
+                'hosts': [BASE_DOMAIN, ],
+                'preserve_host': 'true',
+                'paths': paths,
+                'strip_path': config.get('strip_path', 'false'),
+                'regex_priority': config.get('regex_priority', 0),
+            }
+
+            ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{name}/routes'
+            request(method='post', url=ROUTE_URL, data=route_data)
+            LOGGER.success(f'Route paths {paths} now being served at {BASE_HOST}')
 
     except Exception as e:
-        logger.critical(f'Could not add service "{name}"')
+        LOGGER.critical(f'Could not add service "{name}"')
         raise e
 
 
 def _remove_service_and_routes(name, routes_fn=None):
-    logger.info(f'Removing service "{name}"...')
+    LOGGER.info(f'Removing service "{name}"...')
 
     if _check_404(f'{KONG_INTERNAL_URL}/services/{name}'):
-        logger.warning(f'Service "{name}" does not exist!')
+        LOGGER.warning(f'Service "{name}" does not exist!')
         return
 
     try:
@@ -146,42 +173,15 @@ def _remove_service_and_routes(name, routes_fn=None):
                 if not routes_fn or routes_fn(route):
                     try:
                         request(method='delete', url=f'{KONG_INTERNAL_URL}/routes/{route_id}')
-                        logger.success(f'Removed route "{route_name}" ({route_id})')
+                        LOGGER.success(f'Removed route "{route_name}" ({route_id})')
                     except HTTPError:
-                        logger.warning(f'Could not remove route "{route_name}"')
+                        LOGGER.warning(f'Could not remove route "{route_name}"')
 
         request(method='delete', url=f'{KONG_INTERNAL_URL}/services/{service_id}')
-        logger.success(f'Removed service "{name}"')
+        LOGGER.success(f'Removed service "{name}"')
 
     except HTTPError:
-        logger.critical(f'Could not remove service "{name}"')
-
-
-def add_app(app_config):
-    # Register app as service
-    _add_service(app_config)
-
-    name = app_config['name']  # app name
-
-    # Add a public route
-    paths = app_config.get('paths', [f'/{name}'])
-    if paths:
-        # check route
-        if not _check_404(f'{KONG_INTERNAL_URL}/services/{name}/routes/{name}'):
-            logger.warning(f'Route "{name}" for service "{name}" already exists!')
-            return
-
-        data_route = {
-            'name': name,
-            'hosts': [BASE_DOMAIN, ],
-            'preserve_host': 'true',
-            'paths': paths,
-            'strip_path': 'false',
-        }
-
-        ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{name}/routes'
-        request(method='post', url=ROUTE_URL, data=data_route)
-        logger.success(f'Route paths {paths} now being served at {BASE_HOST}')
+        LOGGER.critical(f'Could not remove service "{name}"')
 
 
 def add_service(service_config, realm, oidc_client):
@@ -190,19 +190,20 @@ def add_service(service_config, realm, oidc_client):
 
     name = service_config['name']  # service name
 
-    logger.info(f'Exposing service "{name}" routes for realm "{realm}"...')
+    LOGGER.info(f'Exposing service "{name}" routes for realm "{realm}"...')
     ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{name}/routes'
 
     # OIDC plugin settings (same for all OIDC endpoints)
     oidc_data = {}
     if service_config.get(f'{EPT_OIDC}_endpoints'):
         if not oidc_client:
-            logger.critical('Cannot execute command without OIDC client')
+            LOGGER.critical('Cannot execute command without OIDC client')
             sys.exit(1)
         oidc_data = _get_service_oidc_payload(name, realm, oidc_client)
 
-    for ep_type in ENDPOINT_TYPES:
-        logger.info(f'Adding {ep_type} endpoints...')
+    ep_types = [ept for ept in ENDPOINT_TYPES if service_config.get(f'{ept}_endpoints')]
+    for ep_type in ep_types:
+        LOGGER.info(f'Adding {ep_type} endpoints...')
 
         context = {
             'realm': realm,
@@ -211,18 +212,16 @@ def add_service(service_config, realm, oidc_client):
         if ep_type != EPT_OIDC:  # not available in protected routes
             context['public_realm'] = KONG_PUBLIC_REALM
 
-        endpoints = service_config.get(f'{ep_type}_endpoints', [])
-        for ep in endpoints:
+        for ep in service_config.get(f'{ep_type}_endpoints', []):
             ep_name = ep['name']
             route_name = f'{name}__{ep_type}__{ep_name}__{realm}'
 
             # check route
             if not _check_404(f'{KONG_INTERNAL_URL}/services/{name}/routes/{route_name}'):
-                logger.warning(f'Route "{route_name}" for service "{name}" already exists!')
+                LOGGER.warning(f'Route "{route_name}" for service "{name}" already exists!')
                 continue
 
             paths = [fill_template(p, context) for p in ep.get('paths')]
-
             route_data = {
                 'name': route_name,
                 'hosts': [BASE_DOMAIN, ],
@@ -235,7 +234,7 @@ def add_service(service_config, realm, oidc_client):
 
             try:
                 route_info = request(method='post', url=ROUTE_URL, data=route_data)
-                logger.success(f'Route paths {paths} now being served at {BASE_HOST}')
+                LOGGER.success(f'Route paths {paths} now being served at {BASE_HOST}')
 
                 # OIDC routes are protected using the "Kong-oidc-auth" plugin
                 if ep_type == EPT_OIDC:
@@ -250,14 +249,14 @@ def add_service(service_config, realm, oidc_client):
                             url=f'{KONG_INTERNAL_URL}/routes/{protected_route_id}/plugins',
                             data=_oidc_config,
                         )
-                        logger.success(f'Route paths {paths} now being protected')
+                        LOGGER.success(f'Route paths {paths} now being protected')
                     except HTTPError:
-                        logger.error(f'Could not protect route {paths}')
+                        LOGGER.error(f'Could not protect route paths {paths}')
 
             except HTTPError:
-                logger.error(f'Could not add route paths {paths}')
+                LOGGER.error(f'Could not add route paths {paths}')
 
-    logger.success(f'Service "{name}" routes now being served and protected for realm "{realm}"')
+    LOGGER.success(f'Service "{name}" routes now being served and protected for realm "{realm}"')
 
 
 def remove_service(name, realm):
@@ -266,9 +265,9 @@ def remove_service(name, realm):
         return realm in route.get('tags', []) or route['name'].endswith(f'__{realm}')
 
     if not realm:
-        logger.info(f'Removing service "{name}" from ALL realms...')
+        LOGGER.info(f'Removing service "{name}" from ALL realms...')
     else:
-        logger.info(f'Removing service "{name}" from realm "{realm}"...')
+        LOGGER.info(f'Removing service "{name}" from realm "{realm}"...')
 
     routes_fn = None if not realm else _realm_in_route
     _remove_service_and_routes(name, routes_fn)
@@ -278,11 +277,11 @@ def handle_app(action, name):
     try:
         app_config = load_json_file(f'{APPS_PATH}/{name}.json')
     except Exception:
-        logger.critical(f'No app definition for name: "{name}"')
+        LOGGER.critical(f'No app definition for name: "{name}"')
         sys.exit(1)
 
     if action == 'ADD':
-        add_app(app_config)
+        _add_service(app_config)
 
     elif action == 'REMOVE':
         service_name = app_config['name']
@@ -293,7 +292,7 @@ def handle_service(action, name, realm=None, oidc_client=None):
     try:
         service_config = load_json_file(f'{SERVICES_PATH}/{name}.json')
     except Exception:
-        logger.critical(f'No service definition for name: "{name}"')
+        LOGGER.critical(f'No service definition for name: "{name}"')
         sys.exit(1)
 
     realm = _check_realm_in_action(action, realm)
@@ -310,19 +309,19 @@ def handle_solution(action, name, realm=None, oidc_client=None):
     try:
         services = load_json_file(f'{SOLUTIONS_PATH}/{name}.json').get('services', [])
     except Exception:
-        logger.critical(f'No solution definition for name: "{name}"')
+        LOGGER.critical(f'No solution definition for name: "{name}"')
         sys.exit(1)
 
     realm = _check_realm_in_action(action, realm)
 
     if action == 'ADD':
-        logger.info(f'Adding solution "{name}" for realm "{realm}"...')
+        LOGGER.info(f'Adding solution "{name}" for realm "{realm}"...')
 
     elif action == 'REMOVE':
         if not realm:
-            logger.info(f'Removing solution "{name}" from ALL realms...')
+            LOGGER.info(f'Removing solution "{name}" from ALL realms...')
         else:
-            logger.info(f'Removing solution "{name}" from realm "{realm}"...')
+            LOGGER.info(f'Removing solution "{name}" from realm "{realm}"...')
 
     for service in services:
         handle_service(action, service, realm, oidc_client)
@@ -331,15 +330,13 @@ def handle_solution(action, name, realm=None, oidc_client=None):
 def is_kong_ready():
     try:
         request(method='get', url=KONG_INTERNAL_URL)
-        logger.success('Kong is ready!')
+        LOGGER.success('Kong is ready!')
     except Exception as e:
-        logger.critical('Kong is NOT ready!')
+        LOGGER.critical('Kong is NOT ready!')
         raise e
 
 
 if __name__ == '__main__':
-    logger = get_logger('Kong')
-
     COMMANDS: Dict[str, Callable] = {
         'READY': do_nothing,
         'APP': handle_app,
@@ -349,7 +346,7 @@ if __name__ == '__main__':
 
     command = sys.argv[1]
     if command.upper() not in COMMANDS.keys():
-        logger.critical(f'No command: {command}')
+        LOGGER.critical(f'No command: {command}')
         sys.exit(1)
 
     try:
@@ -359,5 +356,5 @@ if __name__ == '__main__':
         args = sys.argv[2:]
         fn(*args)
     except Exception as e:
-        logger.error(str(e))
+        LOGGER.error(str(e))
         sys.exit(1)

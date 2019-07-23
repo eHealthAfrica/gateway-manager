@@ -4,5 +4,7 @@
   "paths": [
     "/endpoint-1",
     "/endpoint-2"
-  ]
+  ],
+  "strip_path": "false",
+  "regex_priority": 1
 }
