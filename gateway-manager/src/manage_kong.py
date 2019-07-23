@@ -290,7 +290,8 @@ def handle_app(action, name):
 
 def handle_service(action, name, realm=None, oidc_client=None):
     try:
-        service_config = load_json_file(f'{SERVICES_PATH}/{name}.json')
+        config = load_json_file(f'{SERVICES_PATH}/{name}.json')
+        service_name = config['name']
     except Exception:
         LOGGER.critical(f'No service definition for name: "{name}"')
         sys.exit(1)
@@ -298,10 +299,16 @@ def handle_service(action, name, realm=None, oidc_client=None):
     realm = _check_realm_in_action(action, realm)
 
     if action == 'ADD':
+        # load again an substitute the possible string templates
+        service_config = load_json_file(f'{SERVICES_PATH}/{name}.json', {
+            'host': BASE_HOST,
+            'domain': BASE_DOMAIN,
+            'realm': realm,
+            'service': service_name,
+        })
         add_service(service_config, realm, oidc_client)
 
     elif action == 'REMOVE':
-        service_name = service_config['name']
         remove_service(service_name, realm)
 
 

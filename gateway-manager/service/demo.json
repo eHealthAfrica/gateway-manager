@@ -18,7 +18,10 @@
         "/{realm}/\\d+/{name}/"
       ],
       "strip_path": "false",
-      "regex_priority": 0
+      "regex_priority": 0,
+      "oidc_override": {
+        "config.app_login_redirect_url": "${host}/${realm}/${service}/home"
+      }
     }
   ],
 
