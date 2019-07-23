@@ -80,6 +80,16 @@ def _check_realm_in_action(action, realm):
     return realm
 
 
+def _check_404(url):
+    try:
+        request(method='get', url=url)
+        return False
+    except HTTPError as he:
+        if he.response.status_code != 404:
+            raise he
+        return True
+
+
 def _add_service(config):
     name = config['name']  # service name
     host = config['host']  # service host
@@ -87,6 +97,10 @@ def _add_service(config):
     logger.info(f'Exposing service "{name}" at {host}...')
 
     try:
+        if not _check_404(f'{KONG_INTERNAL_URL}/services/{name}'):
+            logger.warning(f'Service "{name}" already exists!')
+            return
+
         # Register service
         data = {
             'name': name,
@@ -103,12 +117,16 @@ def _add_service(config):
         logger.success(f'Added CORS plugin to service "{name}"')
 
     except Exception as e:
-        logger.critical(f'Could not add service "{name}" at {host}')
+        logger.critical(f'Could not add service "{name}"')
         raise e
 
 
 def _remove_service_and_routes(name, routes_fn=None):
     logger.info(f'Removing service "{name}"...')
+
+    if _check_404(f'{KONG_INTERNAL_URL}/services/{name}'):
+        logger.warning(f'Service "{name}" does not exist!')
+        return
 
     try:
         service_info = request(method='get', url=f'{KONG_INTERNAL_URL}/services/{name}')
@@ -140,14 +158,19 @@ def _remove_service_and_routes(name, routes_fn=None):
 
 
 def add_app(app_config):
-    try:
-        # Register app as service
-        _add_service(app_config)
+    # Register app as service
+    _add_service(app_config)
 
-        name = app_config['name']  # app name
+    name = app_config['name']  # app name
 
-        # Add a public route
-        paths = app_config.get('paths', [f'/{name}'])
+    # Add a public route
+    paths = app_config.get('paths', [f'/{name}'])
+    if paths:
+        # check route
+        if not _check_404(f'{KONG_INTERNAL_URL}/services/{name}/routes/{name}'):
+            logger.warning(f'Route "{name}" for service "{name}" already exists!')
+            return
+
         data_route = {
             'name': name,
             'hosts': [BASE_DOMAIN, ],
@@ -160,17 +183,10 @@ def add_app(app_config):
         request(method='post', url=ROUTE_URL, data=data_route)
         logger.success(f'Route paths {paths} now being served at {BASE_HOST}')
 
-    except Exception as e:
-        logger.error(str(e))
-        sys.exit(1)
-
 
 def add_service(service_config, realm, oidc_client):
-    try:
-        # Register service
-        _add_service(service_config)
-    except HTTPError:
-        pass
+    # Register service
+    _add_service(service_config)
 
     name = service_config['name']  # service name
 
@@ -199,6 +215,12 @@ def add_service(service_config, realm, oidc_client):
         for ep in endpoints:
             ep_name = ep['name']
             route_name = f'{name}__{ep_type}__{ep_name}__{realm}'
+
+            # check route
+            if not _check_404(f'{KONG_INTERNAL_URL}/services/{name}/routes/{route_name}'):
+                logger.warning(f'Route "{route_name}" for service "{name}" already exists!')
+                continue
+
             paths = [fill_template(p, context) for p in ep.get('paths')]
 
             route_data = {
@@ -312,8 +334,7 @@ def is_kong_ready():
         logger.success('Kong is ready!')
     except Exception as e:
         logger.critical('Kong is NOT ready!')
-        logger.error(str(e))
-        sys.exit(1)
+        raise e
 
 
 if __name__ == '__main__':
@@ -331,8 +352,12 @@ if __name__ == '__main__':
         logger.critical(f'No command: {command}')
         sys.exit(1)
 
-    is_kong_ready()
+    try:
+        is_kong_ready()
 
-    fn = COMMANDS[command]
-    args = sys.argv[2:]
-    fn(*args)
+        fn = COMMANDS[command]
+        args = sys.argv[2:]
+        fn(*args)
+    except Exception as e:
+        logger.error(str(e))
+        sys.exit(1)
