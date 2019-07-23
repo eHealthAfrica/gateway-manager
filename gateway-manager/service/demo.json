@@ -1,27 +1,37 @@
 {
   "name": "demo-service",
   "host": "http://demo-service:3013",
+
+  "paths": [
+    "/{public_realm}/{name}/",
+    "/~/{name}/public",
+    "/-/\\d+/{name}/"
+  ],
+  "strip_path": "true",
+  "regex_priority": 0,
+
   "oidc_endpoints": [
     {
-      "name": "base",
+      "name": "protected",
       "paths": [
         "/{realm}/{name}/",
         "/{realm}/\\d+/{name}/"
       ],
       "strip_path": "false",
-      "regex_priority": 1
+      "regex_priority": 0
     }
   ],
+
   "public_endpoints": [
     {
       "name": "public",
       "paths": [
-        "/{public_realm}/{name}/",
-        "/~/{name}/public",
-        "/-/\\d+/{name}/"
+        "/{realm}/{name}/static",
+        "/{realm}/{name}/public",
+        "/{realm}/\\d+/{name}/assets"
       ],
       "strip_path": "true",
-      "regex_priority": 0
+      "regex_priority": 1
     }
   ]
 }

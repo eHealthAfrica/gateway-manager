@@ -41,6 +41,8 @@ from settings import (
     TEMPLATES,
 )
 
+LOGGER = get_logger('Keycloak')
+
 
 def get_client():
     try:
@@ -53,8 +55,8 @@ def get_client():
         return keycloak_admin
 
     except KeycloakError as ke:
-        logger.critical('Keycloak is NOT ready!')
-        logger.error(str(ke))
+        LOGGER.critical('Keycloak is NOT ready!')
+        LOGGER.error(str(ke))
         sys.exit(1)
 
 
@@ -66,8 +68,8 @@ def client_for_realm(realm):
         return keycloak_admin
 
     except Exception as e:
-        logger.warning(f'Do the realm "{realm}" exist?')
-        logger.error(str(e))
+        LOGGER.warning(f'Do the realm "{realm}" exist?')
+        LOGGER.error(str(e))
         sys.exit(1)
 
 
@@ -79,22 +81,22 @@ def get_client_secret(realm, client_id):
         return secrets.get('value')
 
     except KeycloakError as ke:
-        logger.error('Could not get info from Keycloak')
-        logger.error(str(ke))
+        LOGGER.error('Could not get info from Keycloak')
+        LOGGER.error(str(ke))
         sys.exit(1)
     except Exception as e:
-        logger.warning(f'Do the realm "{realm}" and the client "{client_id}" exist?')
-        logger.error(str(e))
+        LOGGER.warning(f'Do the realm "{realm}" and the client "{client_id}" exist?')
+        LOGGER.error(str(e))
         sys.exit(1)
 
 
 def is_keycloak_ready():
     get_client()
-    logger.success('Keycloak is ready!')
+    LOGGER.success('Keycloak is ready!')
 
 
 def create_realm(realm, description=None, login_theme=None):
-    logger.info(f'Adding realm "{realm}"...')
+    LOGGER.info(f'Adding realm "{realm}"...')
     keycloak_admin = get_client()
 
     config = load_json_file(TEMPLATES['realm'], {
@@ -109,8 +111,8 @@ def create_realm(realm, description=None, login_theme=None):
 
     _status = keycloak_admin.create_realm(config, skip_exists=True)
     if _status:
-        logger.warning(f'- {str(_status)}')
-    logger.success(f'Added realm "{realm}"')
+        LOGGER.warning(f'- {str(_status)}')
+    LOGGER.success(f'Added realm "{realm}"')
 
 
 def create_user(
@@ -121,7 +123,7 @@ def create_user(
     email=None,
     temporary_password=False,
 ):
-    logger.info(f'Adding user "{user}" to realm "{realm}"...')
+    LOGGER.info(f'Adding user "{user}" to realm "{realm}"...')
 
     user_type = 'admin' if bool(admin) else 'standard'
     config = load_json_file(TEMPLATES['user'][user_type], {
@@ -140,7 +142,7 @@ def create_user(
         _status = keycloak_admin.create_user(config)
 
     if _status:
-        logger.warning(f'- {str(_status)}')
+        LOGGER.warning(f'- {str(_status)}')
 
     if password:
         user_id = keycloak_admin.get_user_id(username=user)
@@ -150,17 +152,17 @@ def create_user(
             temporary=bool(temporary_password),
         )
         if _status_pwd:
-            logger.warning(f'- {str(_status_pwd)}')
-    logger.success(f'Added user "{user}" to realm "{realm}"')
+            LOGGER.warning(f'- {str(_status_pwd)}')
+    LOGGER.success(f'Added user "{user}" to realm "{realm}"')
 
 
 def create_confidential_client(realm, name):
-    logger.info(f'Adding confidential client "{name}" to realm "{realm}"...')
+    LOGGER.info(f'Adding confidential client "{name}" to realm "{realm}"...')
     create_client(realm, name, False)
 
 
 def create_public_client(realm, name):
-    logger.info(f'Adding public client "{name}" to realm "{realm}"...')
+    LOGGER.info(f'Adding public client "{name}" to realm "{realm}"...')
     create_client(realm, name, True)
 
 
@@ -178,13 +180,11 @@ def create_client(realm, name, isPublic):
     keycloak_admin = client_for_realm(realm)
     _status = keycloak_admin.create_client(config, skip_exists=True)
     if _status:
-        logger.warning(f'- {str(_status)}')
-    logger.success(f'Added client "{name}" to realm "{realm}"')
+        LOGGER.warning(f'- {str(_status)}')
+    LOGGER.success(f'Added client "{name}" to realm "{realm}"')
 
 
 if __name__ == '__main__':
-    logger = get_logger('Keycloak')
-
     COMMANDS: Dict[str, Callable] = {
         'READY': do_nothing,
         'ADD_REALM': create_realm,
@@ -195,7 +195,7 @@ if __name__ == '__main__':
 
     command = sys.argv[1]
     if command.upper() not in COMMANDS.keys():
-        logger.critical(f'No command: {command}')
+        LOGGER.critical(f'No command: {command}')
         sys.exit(1)
 
     is_keycloak_ready()

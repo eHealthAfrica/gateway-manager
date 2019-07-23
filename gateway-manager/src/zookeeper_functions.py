@@ -244,9 +244,13 @@ def get_zookeeper():
     zookeeper.start()
     return zookeeper
 
+
 if __name__ == '__main__':
-    logger = get_logger('Zookeeper')
-    zookeeper = get_zookeeper()
-    # when run directly, you can view entities within zookeeper for debugging
-    starting_path = sys.argv[1] or ''
-    loot(zookeeper, starting_path)
+    try:
+        zookeeper = get_zookeeper()
+        # when run directly, you can view entities within zookeeper for debugging
+        starting_path = sys.argv[1] or ''
+        loot(zookeeper, starting_path)
+    except Exception as e:
+        LOGGER.error(str(e))
+        sys.exit(1)
