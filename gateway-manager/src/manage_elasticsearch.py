@@ -38,14 +38,20 @@ API = f'{ES_HOST}/_opendistro/_security/api/'
 LOGGER = get_logger('ElasticSearch')
 
 
-def create_tenant(tenant):
+def create_tenant(tenant, version=6):
     ROLES_URL = f'{API}roles/{tenant}'
-    role = load_json_file(TEMPLATES['es']['role'], {'tenant': tenant})
+    if version < 7:
+        role = load_json_file(TEMPLATES['es']['role'], {'tenant': tenant})
+    else:
+        role = load_json_file(TEMPLATES['es7']['role'], {'tenant': tenant})
     ok = request(method='put', url=ROLES_URL, auth=AUTH, json=role)
     LOGGER.info(f'tenant role: {ok}')
 
     ROLES_MAPPING_URL = f'{API}rolesmapping/{tenant}'
-    mapping = {'backendroles': [tenant]}
+    if version < 7:
+        mapping = {'backendroles': [tenant]}
+    else:
+        mapping = {'backend_roles': [tenant]}
     ok = request(method='put', url=ROLES_MAPPING_URL, auth=AUTH, json=mapping)
     LOGGER.info(f'rolesmapping: {ok}')
 
