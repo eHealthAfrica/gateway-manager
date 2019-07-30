@@ -25,7 +25,7 @@ function build_and_push {
     VERSION=$2
     IMAGE_REPO=ehealthafrica
     TAG="${IMAGE_REPO}/${APP}:${VERSION}"
-    LINE="============"
+    LINE="==============="
 
     echo -e ""
     echo -e "\e[2m${LINE}\e[0m Building image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
@@ -56,9 +56,9 @@ function build_and_push {
 
 # If there is no tag then create image for branch develop
 GATEWAY_VERSION=${TRAVIS_TAG:-latest}
-build_and_push  gateway-manager $GATEWAY_VERSION
+build_and_push  gateway-manager  $GATEWAY_VERSION
 
 # Use HELM chart tag
 # https://github.com/helm/charts/tree/master/stable/kong
 KONG_VERSION=${KONG_VERSION:-1.1}
-build_and_push  kong            $KONG_VERSION
+build_and_push  kong  $KONG_VERSION
