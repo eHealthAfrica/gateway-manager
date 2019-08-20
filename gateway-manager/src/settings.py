@@ -72,6 +72,12 @@ TEMPLATES = {
             'ES_ROLE_TEMPLATE_PATH',
             f'{_TEMPLATES_PATH}/es_role_template.json'
         ),
+    },
+    'es7': {
+        'role': get_env(
+            'ES_ROLE_TEMPLATE_PATH',
+            f'{_TEMPLATES_PATH}/es7_role_template.json'
+        ),
     }
 }
 
