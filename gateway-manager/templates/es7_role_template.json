@@ -1,0 +1,53 @@
+{
+  "description": "Roles for users of realm: ${tenant}",
+  "cluster_permissions": [
+    "indices_monitor",
+    "cluster_composite_ops"
+  ],
+  "index_permissions": [
+    {
+      "index_patterns": [
+        "${tenant}*"
+      ],
+      "fls": [],
+      "masked_fields": [],
+      "allowed_actions": [
+        "unlimited"
+      ]
+    },
+    {
+      "index_patterns": [
+        "?kibana*${tenant}"
+      ],
+      "fls": [],
+      "masked_fields": [],
+      "allowed_actions": [
+        "read",
+        "delete",
+        "manage",
+        "index"
+      ]
+    },
+    {
+      "index_patterns": [
+        "?tasks",
+        "?management-beats"
+      ],
+      "fls": [],
+      "masked_fields": [],
+      "allowed_actions": [
+        "indices_all"
+      ]
+    }
+  ],
+  "tenant_permissions": [
+    {
+      "tenant_patterns": [
+        "${tenant}"
+      ],
+      "allowed_actions": [
+        "kibana_all_write"
+      ]
+    }
+  ]
+}
