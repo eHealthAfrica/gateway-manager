@@ -40,7 +40,7 @@ LOGGER = get_logger('ElasticSearch')
 
 def create_tenant(tenant, version=6):
     ROLES_URL = f'{API}roles/{tenant}'
-    if version < 7:
+    if int(version) < 7:
         role = load_json_file(TEMPLATES['es']['role'], {'tenant': tenant})
     else:
         role = load_json_file(TEMPLATES['es7']['role'], {'tenant': tenant})
@@ -48,7 +48,7 @@ def create_tenant(tenant, version=6):
     LOGGER.info(f'tenant role: {ok}')
 
     ROLES_MAPPING_URL = f'{API}rolesmapping/{tenant}'
-    if version < 7:
+    if int(version) < 7:
         mapping = {'backendroles': [tenant]}
     else:
         mapping = {'backend_roles': [tenant]}
