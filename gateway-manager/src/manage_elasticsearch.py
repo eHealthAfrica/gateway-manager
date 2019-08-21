@@ -55,7 +55,7 @@ def create_tenant(tenant, version=6):
     ok = request(method='put', url=ROLES_MAPPING_URL, auth=AUTH, json=mapping)
     LOGGER.info(f'rolesmapping: {ok}')
 
-    if version < 7:
+    if int(version) < 7:
         return
 
     TENANT_URL = f'{API}tenants/{tenant}'
