@@ -55,6 +55,14 @@ def create_tenant(tenant, version=6):
     ok = request(method='put', url=ROLES_MAPPING_URL, auth=AUTH, json=mapping)
     LOGGER.info(f'rolesmapping: {ok}')
 
+    if int(version) < 7:
+        return
+
+    TENANT_URL = f'{API}tenants/{tenant}'
+    tenant_desc = {'description': f'Tenant for {tenant}'}
+    ok = request(method='put', url=TENANT_URL, auth=AUTH, json=tenant_desc)
+    LOGGER.info(f'tenant: {ok}')
+
 
 def setup_es():
     OWN_INDEX_URL = f'{API}rolesmapping/own_index'
