@@ -226,21 +226,26 @@ def make_user(zk, name, pw):
 
 
 def get_zookeeper():
-    default_acl = kazoo.security.make_acl('sasl', ZK_USER, all=True)
-    sasl_options = {
-        'mechanism': 'DIGEST-MD5',
-        'username': ZK_USER,
-        'password': ZK_PW
-    }
+    if ZK_USER and ZK_PW:
+        default_acl = kazoo.security.make_acl('sasl', ZK_USER, all=True)
+        sasl_options = {
+            'mechanism': 'DIGEST-MD5',
+            'username': ZK_USER,
+            'password': ZK_PW
+        }
 
-    # Requires unreleased feature from Kazoo 2.7.x to get the digest to work properly
-    # In released version, sasl_options isn't part of the constructor and doesn't work
+        # Requires unreleased feature from Kazoo 2.7.x to get the digest to work properly
+        # In released version, sasl_options isn't part of the constructor and doesn't work
 
-    zookeeper = KazooClient(
-        hosts=ZK_HOST,
-        sasl_options=sasl_options,
-        default_acl=[default_acl]
-    )
+        zookeeper = KazooClient(
+            hosts=ZK_HOST,
+            sasl_options=sasl_options,
+            default_acl=[default_acl]
+        )
+    else:
+        zookeeper = KazooClient(
+            hosts=ZK_HOST
+        )
     zookeeper.start()
     return zookeeper
 
