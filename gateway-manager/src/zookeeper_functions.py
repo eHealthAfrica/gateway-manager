@@ -227,7 +227,7 @@ def make_user(zk, name, pw):
 
 def get_zookeeper():
     if not ZK_HOST:
-        raise ValueError('Failure: ZOOKEEPER_HOST must set.')
+        raise EnvironmentError('Failure: ZOOKEEPER_HOST must set.')
     if ZK_USER and ZK_PW:
         default_acl = kazoo.security.make_acl('sasl', ZK_USER, all=True)
         sasl_options = {
