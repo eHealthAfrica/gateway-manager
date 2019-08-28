@@ -12,6 +12,10 @@ coloredlogs
 # https://passlib.readthedocs.io/en/stable/
 passlib
 
+# A library for driving interactive CLI apps
+# https://github.com/pexpect/pexpect
+pexpect
+
 # High-level SASL client written in pure Python
 # https://github.com/thobbs/pure-sasl
 pure-sasl
