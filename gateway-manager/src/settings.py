@@ -109,6 +109,7 @@ KAFKA_ADMIN_SECRET = get_env('KAFKA_SECRET')
 CC_CLI_PATH = get_env('CC_CLI_PATH', 'ccloud')
 CC_API_USER = get_env('CC_API_USER')
 CC_API_PASSWORD = get_env('CC_API_PASSWORD')
+CC_ENVIRONMENT_NAME = get_env('CC_ENVIRONMENT_NAME', 'default')
 CC_CLUSTER_NAME = get_env('CC_CLUSTER_NAME', 'default')
 
 

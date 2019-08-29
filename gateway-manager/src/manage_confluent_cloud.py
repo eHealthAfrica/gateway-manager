@@ -29,7 +29,9 @@ from helpers import get_logger
 from settings import (
     CC_CLI_PATH,
     CC_API_USER,
-    CC_API_PASSWORD
+    CC_API_PASSWORD,
+    CC_CLUSTER_NAME,
+    CC_ENVIRONMENT_NAME
 )
 
 
@@ -44,6 +46,16 @@ class Environment:
 
 
 @dataclass
+class Cluster:
+    id: str
+    name: str
+    provider: str
+    region: str
+    durability: str
+    status: str
+
+
+@dataclass
 class ServiceAccount:
     id: int
     name: str
@@ -54,6 +66,16 @@ class ServiceAccount:
 class APIKey:
     name: str
     key: str
+
+
+@dataclass
+class ACL:
+    id: str
+    permission: str
+    operation: str
+    resource: str
+    name: str
+    type: str
 
 
 #####################################
@@ -77,31 +99,6 @@ def login(user, pw):
     return True
 
 
-def list_environments():
-    LOGGER.debug('Fetching environments...')
-    child = pexpect.spawn(f'{CC_CLI_PATH} environment list')
-    res = str(child.read())
-    lines = res.split('\\n')[1:]
-    cols = _fields(Environment)
-    reg = gen_ccloud_regex(cols)
-    envs = []
-    for line in lines:
-        match = reg.match(line)
-        if not match:
-            continue
-        kwargs = {k: match.group(k) for k in cols}
-        # remove default mark
-        kwargs['id'] = kwargs['id'].replace('*', '').strip()
-        env = Environment(**kwargs)
-        LOGGER.debug(env)
-        envs.append(env)
-    return envs
-
-
-def set_environment(name):
-    pass
-
-
 def logout():
     child = pexpect.spawn(f'{CC_CLI_PATH} logout')
     res = child.read().decode("utf-8")
@@ -113,26 +110,93 @@ def logout():
 
 #####################################
 #
+#   Environments
+#
+#####################################
+
+
+def _handle_env(i):
+    i['id'] = i['id'].replace('*', '').strip()
+    return i
+
+
+def list_environments():
+    LOGGER.debug('Fetching environments...')
+    child = pexpect.spawn(f'{CC_CLI_PATH} environment list')
+    res = str(child.read())
+    return _process_resource(Environment, res, _handle_env)
+
+
+def set_environment(name):
+    envs = list_environments()
+    match = [e for e in envs if e.name == name]
+    if not match:
+        raise ValueError(f'No environment named: {name}')
+    env = match[0]
+    LOGGER.debug(f'Setting environment : {env}')
+    child = pexpect.spawn(f'{CC_CLI_PATH} environment use {env.id}')
+    res = child.read().decode("utf-8")
+    if 'Error: ' in res:
+        raise ValueError(f'Could not set env to {env.id}: {_inline(res)}')
+    LOGGER.debug(_inline(res))
+    return True
+
+
+#####################################
+#
+#   Clusters
+#
+#####################################
+
+def list_clusters():
+    LOGGER.debug('Fetching clusters...')
+    child = pexpect.spawn(f'{CC_CLI_PATH} kafka cluster list')
+    res = str(child.read())
+    return _process_resource(Cluster, res)
+
+
+def set_cluster(name):
+    clusters = list_clusters()
+    match = [e for e in clusters if e.name == name]
+    if not match:
+        raise ValueError(f'No cluster named: {name}')
+    cluster = match[0]
+    LOGGER.debug(f'Setting cluster : {cluster}')
+    child = pexpect.spawn(f'{CC_CLI_PATH} kafka cluster use {cluster.id}')
+    res = child.read().decode("utf-8")
+    if 'Error: ' in res:
+        raise ValueError(f'Could not set cluster to {cluster.id}: {_inline(res)}')
+    LOGGER.debug(f'Set cluster to {name}')
+    return True
+
+
+#####################################
+#
 #   Service Accounts
 #
 #####################################
 
+def get_or_create_tenant_sa(realm):
+    accounts = get_service_accounts()
+    match = [a for a in accounts if a.name == realm]
+    if match:
+        LOGGER.error(f'Tenant {realm} already exists!')
+        return match[0]
+    else:
+        create_service_account(realm, f'SA for realm {realm}')
+        return _get_service_account_by_name(realm)
+
+
+def _handle_service_account(i):
+    i['id'] = int(i['id'])  # cast to int
+    return i
+
+
 def get_service_accounts():
-    accounts = []
+    LOGGER.debug('Fetching SAs...')
     child = pexpect.spawn(f'{CC_CLI_PATH} service-account list')
-    # we want to keep the whitespace chars for easy splitting/handling/regex
-    lines = str(child.read())
-    lines = lines.split('\\n')[1:]  # skip headers
-    cols = _fields(ServiceAccount)
-    reg = gen_ccloud_regex(cols)
-    for line in lines:
-        match = reg.match(line)
-        if not match:
-            continue
-        kwargs = {k: match.group(k) for k in cols}
-        kwargs['id'] = int(kwargs['id'])  # cast to int
-        accounts.append(ServiceAccount(**kwargs))
-    return accounts
+    res = str(child.read())
+    return _process_resource(ServiceAccount, res, _handle_service_account)
 
 
 def _get_service_account_by_name(name):
@@ -153,7 +217,7 @@ def create_service_account(name: str, desc: str):
     res = child.read().decode("utf-8")
     if 'Error: error creating service account:' in res:
         raise ValueError(f'Account "{name}" not created: {_inline(res)}')
-    LOGGER.debug(_inline(res))
+    LOGGER.debug('Account Created')
     return True
 
 
@@ -227,15 +291,9 @@ def acl_list(
         '--prefix ' if extended_acl else '',
         f'--{resource_type} {resource_id}' if resource_id else ''
     ])
-    LOGGER.debug(f'Getting ACLs: {CMD}')
     child = pexpect.spawn(CMD)
-    res = child.read().decode("utf-8")
-    if 'Error: ' in res:
-        LOGGER.error(f'Could not get ACLs: {res}')
-        return False
-
-    LOGGER.debug(f'ACLs: {_inline(res)}')
-    return True
+    res = str(child.read())
+    return _process_resource(ACL, res)
 
 
 #####################################
@@ -265,6 +323,30 @@ def gen_ccloud_regex(columns):
         ex += piece
     ex += r'(?:\s*\|\s*)(?P<' + columns[-1] + r'>.+?(?=\s*\\r))'
     return re.compile(ex)
+
+
+def _do_nothing(i):
+    return i
+
+
+def _process_resource(_cls, body, item_handler=_do_nothing):
+    cols = _fields(_cls)
+    reg = gen_ccloud_regex(cols)
+    if 'Error: ' in body:
+        LOGGER.error(f'Could not get {_cls.__name__}s: {body}')
+        return False
+    lines = body.split('\\n')[1:]
+    items = []
+    for line in lines:
+        match = reg.match(line)
+        if not match:
+            continue
+        kwargs = {k: match.group(k) for k in cols}
+        kwargs = item_handler(kwargs)
+        i = _cls(**kwargs)
+        LOGGER.debug(i)
+        items.append(i)
+    return items
 
 
 #####################################
@@ -326,10 +408,33 @@ def create_tenant(realm):
         )
     '''
     login(CC_API_USER, CC_API_PASSWORD)
-    list_environments()
+    set_environment(CC_ENVIRONMENT_NAME)
+    set_cluster(CC_CLUSTER_NAME)
+    account = get_or_create_tenant_sa(realm)
+    allowed_resource = f'{realm}.'
+    for resource_type, resource_id, operation, wildcard in [
+        ('topic', allowed_resource, 'READ', True),
+        ('topic', allowed_resource, 'WRITE', True),
+        ('topic', allowed_resource, 'DESCRIBE', True),
+        ('topic', allowed_resource, 'ALTER', True),
+        ('topic', allowed_resource, 'CREATE', True),
+        ('topic', allowed_resource, 'DELETE', True),
+        ('consumer-group', allowed_resource, 'READ', True),
+        ('consumer-group', allowed_resource, 'WRITE', True),
+        ('consumer-group', allowed_resource, 'DESCRIBE', True),
+        ('consumer-group', allowed_resource, 'ALTER', True),
+        ('consumer-group', allowed_resource, 'CREATE', True),
+        ('consumer-group', allowed_resource, 'DELETE', True)
+    ]:
+        acl_create(
+            account.id,
+            resource_id,
+            resource_type=resource_type,
+            operation=operation,
+            extended_acl=wildcard
+        )
     acl_list()
     logout()
-    pass
 
 
 if __name__ == '__main__':

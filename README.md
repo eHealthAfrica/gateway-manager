@@ -203,7 +203,8 @@ get_kafka_creds {tenant}
  > Note: You need the following envinroment variables to be set to manipulate CCloud.
  >  - CC_API_USER : a permissioned Confluent Cloud User
  >  - CC_API_PASSWORD: that user's password
- >  - CC_CLUSTER_NAME: the name of the cluster you want to modify (or default)
+ >  - CC_ENVIRONMENT_NAME: the name of the environment you want to use (or default)
+ >  - CC_CLUSTER_NAME: the name of the cluster to modify
 
 
 #### `add_ccloud_su`
