@@ -165,9 +165,9 @@ function show_help {
     ----------------------------------------------------------------------------
 
     add_ccloud_su:
-        Adds a Superuser to the CC Cluster.
+        Adds a Superuser to the CC Cluster. Returns credentials.
 
-        Usage:  add_ccloud_su {username} {password}
+        Usage:  add_ccloud_su {username}
 
 
     grant_ccloud_su:

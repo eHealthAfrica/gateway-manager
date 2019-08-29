@@ -242,6 +242,20 @@ def remove_service_account(name: str = None, _id: int = None):
 #
 #####################################
 
+ALL_TENANT_PERMISSION = [
+    'READ'
+    'WRITE'
+    'DESCRIBE'
+    'ALTER'
+    'CREATE'
+    'DELETE'
+]
+
+ALL_SU_PERMISSION = ALL_TENANT_PERMISSION[:].extend([
+
+])
+
+
 def acl_create(
     # Have to use ID, no names
     service_account_id: int,
@@ -355,7 +369,15 @@ def _process_resource(_cls, body, item_handler=_do_nothing):
 #
 #####################################
 
-def create_superuser(name, password):
+def _connect(realm):
+    login(CC_API_USER, CC_API_PASSWORD)
+    set_environment(CC_ENVIRONMENT_NAME)
+    set_cluster(CC_CLUSTER_NAME)
+    account = get_or_create_tenant_sa(realm)
+    return account
+
+
+def create_superuser(name):
     '''
     # make user for name
     LOGGER.info(f'Creating SuperUser: {name}')
@@ -386,53 +408,20 @@ def grant_superuser(name):
 
 
 def create_tenant(realm):
-    '''
-        # make user for realm
-    LOGGER.info(f'Creating tenant for realm: {realm}')
-    pw = get_tenant_password(realm)
-    make_user(ZOOKEEPER, realm, pw)
-    sleep(ZK_LAG_TIME)
-    # give user permission on all realm artifacts in kafka
+    account = _connect(realm)
     allowed_resource = f'{realm}.'
-    for resource_type, resource_id, operation, wildcard in [
-        ('topic', allowed_resource, 'All', True),
-        ('group', allowed_resource, 'All', True)
-    ]:
-        upsert_permission(
-            ZOOKEEPER,
-            realm,
-            resource_id,
-            resource_type=resource_type,
-            operation=operation,
-            extended_acl=wildcard
-        )
-    '''
-    login(CC_API_USER, CC_API_PASSWORD)
-    set_environment(CC_ENVIRONMENT_NAME)
-    set_cluster(CC_CLUSTER_NAME)
-    account = get_or_create_tenant_sa(realm)
-    allowed_resource = f'{realm}.'
-    for resource_type, resource_id, operation, wildcard in [
-        ('topic', allowed_resource, 'READ', True),
-        ('topic', allowed_resource, 'WRITE', True),
-        ('topic', allowed_resource, 'DESCRIBE', True),
-        ('topic', allowed_resource, 'ALTER', True),
-        ('topic', allowed_resource, 'CREATE', True),
-        ('topic', allowed_resource, 'DELETE', True),
-        ('consumer-group', allowed_resource, 'READ', True),
-        ('consumer-group', allowed_resource, 'WRITE', True),
-        ('consumer-group', allowed_resource, 'DESCRIBE', True),
-        ('consumer-group', allowed_resource, 'ALTER', True),
-        ('consumer-group', allowed_resource, 'CREATE', True),
-        ('consumer-group', allowed_resource, 'DELETE', True)
-    ]:
-        acl_create(
-            account.id,
-            resource_id,
-            resource_type=resource_type,
-            operation=operation,
-            extended_acl=wildcard
-        )
+    for operation in ALL_TENANT_PERMISSION:
+        for resource_type, resource_id, wildcard in [
+                ('topic', allowed_resource, True),
+                ('consumer-group', allowed_resource, True)
+        ]:
+            acl_create(
+                account.id,
+                resource_id,
+                resource_type=resource_type,
+                operation=operation,
+                extended_acl=wildcard
+            )
     acl_list()
     logout()
 
