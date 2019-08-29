@@ -198,6 +198,35 @@ Gets SASL Credential for a given kafka tenant.
 get_kafka_creds {tenant}
 ```
 
+### Confluent Cloud
+
+ > Note: You need the following envinroment variables to be set to manipulate CCloud.
+ >  - CC_API_USER : a permissioned Confluent Cloud User
+ >  - CC_API_PASSWORD: that user's password
+ >  - CC_CLUSTER_NAME: the name of the cluster you want to modify (or default)
+
+
+#### `add_ccloud_su`
+Adds a Superuser to the Confluent Cloud Kafka Cluster.
+
+```bash
+add_ccloud_su {username} {password}
+```
+
+#### `grant_ccloud_su`
+Gives an existing user superuser status.
+
+```bash
+grant_ccloud_su {username}
+```
+
+#### `add_ccloud_tenant`
+Adds a kafka user for a tenant, and adds ACL to their namespace.
+
+```bash
+add_ccloud_tenant {tenant}
+```
+
 ### ElasticSearch
 
 #### `elasticsearch_ready`

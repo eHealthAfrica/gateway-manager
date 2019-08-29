@@ -160,6 +160,27 @@ function show_help {
 
         Usage:  get_kafka_creds {tenant}
 
+    
+    Confluent Cloud
+    ----------------------------------------------------------------------------
+
+    add_ccloud_su:
+        Adds a Superuser to the CC Cluster.
+
+        Usage:  add_ccloud_su {username} {password}
+
+
+    grant_ccloud_su:
+        Gives an existing user superuser status.
+
+        Usage:  grant_ccloud_su {username}
+
+
+    add_ccloud_tenant:
+        Adds a ccloud user for a tenant, and adds ACL to their namespace.
+
+        Usage:  add_ccloud_tenant {tenant}
+
 
     ElasticSearch
     ----------------------------------------------------------------------------
@@ -268,6 +289,23 @@ case "$1" in
 
     get_kafka_creds )
         python /code/src/manage_kafka.py KAFKA_CREDS "${@:2}"
+    ;;
+
+
+    # --------------------------------------------------------------------------
+    # CCloud
+    # --------------------------------------------------------------------------
+
+    add_ccloud_su )
+        python /code/src/manage_confluent_cloud.py ADD_SUPERUSER "${@:2}"
+    ;;
+
+    grant_ccloud_su )
+        python /code/src/manage_confluent_cloud.py GRANT_SUPERUSER "${@:2}"
+    ;;
+
+    add_ccloud_tenant )
+        python /code/src/manage_confluent_cloud.py ADD_TENANT "${@:2}"
     ;;
 
 
