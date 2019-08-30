@@ -30,6 +30,11 @@ from settings import DEBUG
 def do_nothing(*args, **kwargs):
     pass
 
+
+def identity(obj):
+    return obj
+
+
 def request(*args, **kwargs):
     _logger = get_logger('request')
 

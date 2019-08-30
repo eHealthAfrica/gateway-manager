@@ -25,7 +25,7 @@ import sys
 
 import pexpect
 
-from helpers import get_logger
+import helpers
 from settings import (
     CC_CLI_PATH,
     CC_API_USER,
@@ -35,7 +35,7 @@ from settings import (
 )
 
 
-LOGGER = get_logger('ConfluentCloud')
+LOGGER = helpers.get_logger('ConfluentCloud')
 
 
 # field order should match return order for CCloud
@@ -63,9 +63,16 @@ class ServiceAccount:
 
 
 @dataclass
-class APIKey:
+class NewAPIKey:
     name: str
     key: str
+
+
+@dataclass
+class APIKey:
+    id: str
+    service_account_id: int
+    desc: str
 
 
 @dataclass
@@ -103,7 +110,7 @@ def logout():
     child = pexpect.spawn(f'{CC_CLI_PATH} logout')
     res = child.read().decode("utf-8")
     if 'You are now logged out' not in res:
-        raise ConnectionError(f'Could not disconnect: {_inline(res)}')
+        raise LOGGER.error(f'Could not disconnect: {_inline(res)}')
     LOGGER.debug(_inline(res))
     return True
 
@@ -116,6 +123,7 @@ def logout():
 
 
 def _handle_env(i):
+    # removes the currently selected indicator (*) from the name
     i['id'] = i['id'].replace('*', '').strip()
     return i
 
@@ -180,7 +188,7 @@ def get_or_create_tenant_sa(realm):
     accounts = get_service_accounts()
     match = [a for a in accounts if a.name == realm]
     if match:
-        LOGGER.error(f'Tenant {realm} already exists!')
+        LOGGER.info(f'Tenant {realm} already exists!')
         return match[0]
     else:
         create_service_account(realm, f'SA for realm {realm}')
@@ -217,7 +225,7 @@ def create_service_account(name: str, desc: str):
     res = child.read().decode("utf-8")
     if 'Error: error creating service account:' in res:
         raise ValueError(f'Account "{name}" not created: {_inline(res)}')
-    LOGGER.debug('Account Created')
+    LOGGER.info(f'ServiceAccount Created for {name}: {desc}')
     return True
 
 
@@ -232,7 +240,7 @@ def remove_service_account(name: str = None, _id: int = None):
     res = child.read().decode("utf-8")
     if 'Error: ' in res:
         raise ValueError(f'Account "{_id}" not removed: {_inline(res)}')
-    LOGGER.debug(f'SA {_id} removed')
+    LOGGER.info(f'ServiceAccount {_id} removed')
     return True
 
 
@@ -242,25 +250,32 @@ def remove_service_account(name: str = None, _id: int = None):
 #
 #####################################
 
+# See permission spec @
+# https://docs.confluent.io/current/kafka/authorization.html#acl-format
+
 ALL_TENANT_PERMISSION = [
-    'READ'
+    'CREATE',
+    'DELETE',
+    'DESCRIBE',
+    'READ',
     'WRITE'
-    'DESCRIBE'
-    'ALTER'
-    'CREATE'
-    'DELETE'
 ]
 
-ALL_SU_PERMISSION = ALL_TENANT_PERMISSION[:].extend([
 
-])
+ALL_SU_PERMISSION = ALL_TENANT_PERMISSION[:] + [
+    'ALTER',
+    'ALTER-CONFIGS',
+    'CLUSTER-ACTION',
+    'DESCRIBE-CONFIGS',
+    'IDEMPOTENT-WRITE'
+]
 
 
 def acl_create(
     # Have to use ID, no names
     service_account_id: int,
     # the resource
-    resource_id,
+    resource_id=None,
     # OR consumer-group
     resource_type='topic',
     # OR [alter, alter-configs, cluster-action, create, delete, describe,
@@ -268,16 +283,19 @@ def acl_create(
     operation='READ',
     # or deny
     type_='allow',
-    # If it's a wildcard
-    extended_acl=False
+    # If it's a prefix
+    extended_acl=False,
+    # Apply to Cluster itself (Add ACLs, etc)
+    cluster=False
 ):
     CMD = ''.join([
         f'{CC_CLI_PATH} kafka acl create --{type_} ',
         f'--service-account-id {service_account_id} ',
         '--prefix ' if extended_acl else '',
-        f'--operation {operation} '
-        f'--{resource_type} ',
-        resource_id
+        f'--operation {operation} ',
+        '--cluster-scope' if cluster else '',
+        f'--{resource_type} ' if resource_type else '',
+        f"'{resource_id}'" if resource_id else ''  # needs '' around str
     ])
     LOGGER.debug(f'Updating ACL: {CMD}')
     child = pexpect.spawn(CMD)
@@ -328,8 +346,9 @@ def _inline(s: str):
 
 
 #  results come back to the terminal as | delimited tables
-#  providing a list of column headers allows us to return rows by name
-def gen_ccloud_regex(columns):
+#  generating from column headers ( / class attrs) allows us
+#  to return rows by name and use our dataclasses
+def _gen_ccloud_regex(columns):
     ex = r'\s*(?P<' + columns[0] + r'>.+?(?=\s*\\|))'
     # middle
     for name in columns[1:-1]:
@@ -339,13 +358,24 @@ def gen_ccloud_regex(columns):
     return re.compile(ex)
 
 
-def _do_nothing(i):
-    return i
+def _gen_table_parser(columns, _cls, starting_row=1):
+    def f(body):
+        kwargs = {}
+        lines = body.split('\n')
+        for i, key in enumerate(columns):
+            _, header, value, _ = lines[i + starting_row].split('|')
+            kwargs[key] = value
+        return _cls(**kwargs)
+    return f
+
+# handles the result of a GET request from CCloud using the dataclass
+# as the basis for creating a regex and processing the output into
+# class instances
 
 
-def _process_resource(_cls, body, item_handler=_do_nothing):
+def _process_resource(_cls, body, item_handler=helpers.identity):
     cols = _fields(_cls)
-    reg = gen_ccloud_regex(cols)
+    reg = _gen_ccloud_regex(cols)
     if 'Error: ' in body:
         LOGGER.error(f'Could not get {_cls.__name__}s: {body}')
         return False
@@ -369,46 +399,47 @@ def _process_resource(_cls, body, item_handler=_do_nothing):
 #
 #####################################
 
-def _connect(realm):
+def _connect():
     login(CC_API_USER, CC_API_PASSWORD)
     set_environment(CC_ENVIRONMENT_NAME)
     set_cluster(CC_CLUSTER_NAME)
-    account = get_or_create_tenant_sa(realm)
-    return account
 
 
 def create_superuser(name):
-    '''
-    # make user for name
-    LOGGER.info(f'Creating SuperUser: {name}')
-    make_user(ZOOKEEPER, name, password)
-    sleep(ZK_LAG_TIME)
-    grant_superuser(name)
-    '''
-    pass
+    _connect()
+    account = get_or_create_tenant_sa(name)
+    grant_superuser(account=account)
+    LOGGER.info(f'Superuser "{name}" created.')
 
 
-def grant_superuser(name):
-    '''
-    for resource_type, resource_id in [
-        ('topic', '*'),
-        ('group', '*'),
-        ('cluster', 'kafka-cluster'),
-    ]:
-        upsert_permission(
-            ZOOKEEPER,
-            name,
-            resource_id,
-            resource_type=resource_type,
-            operation='All',
-            extended_acl=False
-        )
-    '''
-    pass
+def grant_superuser(name=None, account=None):
+    if not any([name, account]):
+        raise ValueError('You must specify a name or pass an SA.')
+    if not account:
+        _connect()
+        account = _get_service_account_by_name(name)
+    allowed_resource = '*'
+    for operation in ALL_SU_PERMISSION:
+        for resource_type, resource_id, wildcard, cluster in [
+                ('topic', allowed_resource, False, False),
+                ('consumer-group', allowed_resource, False, False),
+                (None, None, False, True)
+        ]:
+            acl_create(
+                account.id,
+                resource_id,
+                resource_type=resource_type,
+                operation=operation,
+                extended_acl=wildcard,
+                cluster=cluster
+            )
+    acl_list(service_account_id=account.id)
+    logout()
 
 
 def create_tenant(realm):
-    account = _connect(realm)
+    _connect()
+    account = get_or_create_tenant_sa(realm)
     allowed_resource = f'{realm}.'
     for operation in ALL_TENANT_PERMISSION:
         for resource_type, resource_id, wildcard in [
@@ -420,10 +451,18 @@ def create_tenant(realm):
                 resource_id,
                 resource_type=resource_type,
                 operation=operation,
-                extended_acl=wildcard
+                extended_acl=wildcard,
+                cluster=False
             )
-    acl_list()
+    acl_list(service_account_id=account.id)
+    LOGGER.info('Regular tenant "{realm}" created.')
     logout()
+
+
+def create_key(sa_name):
+    _connect()
+    account = _get_service_account_by_name(sa_name)
+    pass
 
 
 if __name__ == '__main__':
@@ -431,6 +470,7 @@ if __name__ == '__main__':
         'ADD_SUPERUSER': create_superuser,
         'GRANT_SUPERUSER': grant_superuser,
         'ADD_TENANT': create_tenant,
+        'CREATE_KEY': create_key
     }
 
     command = sys.argv[1]
