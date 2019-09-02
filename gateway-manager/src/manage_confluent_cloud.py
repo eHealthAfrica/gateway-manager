@@ -558,7 +558,6 @@ def list_acls(account_name=None):
             for acl in acls:
                 if account.id == acl.id:
                     LOGGER.info(acl)
-
     logout()
 
 
@@ -585,11 +584,20 @@ if __name__ == '__main__':
     if command.upper() not in COMMANDS.keys():
         LOGGER.critical(f'No command: {command}')
         sys.exit(1)
-
-    # try:
-    fn = COMMANDS[command]
-    args = sys.argv[2:]
-    fn(*args)
-    # except Exception as e:
-    #     LOGGER.error(str(e))
-    #     sys.exit(1)
+    requirements = [
+        CC_CLI_PATH,
+        CC_API_USER,
+        CC_API_PASSWORD,
+        CC_CLUSTER_NAME,
+        CC_ENVIRONMENT_NAME
+    ]
+    if not all(requirements):
+        LOGGER.error(f'CCloud environment variables are missing.')
+        sys.exit(1)
+    try:
+        fn = COMMANDS[command]
+        args = sys.argv[2:]
+        fn(*args)
+    except Exception as e:
+        LOGGER.error(str(e))
+        sys.exit(1)
