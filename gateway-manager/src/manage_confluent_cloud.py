@@ -185,6 +185,8 @@ def set_cluster(name):
 #
 #####################################
 
+# One SA per tenant is what we'll be doing in CCloud
+
 def get_or_create_tenant_sa(realm):
     accounts = get_service_accounts()
     match = [a for a in accounts if a.name == realm]
