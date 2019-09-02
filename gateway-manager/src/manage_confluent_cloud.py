@@ -20,6 +20,7 @@
 
 
 from dataclasses import dataclass, fields
+from datetime import datetime
 import re
 import sys
 
@@ -362,7 +363,7 @@ def api_key_list():
     CMD = f'{CC_CLI_PATH} api-key list'
     child = pexpect.spawn(CMD)
     res = str(child.read())
-    return _process_resource(APIKey, res, _handle_api_key)
+    return _process_resource(APIKey, res, _handle_api_key, True)
 
 
 #####################################
@@ -430,11 +431,23 @@ def _process_resource(_cls, body, item_handler=helpers.identity, debug=False):
         match = reg.match(line)
         if not match:
             continue
-        kwargs = {k: match.group(k) for k in cols}
-        kwargs = item_handler(kwargs)
-        i = _cls(**kwargs)
+        # handle overhangs for long fields
+        if match.group(cols[0]).strip():
+            kwargs = {k: match.group(k) for k in cols}
+            kwargs = item_handler(kwargs)
+            i = _cls(**kwargs)
+            items.append(i)
+        else:
+            # find items that bled into the next row
+            kwargs = {k: match.group(k) for k in cols if match.group(k).strip()}
+            for k, val in kwargs.items():
+                # stick them onto the ends of the previous values
+                old = getattr(items[-1], k)
+                old = old + ' ' + val
+                setattr(items[-1], k, old)
+
+    for i in items:
         LOGGER.debug(i)
-        items.append(i)
     return items
 
 
@@ -508,9 +521,13 @@ def create_tenant(realm):
 
 def create_key(account_name, desc=None):
     _connect()
+    if not desc:
+        now = str(datetime.now().isoformat())
+        desc = f'Account:{account_name} generated: {now}'
     LOGGER.info(f'Creating key for account: {account_name}')
     account = _get_service_account_by_name(account_name)
     key = api_key_create(account.id, desc)
+    LOGGER.info('~~~ SAVE THIS KEY!!! IT CANNOT BE RETRIEVED ~~~')
     LOGGER.info(key)
     logout()
 
