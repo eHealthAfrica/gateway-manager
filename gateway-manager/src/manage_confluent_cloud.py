@@ -111,7 +111,7 @@ def logout():
     child = pexpect.spawn(f'{CC_CLI_PATH} logout')
     res = child.read().decode("utf-8")
     if 'You are now logged out' not in res:
-        raise LOGGER.error(f'Could not disconnect: {_inline(res)}')
+        LOGGER.error(f'Could not disconnect: {_inline(res)}')
     LOGGER.debug(_inline(res))
     return True
 
@@ -140,13 +140,13 @@ def set_environment(name):
     envs = list_environments()
     match = [e for e in envs if e.name == name]
     if not match:
-        raise ValueError(f'No environment named: {name}')
+        raise EnvironmentError(f'No environment named: {name}')
     env = match[0]
     LOGGER.debug(f'Setting environment : {env}')
     child = pexpect.spawn(f'{CC_CLI_PATH} environment use {env.id}')
     res = child.read().decode("utf-8")
     if 'Error: ' in res:
-        raise ValueError(f'Could not set env to {env.id}: {_inline(res)}')
+        raise RuntimeError(f'Could not set env to {env.id}: {_inline(res)}')
     LOGGER.debug(_inline(res))
     return True
 
@@ -168,13 +168,13 @@ def set_cluster(name):
     clusters = list_clusters()
     match = [e for e in clusters if e.name == name]
     if not match:
-        raise ValueError(f'No cluster named: {name}')
+        raise RuntimeError(f'No cluster named: {name}')
     cluster = match[0]
     LOGGER.debug(f'Setting cluster : {cluster}')
     child = pexpect.spawn(f'{CC_CLI_PATH} kafka cluster use {cluster.id}')
     res = child.read().decode("utf-8")
     if 'Error: ' in res:
-        raise ValueError(f'Could not set cluster to {cluster.id}: {_inline(res)}')
+        raise RuntimeError(f'Could not set cluster to {cluster.id}: {_inline(res)}')
     LOGGER.debug(f'Set cluster to {name}')
     return True
 
@@ -215,7 +215,7 @@ def _get_service_account_by_name(name):
     match = [sa for sa in sas if sa.name == name]
     if not match:
         sa_names = [sa.name for sa in sas]
-        raise ValueError(
+        raise RuntimeError(
             f'No service account found with name: {name}'
             f'. Available SAs: {sa_names}'
         )
@@ -227,14 +227,14 @@ def create_service_account(name: str, desc: str):
     child = pexpect.spawn(f'{CC_CLI_PATH} service-account create "{name}" --description "{desc}"')
     res = child.read().decode("utf-8")
     if 'Error: error creating service account:' in res:
-        raise ValueError(f'Account "{name}" not created: {_inline(res)}')
+        raise RuntimeError(f'Account "{name}" not created: {_inline(res)}')
     LOGGER.info(f'ServiceAccount Created for {name}: {desc}')
     return True
 
 
 def remove_service_account(name: str = None, _id: int = None):
     if not any([_id, name]):
-        raise ValueError('You must specify an Account name or ID to remove.')
+        raise RuntimeError('You must specify an Account name or ID to remove.')
     if not _id:
         sa = _get_service_account_by_name(name)
         _id = sa.id
@@ -242,7 +242,7 @@ def remove_service_account(name: str = None, _id: int = None):
     child = pexpect.spawn(f'{CC_CLI_PATH} service-account delete {_id}')
     res = child.read().decode("utf-8")
     if 'Error: ' in res:
-        raise ValueError(f'Account "{_id}" not removed: {_inline(res)}')
+        raise RuntimeError(f'Account "{_id}" not removed: {_inline(res)}')
     LOGGER.info(f'ServiceAccount {_id} removed')
     return True
 
@@ -468,7 +468,6 @@ def _connect():
 
 
 def create_superuser(name):
-    _connect()
     account = get_or_create_tenant_sa(name)
     grant_superuser(account=account)
     LOGGER.info(f'Superuser "{name}" created.')
@@ -476,9 +475,8 @@ def create_superuser(name):
 
 def grant_superuser(name=None, account=None):
     if not any([name, account]):
-        raise ValueError('You must specify a name or pass an SA ID.')
+        raise RuntimeError('You must specify a name or pass an SA ID.')
     if not account:
-        _connect()
         account = _get_service_account_by_name(name)
     allowed_resource = '*'
     for operation in ALL_SU_PERMISSION:
@@ -496,11 +494,9 @@ def grant_superuser(name=None, account=None):
                 cluster=cluster
             )
     acl_list(service_account_id=account.id)
-    logout()
 
 
 def create_tenant(realm):
-    _connect()
     account = get_or_create_tenant_sa(realm)
     allowed_resource = f'{realm}.'
     for operation in ALL_TENANT_PERMISSION:
@@ -518,11 +514,9 @@ def create_tenant(realm):
             )
     acl_list(service_account_id=account.id)
     LOGGER.info('Regular tenant "{realm}" created.')
-    logout()
 
 
 def create_key(account_name, desc=None):
-    _connect()
     if not desc:
         now = str(datetime.now().isoformat())
         desc = f'Account:{account_name} generated: {now}'
@@ -531,19 +525,15 @@ def create_key(account_name, desc=None):
     key = api_key_create(account.id, desc)
     LOGGER.info('~~~ SAVE THIS KEY!!! IT CANNOT BE RETRIEVED ~~~')
     LOGGER.info(key)
-    logout()
 
 
 def list_accounts():
-    _connect()
     accounts = get_service_accounts()
     for account in accounts:
         LOGGER.info(account)
-    logout()
 
 
 def list_acls(account_name=None):
-    _connect()
     sa_id = None
     if account_name:
         account = _get_service_account_by_name(account_name)
@@ -560,15 +550,12 @@ def list_acls(account_name=None):
             for acl in acls:
                 if account.id == acl.id:
                     LOGGER.info(acl)
-    logout()
 
 
 def list_api_keys():
-    _connect()
     keys = api_key_list()
     for key in keys:
         LOGGER.info(key)
-    logout()
 
 
 if __name__ == '__main__':
@@ -599,7 +586,13 @@ if __name__ == '__main__':
     try:
         fn = COMMANDS[command]
         args = sys.argv[2:]
+        _connect()
         fn(*args)
     except Exception as e:
         LOGGER.error(str(e))
         sys.exit(1)
+    finally:
+        try:
+            logout()
+        except Exception:
+            pass

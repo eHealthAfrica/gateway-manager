@@ -200,7 +200,7 @@ get_kafka_creds {tenant}
 
 ### Confluent Cloud
 
- > Note: You need the following envinroment variables to be set to manipulate CCloud.
+ > Note: You need the following environment variables to be set to manipulate CCloud.
  >  - CC_API_USER : a permissioned Confluent Cloud User
  >  - CC_API_PASSWORD: that user's password
  >  - CC_ENVIRONMENT_NAME: the name of the environment you want to use (or default)
