@@ -182,6 +182,30 @@ function show_help {
         Usage:  add_ccloud_tenant {tenant}
 
 
+    add_ccloud_key
+        Adds a ccloud APIKey for a tenant.
+
+        Usage:  add_ccloud_key {tenant}  '{description (optional)}'
+
+
+    list_ccloud_tenants
+        Lists previously registered tenants in CCloud cluster.
+
+        Usage:  list_ccloud_tenants
+
+
+    list_ccloud_acls
+        Lists ACLs of CCloud tenants, or of a single tenant referenced by name
+
+        Usage:  list_ccloud_acls {tenant  (optional)}
+
+
+    list_ccloud_api_keys
+        Lists active APIKeys on the cluster. (Names only)
+
+        Usage:  list_ccloud_api_keys
+
+
     ElasticSearch
     ----------------------------------------------------------------------------
 
@@ -308,7 +332,24 @@ case "$1" in
         python /code/src/manage_confluent_cloud.py ADD_TENANT "${@:2}"
     ;;
 
+    add_ccloud_key )
+        python /code/src/manage_confluent_cloud.py CREATE_KEY "${@:2}"
+    ;;
 
+    list_ccloud_tenants )
+        python /code/src/manage_confluent_cloud.py LIST_SERVICE_ACCOUNTS "${@:2}"
+    ;;
+
+    list_ccloud_acls )
+        python /code/src/manage_confluent_cloud.py LIST_ACLS "${@:2}"
+    ;;
+
+
+    list_ccloud_api_keys )
+        python /code/src/manage_confluent_cloud.py LIST_API_KEYS "${@:2}"
+    ;;
+
+    
     # --------------------------------------------------------------------------
     # ElasticSearch
     # --------------------------------------------------------------------------

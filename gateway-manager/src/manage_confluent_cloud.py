@@ -38,7 +38,7 @@ from settings import (
 LOGGER = helpers.get_logger('ConfluentCloud')
 
 
-# field order should match return order for CCloud
+# field order MUST match return order for CCloud
 @dataclass
 class Environment:
     id: str
@@ -77,12 +77,12 @@ class APIKey:
 
 @dataclass
 class ACL:
-    id: str
+    id: int  # ID of ServiceAccount
     permission: str
     operation: str
-    resource: str
-    name: str
-    type: str
+    resource_class: str
+    resource_id: str
+    acl_type: str
 
 
 #####################################
@@ -271,6 +271,11 @@ ALL_SU_PERMISSION = ALL_TENANT_PERMISSION[:] + [
 ]
 
 
+def _handle_acl(i):
+    i['id'] = int(i['id'].split(':')[1])  # User:00001 -> 00001
+    return i
+
+
 def acl_create(
     # Have to use ID, no names
     service_account_id: int,
@@ -325,7 +330,39 @@ def acl_list(
     ])
     child = pexpect.spawn(CMD)
     res = str(child.read())
-    return _process_resource(ACL, res)
+    return _process_resource(ACL, res, _handle_acl)
+
+
+#####################################
+#
+#   APIKeys
+#
+#####################################
+
+def _handle_api_key(i):
+    i['service_account_id'] = int(i['service_account_id'])
+    i['desc'] = i['desc'].strip()
+    return i
+
+
+def api_key_create(service_account_id: int, desc: str = None):
+    cols = _fields(NewAPIKey)
+    parser = _gen_table_parser(cols, NewAPIKey)
+    CMD = ''.join([
+        f'{CC_CLI_PATH} api-key create ',
+        f'--service-account-id {service_account_id}',
+        f' --description "{desc}"' if desc else ''
+    ])
+    child = pexpect.spawn(CMD)
+    res = child.read().decode('utf-8')
+    return parser(res)
+
+
+def api_key_list():
+    CMD = f'{CC_CLI_PATH} api-key list'
+    child = pexpect.spawn(CMD)
+    res = str(child.read())
+    return _process_resource(APIKey, res, _handle_api_key)
 
 
 #####################################
@@ -348,23 +385,29 @@ def _inline(s: str):
 #  results come back to the terminal as | delimited tables
 #  generating from column headers ( / class attrs) allows us
 #  to return rows by name and use our dataclasses
-def _gen_ccloud_regex(columns):
+def _gen_ccloud_regex(columns, debug=False):
     ex = r'\s*(?P<' + columns[0] + r'>.+?(?=\s*\\|))'
     # middle
     for name in columns[1:-1]:
         piece = r'(?:\s*\|\s*)(?P<' + name + r'>.+?(?=\s*\\|))'
         ex += piece
     ex += r'(?:\s*\|\s*)(?P<' + columns[-1] + r'>.+?(?=\s*\\r))'
+    if debug:
+        LOGGER.debug(ex)
     return re.compile(ex)
 
 
-def _gen_table_parser(columns, _cls, starting_row=1):
+def _gen_table_parser(columns, _cls, starting_row=2, debug=False):
     def f(body):
         kwargs = {}
         lines = body.split('\n')
+        if debug:
+            LOGGER.debug(lines)
         for i, key in enumerate(columns):
             _, header, value, _ = lines[i + starting_row].split('|')
-            kwargs[key] = value
+            if debug:
+                LOGGER.debug([header, value])
+            kwargs[key] = value.strip()
         return _cls(**kwargs)
     return f
 
@@ -373,9 +416,11 @@ def _gen_table_parser(columns, _cls, starting_row=1):
 # class instances
 
 
-def _process_resource(_cls, body, item_handler=helpers.identity):
+def _process_resource(_cls, body, item_handler=helpers.identity, debug=False):
+    if debug:
+        LOGGER.debug(body)
     cols = _fields(_cls)
-    reg = _gen_ccloud_regex(cols)
+    reg = _gen_ccloud_regex(cols, debug)
     if 'Error: ' in body:
         LOGGER.error(f'Could not get {_cls.__name__}s: {body}')
         return False
@@ -400,9 +445,11 @@ def _process_resource(_cls, body, item_handler=helpers.identity):
 #####################################
 
 def _connect():
+    LOGGER.info('Connecting to CCloud...')
     login(CC_API_USER, CC_API_PASSWORD)
     set_environment(CC_ENVIRONMENT_NAME)
     set_cluster(CC_CLUSTER_NAME)
+    LOGGER.info(f'Successfully connected to CCloud: {CC_ENVIRONMENT_NAME} - {CC_CLUSTER_NAME}')
 
 
 def create_superuser(name):
@@ -414,7 +461,7 @@ def create_superuser(name):
 
 def grant_superuser(name=None, account=None):
     if not any([name, account]):
-        raise ValueError('You must specify a name or pass an SA.')
+        raise ValueError('You must specify a name or pass an SA ID.')
     if not account:
         _connect()
         account = _get_service_account_by_name(name)
@@ -459,10 +506,51 @@ def create_tenant(realm):
     logout()
 
 
-def create_key(sa_name):
+def create_key(account_name, desc=None):
     _connect()
-    account = _get_service_account_by_name(sa_name)
-    pass
+    LOGGER.info(f'Creating key for account: {account_name}')
+    account = _get_service_account_by_name(account_name)
+    key = api_key_create(account.id, desc)
+    LOGGER.info(key)
+    logout()
+
+
+def list_accounts():
+    _connect()
+    accounts = get_service_accounts()
+    for account in accounts:
+        LOGGER.info(account)
+    logout()
+
+
+def list_acls(account_name=None):
+    _connect()
+    sa_id = None
+    if account_name:
+        account = _get_service_account_by_name(account_name)
+        sa_id = account.id
+        acls = acl_list(service_account_id=sa_id)
+        LOGGER.info(account)
+        for acl in acls:
+            LOGGER.info(acl)
+    else:
+        accounts = get_service_accounts()
+        acls = acl_list(service_account_id=sa_id)
+        for account in accounts:
+            LOGGER.info(account)
+            for acl in acls:
+                if account.id == acl.id:
+                    LOGGER.info(acl)
+
+    logout()
+
+
+def list_api_keys():
+    _connect()
+    keys = api_key_list()
+    for key in keys:
+        LOGGER.info(key)
+    logout()
 
 
 if __name__ == '__main__':
@@ -470,7 +558,10 @@ if __name__ == '__main__':
         'ADD_SUPERUSER': create_superuser,
         'GRANT_SUPERUSER': grant_superuser,
         'ADD_TENANT': create_tenant,
-        'CREATE_KEY': create_key
+        'CREATE_KEY': create_key,
+        'LIST_SERVICE_ACCOUNTS': list_accounts,
+        'LIST_ACLS': list_acls,
+        'LIST_API_KEYS': list_api_keys
     }
 
     command = sys.argv[1]
@@ -478,10 +569,10 @@ if __name__ == '__main__':
         LOGGER.critical(f'No command: {command}')
         sys.exit(1)
 
-    try:
-        fn = COMMANDS[command]
-        args = sys.argv[2:]
-        fn(*args)
-    except Exception as e:
-        LOGGER.error(str(e))
-        sys.exit(1)
+    # try:
+    fn = COMMANDS[command]
+    args = sys.argv[2:]
+    fn(*args)
+    # except Exception as e:
+    #     LOGGER.error(str(e))
+    #     sys.exit(1)

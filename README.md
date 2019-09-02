@@ -228,6 +228,35 @@ Adds a kafka user for a tenant, and adds ACL to their namespace.
 add_ccloud_tenant {tenant}
 ```
 
+
+#### `add_ccloud_key`
+Adds a ccloud APIKey for a tenant.
+
+```bash
+add_ccloud_key {tenant} "{description (optional)}"
+```
+
+#### `list_ccloud_tenants`
+Lists previously registered tenants in CCloud cluster.
+
+```bash
+list_ccloud_tenants
+```
+
+#### `list_ccloud_acls`
+Lists ACLs of CCloud tenants, or of a single tenant referenced by name
+
+```bash
+list_ccloud_acls {tenant (optional) }
+```
+
+#### `list_ccloud_api_keys`
+Lists active APIKeys on the cluster. (Names only)
+
+```bash
+list_ccloud_api_keys
+```
+
 ### ElasticSearch
 
 #### `elasticsearch_ready`
