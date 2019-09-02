@@ -363,7 +363,7 @@ def api_key_list():
     CMD = f'{CC_CLI_PATH} api-key list'
     child = pexpect.spawn(CMD)
     res = str(child.read())
-    return _process_resource(APIKey, res, _handle_api_key, True)
+    return _process_resource(APIKey, res, _handle_api_key)
 
 
 #####################################
