@@ -104,6 +104,14 @@ ZK_PW = get_env('ZOOKEEPER_PW')                 # password
 # registered administrative credentials
 KAFKA_ADMIN_SECRET = get_env('KAFKA_SECRET')
 
+# Confluent Cloud
+
+CC_CLI_PATH = get_env('CC_CLI_PATH', 'ccloud')
+CC_API_USER = get_env('CC_API_USER')
+CC_API_PASSWORD = get_env('CC_API_PASSWORD')
+CC_ENVIRONMENT_NAME = get_env('CC_ENVIRONMENT_NAME', 'default')
+CC_CLUSTER_NAME = get_env('CC_CLUSTER_NAME', 'default')
+
 
 # ElasticSearch / Kibana
 
