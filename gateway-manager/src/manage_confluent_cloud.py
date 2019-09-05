@@ -188,13 +188,14 @@ def set_cluster(name):
 # One SA per tenant is what we'll be doing in CCloud
 
 def get_or_create_tenant_sa(realm):
+    fullname = f'{CC_CLUSTER_NAME}:{realm}'
     accounts = get_service_accounts()
-    match = [a for a in accounts if a.name == realm]
+    match = [a for a in accounts if a.name == fullname]
     if match:
-        LOGGER.info(f'Tenant {realm} already exists!')
+        LOGGER.info(f'Tenant {realm} already exists on cluster {CC_CLUSTER_NAME}!')
         return match[0]
     else:
-        create_service_account(realm, f'SA for realm {realm}')
+        create_service_account(fullname, f'SA for realm {realm} on cluster {CC_CLUSTER_NAME}')
         return _get_service_account_by_name(realm)
 
 
@@ -211,12 +212,13 @@ def get_service_accounts():
 
 
 def _get_service_account_by_name(name):
+    fullname = f'{CC_CLUSTER_NAME}:{name}'
     sas = get_service_accounts()
-    match = [sa for sa in sas if sa.name == name]
+    match = [sa for sa in sas if sa.name == fullname]
     if not match:
         sa_names = [sa.name for sa in sas]
         raise RuntimeError(
-            f'No service account found with name: {name}'
+            f'No service account found with name: {name} on cluster: {CC_CLUSTER_NAME}'
             f'. Available SAs: {sa_names}'
         )
     LOGGER.debug(f'Found SA by name: {match[0]}')
