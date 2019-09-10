@@ -38,7 +38,7 @@ API = f'{ES_HOST}/_opendistro/_security/api/'
 LOGGER = get_logger('ElasticSearch')
 
 
-def create_tenant(tenant, version=6):
+def create_tenant(tenant, version=7):
     ROLES_URL = f'{API}roles/{tenant}'
     if int(version) < 7:
         role = load_json_file(TEMPLATES['es']['role'], {'tenant': tenant})
