@@ -44,6 +44,12 @@ from settings import (
 LOGGER = get_logger('Keycloak')
 
 
+############################################
+#
+# Keycloak Admin helpers
+#
+############################################
+
 def get_client():
     try:
         # connect to master realm
@@ -93,6 +99,59 @@ def get_client_secret(realm, client_id):
 def is_keycloak_ready():
     get_client()
     LOGGER.success('Keycloak is ready!')
+
+
+def get_user(realm, username):
+    keycloak_admin = client_for_realm(realm)
+    user_id = keycloak_admin.get_user_id(username)
+    return keycloak_admin.get_user(user_id)
+
+
+def get_realm_roles(realm):
+    keycloak_admin = client_for_realm(realm)
+    realm_roles = keycloak_admin.get_realm_roles()
+    return realm_roles
+
+
+def get_clients(realm, name=None):
+    keycloak_admin = client_for_realm(realm)
+    clients = keycloak_admin.get_clients()
+    if not name:
+        return clients
+    try:
+        return [i for i in clients if i.get('clientId') == name][0]
+    except IndexError:
+        return None
+
+
+def get_client_roles(realm, client_id):
+    keycloak_admin = client_for_realm(realm)
+    client_roles = keycloak_admin.get_client_roles(client_id=client_id)
+    return client_roles
+
+
+############################################
+#
+# Keycloak Actions
+#
+############################################
+
+def assign_all_client_roles(realm, username, client_name):
+    keycloak_admin = client_for_realm(realm)
+    user = get_user(realm, username)
+    client = get_clients(realm, client_name)
+    client_roles = get_client_roles(realm, client.get('id'))
+    roles = [
+        {'id': role.get('id'), 'name': role.get('name')}
+        for role in client_roles
+    ]
+    keycloak_admin.assign_client_role(
+        client_id=client.get('id'),
+        user_id=user.get('id'),
+        roles=roles
+    )
+    LOGGER.success(f'Added all rights to client "{client_name}"'
+                   f' to "{username}" on realm "{realm}"')
 
 
 def create_realm(realm, description=None, login_theme=None):
@@ -154,6 +213,9 @@ def create_user(
         if _status_pwd:
             LOGGER.warning(f'- {str(_status_pwd)}')
     LOGGER.success(f'Added user "{user}" to realm "{realm}"')
+    if admin:
+        LOGGER.info(f'Granting user "{user}" admin rights on realm "{realm}"...')
+        assign_all_client_roles(realm, user, 'realm-management')
 
 
 def create_confidential_client(realm, name):
