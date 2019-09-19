@@ -165,7 +165,7 @@ function show_help {
     ----------------------------------------------------------------------------
 
     add_ccloud_su:
-        Adds a Superuser to the CC Cluster. Returns credentials.
+        Adds a Superuser to the CC Cluster.
 
         Usage:  add_ccloud_su {username}
 
@@ -176,10 +176,22 @@ function show_help {
         Usage:  grant_ccloud_su {username}
 
 
+    delete_ccloud_su:
+        Removes a Superuser and their credentials, account and permissions.
+
+        Usage:  delete_ccloud_su {username}
+
+
     add_ccloud_tenant:
         Adds a ccloud user for a tenant, and adds ACL to their namespace.
 
         Usage:  add_ccloud_tenant {tenant}
+
+
+    delete_ccloud_tenant:
+        Removes a tenant and their credentials, account and permissions (Does not remove data / topics).
+
+        Usage:  delete_ccloud_tenant {username}
 
 
     add_ccloud_key
@@ -328,8 +340,16 @@ case "$1" in
         python /code/src/manage_confluent_cloud.py GRANT_SUPERUSER "${@:2}"
     ;;
 
+    delete_ccloud_su )
+        python /code/src/manage_confluent_cloud.py REMOVE_SUPERUSER "${@:2}"
+    ;;
+
     add_ccloud_tenant )
         python /code/src/manage_confluent_cloud.py ADD_TENANT "${@:2}"
+    ;;
+
+    delete_ccloud_tenant )
+        python /code/src/manage_confluent_cloud.py REMOVE_TENANT "${@:2}"
     ;;
 
     add_ccloud_key )

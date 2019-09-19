@@ -221,6 +221,13 @@ Gives an existing user superuser status.
 grant_ccloud_su {username}
 ```
 
+#### `delete_ccloud_su`
+Removes a Superuser and their credentials, account and permissions.
+
+```bash
+delete_ccloud_su {username}
+```
+
 #### `add_ccloud_tenant`
 Adds a kafka user for a tenant, and adds ACL to their namespace.
 
@@ -228,6 +235,12 @@ Adds a kafka user for a tenant, and adds ACL to their namespace.
 add_ccloud_tenant {tenant}
 ```
 
+#### `delete_ccloud_tenant`
+Removes a tenant and their credentials, account and permissions (Does not remove data / topics).
+
+```bash
+delete_ccloud_tenant {username}
+```
 
 #### `add_ccloud_key`
 Adds a ccloud APIKey for a tenant.
