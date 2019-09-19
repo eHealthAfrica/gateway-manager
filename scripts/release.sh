@@ -57,6 +57,7 @@ function build_and_push {
 # If there is no tag then create image for branch develop
 GATEWAY_VERSION=${TRAVIS_TAG:-latest}
 build_and_push  gateway-manager  $GATEWAY_VERSION
+build_and_push  gateway-manager  $TRAVIS_COMMIT
 
 # Use HELM chart tag
 # https://github.com/helm/charts/tree/master/stable/kong
