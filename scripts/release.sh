@@ -61,5 +61,5 @@ build_and_push  gateway-manager  $TRAVIS_COMMIT
 
 # Use HELM chart tag
 # https://github.com/helm/charts/tree/master/stable/kong
-KONG_VERSION=${KONG_VERSION:-1.1}
+KONG_VERSION=${KONG_VERSION:-1.3}
 build_and_push  kong  $KONG_VERSION
