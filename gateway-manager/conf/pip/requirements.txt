@@ -4,6 +4,10 @@
 #                                                                                       #
 #########################################################################################
 
+# An elegant and simple HTTP library for Python
+# https://requests.kennethreitz.org/en/master/
+requests[security]
+
 # Colored terminal output for Python’s logging module
 # https://coloredlogs.readthedocs.io/en/latest/index.html
 coloredlogs
