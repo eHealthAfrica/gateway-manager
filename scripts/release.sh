@@ -25,6 +25,7 @@ function build_and_push {
     VERSION=$2
     IMAGE_REPO=ehealthafrica
     TAG="${IMAGE_REPO}/${APP}:${VERSION}"
+    TAG_COMMIT="${IMAGE_REPO}/${APP}:${TRAVIS_COMMIT}"
     LINE="==============="
 
     echo -e ""
@@ -38,6 +39,7 @@ function build_and_push {
         --tag $TAG \
         --build-arg VERSION=$VERSION \
         ./$APP
+    docker tag $TAG $TAG_COMMIT
 
     echo -e ""
     echo -e "\e[2m${LINE}\e[0m Built image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
@@ -48,6 +50,7 @@ function build_and_push {
     echo -e ""
 
     docker push $TAG
+    docker push $TAG_COMMIT
 
     echo -e ""
     echo -e "\e[2m${LINE}\e[0m Pushed image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
@@ -57,7 +60,6 @@ function build_and_push {
 # If there is no tag then create image for branch develop
 GATEWAY_VERSION=${TRAVIS_TAG:-latest}
 build_and_push  gateway-manager  $GATEWAY_VERSION
-build_and_push  gateway-manager  $TRAVIS_COMMIT
 
 # Use HELM chart tag
 # https://github.com/helm/charts/tree/master/stable/kong
