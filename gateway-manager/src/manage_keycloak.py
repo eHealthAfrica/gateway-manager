@@ -26,6 +26,7 @@ from keycloak import KeycloakAdmin
 from keycloak.exceptions import KeycloakError
 
 from helpers import (
+    check_realm,
     do_nothing,
     get_logger,
     load_json_file,
@@ -137,6 +138,8 @@ def get_client_roles(realm, client_id):
 ############################################
 
 def assign_all_client_roles(realm, username, client_name):
+    check_realm(realm)
+
     keycloak_admin = client_for_realm(realm)
     user = get_user(realm, username)
     client = get_clients(realm, client_name)
@@ -155,6 +158,8 @@ def assign_all_client_roles(realm, username, client_name):
 
 
 def create_realm(realm, description=None, login_theme=None):
+    check_realm(realm)
+
     LOGGER.info(f'Adding realm "{realm}"...')
     keycloak_admin = get_client()
 
@@ -182,6 +187,8 @@ def create_user(
     email=None,
     temporary_password=False,
 ):
+    check_realm(realm)
+
     LOGGER.info(f'Adding user "{user}" to realm "{realm}"...')
 
     user_type = 'admin' if bool(admin) else 'standard'
@@ -219,16 +226,22 @@ def create_user(
 
 
 def create_confidential_client(realm, name):
+    check_realm(realm)
+
     LOGGER.info(f'Adding confidential client "{name}" to realm "{realm}"...')
     create_client(realm, name, False)
 
 
 def create_public_client(realm, name):
+    check_realm(realm)
+
     LOGGER.info(f'Adding public client "{name}" to realm "{realm}"...')
     create_client(realm, name, True)
 
 
 def create_client(realm, name, isPublic):
+    check_realm(realm)
+
     config = load_json_file(TEMPLATES['client'], {
         'name': name,
         'host': BASE_HOST,
@@ -260,8 +273,12 @@ if __name__ == '__main__':
         LOGGER.critical(f'No command: {command}')
         sys.exit(1)
 
-    is_keycloak_ready()
+    try:
+        is_keycloak_ready()
 
-    fn = COMMANDS[command]
-    args = sys.argv[2:]
-    fn(*args)
+        fn = COMMANDS[command]
+        args = sys.argv[2:]
+        fn(*args)
+    except Exception as e:
+        LOGGER.error(str(e))
+        sys.exit(1)
