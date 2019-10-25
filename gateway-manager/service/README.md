@@ -26,11 +26,11 @@ The expected format for each service file is:
   ],
 
   // [optional] (defaults to "false")
-  // https://docs.konghq.com/1.1.x/proxy/
+  // https://docs.konghq.com/1.3.x/proxy/
   "strip_path": "true",
 
   // [optional] (defaults to "0")
-  // https://docs.konghq.com/1.1.x/proxy/#evaluation-order
+  // https://docs.konghq.com/1.3.x/proxy/#evaluation-order
   "regex_priority": 0,
 
   // list of urls protected by "kong-oidc-auth" plugin
@@ -53,11 +53,11 @@ The expected format for each service file is:
       ],
 
       // [optional] (defaults to "false")
-      // https://docs.konghq.com/1.1.x/proxy/
+      // https://docs.konghq.com/1.3.x/proxy/
       "strip_path": "false",
 
       // [optional] (defaults to "0")
-      // https://docs.konghq.com/1.1.x/proxy/#evaluation-order
+      // https://docs.konghq.com/1.3.x/proxy/#evaluation-order
       "regex_priority": 0,
 
       "oidc_override": {
@@ -90,11 +90,11 @@ The expected format for each service file is:
       ],
 
       // [optional] (defaults to "false")
-      // https://docs.konghq.com/1.1.x/proxy/
+      // https://docs.konghq.com/1.3.x/proxy/
       "strip_path": "true",
 
       // [optional] (defaults to "0")
-      // https://docs.konghq.com/1.1.x/proxy/#evaluation-order
+      // https://docs.konghq.com/1.3.x/proxy/#evaluation-order
       "regex_priority": 0
     },
     // ...
