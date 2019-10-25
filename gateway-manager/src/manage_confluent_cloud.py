@@ -214,7 +214,7 @@ def get_service_accounts():
 def _get_service_account_by_name(name):
     fullname = f'{CC_CLUSTER_NAME}:{name}'
     sas = get_service_accounts()
-    match = [sa for sa in sas if sa.name == fullname]
+    match = [sa for sa in sas if sa.name == fullname or sa.name == name]
     if not match:
         sa_names = [sa.name for sa in sas]
         raise RuntimeError(
@@ -249,6 +249,25 @@ def remove_service_account(name: str = None, _id: int = None):
     return True
 
 
+# Remove APIKeys, ACLS, and Account
+def wipe_service_account(account: ServiceAccount, realm: str = None):
+    LOGGER.info(f'Removing Account : {account.name}')
+    # wipe APIKeys
+    keys = [key for key in api_key_list() if key.service_account_id == account.id]
+    if not keys:
+        LOGGER.debug(f'No active keys associate with {account.name}')
+    for key in keys:
+        LOGGER.info(f'Deleting Access Key {key.id}')
+        api_key_delete(key.id)
+    # wipe ACLs
+    if realm:
+        user_acl_operation(account, realm, 'delete')
+    else:
+        su_acl_operation(account, 'delete')
+    remove_service_account(_id=account.id)
+    LOGGER.info(f'Account : {account.name} wiped')
+
+
 #####################################
 #
 #   ACLs
@@ -281,7 +300,53 @@ def _handle_acl(i):
     return i
 
 
-def acl_create(
+def user_acl_operation(
+    account: ServiceAccount,
+    realm: str = None,
+    method: str = 'create'
+):
+    allowed_resource = f'{realm}.'
+    for operation in ALL_TENANT_PERMISSION:
+        for resource_type, resource_id, wildcard in [
+                ('topic', allowed_resource, True),
+                ('consumer-group', allowed_resource, True)
+        ]:
+            acl_operation(
+                method,
+                account.id,
+                resource_id,
+                resource_type=resource_type,
+                operation=operation,
+                extended_acl=wildcard,
+                cluster=False
+            )
+
+
+def su_acl_operation(
+    account: ServiceAccount,
+    method: str = 'create'
+):
+    allowed_resource = '*'
+    for operation in ALL_SU_PERMISSION:
+        for resource_type, resource_id, wildcard, cluster in [
+                ('topic', allowed_resource, False, False),
+                ('consumer-group', allowed_resource, False, False),
+                (None, None, False, True)
+        ]:
+            acl_operation(
+                method,
+                account.id,
+                resource_id,
+                resource_type=resource_type,
+                operation=operation,
+                extended_acl=wildcard,
+                cluster=cluster
+            )
+
+
+def acl_operation(
+    # create / delete
+    method: str,
     # Have to use ID, no names
     service_account_id: int,
     # the resource
@@ -299,7 +364,7 @@ def acl_create(
     cluster=False
 ):
     CMD = ''.join([
-        f'{CC_CLI_PATH} kafka acl create --{type_} ',
+        f'{CC_CLI_PATH} kafka acl {method} --{type_} ',
         f'--service-account-id {service_account_id} ',
         '--prefix ' if extended_acl else '',
         f'--operation {operation} ',
@@ -361,6 +426,16 @@ def api_key_create(service_account_id: int, desc: str = None):
     child = pexpect.spawn(CMD)
     res = child.read().decode('utf-8')
     return parser(res)
+
+
+def api_key_delete(_id: str):
+    CMD = f'{CC_CLI_PATH} api-key delete {_id}'
+    child = pexpect.spawn(CMD)
+    res = child.read().decode('utf-8')
+    if not res.strip():
+        return True
+    else:
+        return False
 
 
 def api_key_list():
@@ -480,42 +555,44 @@ def grant_superuser(name=None, account=None):
         raise RuntimeError('You must specify a name or pass an SA ID.')
     if not account:
         account = _get_service_account_by_name(name)
-    allowed_resource = '*'
-    for operation in ALL_SU_PERMISSION:
-        for resource_type, resource_id, wildcard, cluster in [
-                ('topic', allowed_resource, False, False),
-                ('consumer-group', allowed_resource, False, False),
-                (None, None, False, True)
-        ]:
-            acl_create(
-                account.id,
-                resource_id,
-                resource_type=resource_type,
-                operation=operation,
-                extended_acl=wildcard,
-                cluster=cluster
-            )
+    su_acl_operation(account, 'create')
     acl_list(service_account_id=account.id)
+
+
+def remove_superuser(name=None, account=None):
+    if not any([name, account]):
+        raise RuntimeError('You must specify a name or pass an SA ID.')
+    if not account:
+        try:
+            account = _get_service_account_by_name(name)
+        except Exception as err:
+            LOGGER.error(err)
+            LOGGER.debug(f'Trying to remove ACLs with passed name: {name} as ID')
+            account = ServiceAccount(int(name.strip()), name, name)
+    wipe_service_account(account)
+    LOGGER.info(f'Removed Service Account: {account.name}')
 
 
 def create_tenant(realm):
     account = get_or_create_tenant_sa(realm)
-    allowed_resource = f'{realm}.'
-    for operation in ALL_TENANT_PERMISSION:
-        for resource_type, resource_id, wildcard in [
-                ('topic', allowed_resource, True),
-                ('consumer-group', allowed_resource, True)
-        ]:
-            acl_create(
-                account.id,
-                resource_id,
-                resource_type=resource_type,
-                operation=operation,
-                extended_acl=wildcard,
-                cluster=False
-            )
+    user_acl_operation(account, realm, 'create')
     acl_list(service_account_id=account.id)
-    LOGGER.info('Regular tenant "{realm}" created.')
+    LOGGER.info(f'Regular tenant "{realm}" created.')
+
+
+def remove_tenant(realm):
+    try:
+        account = _get_service_account_by_name(realm)
+        wipe_service_account(account, realm)
+    except Exception as err:
+        LOGGER.error(err)
+        LOGGER.info('No matching user, removing stale ACLs for this tenant.')
+        resource = f'{realm}.'
+        matching_acls = list(set([acl.id for acl in acl_list() if acl.resource_id == resource]))
+        for _id in matching_acls:
+            account = ServiceAccount(_id, realm, None)
+            user_acl_operation(account, realm, 'delete')
+    LOGGER.info(f'Regular tenant "{account.name}" removed.')
 
 
 def create_key(account_name, desc=None):
@@ -563,8 +640,10 @@ def list_api_keys():
 if __name__ == '__main__':
     COMMANDS = {
         'ADD_SUPERUSER': create_superuser,
+        'REMOVE_SUPERUSER': remove_superuser,
         'GRANT_SUPERUSER': grant_superuser,
         'ADD_TENANT': create_tenant,
+        'REMOVE_TENANT': remove_tenant,
         'CREATE_KEY': create_key,
         'LIST_SERVICE_ACCOUNTS': list_accounts,
         'LIST_ACLS': list_acls,

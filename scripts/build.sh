@@ -26,7 +26,9 @@ GWM_VERSION=latest
 function build_image {
     APP=$1
     VERSION=$2
+    TRAVIS_COMMIT=${TRAVIS_COMMIT:-test}
     TAG="${APP}:${VERSION}"
+    TAG_COMMIT="${APP}:${TRAVIS_COMMIT}"
     LINE="~~~~~~~~~~~~~~~"
 
     echo -e ""
@@ -40,6 +42,7 @@ function build_image {
         --tag $TAG \
         --build-arg VERSION=$VERSION \
         ./$APP
+    docker tag $TAG $TAG_COMMIT
 
     echo -e ""
     echo -e "\e[2m${LINE}\e[0m Built image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
