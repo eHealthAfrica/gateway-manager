@@ -1,6 +1,6 @@
 # Use HELM chart tag
 # https://github.com/helm/charts/tree/master/stable/kong
-ARG VERSION=1.1
+ARG VERSION=1.3
 FROM kong:$VERSION
 
 # Kong install dir
