@@ -22,6 +22,7 @@ from requests.auth import HTTPBasicAuth
 import sys
 
 from helpers import (
+    check_realm,
     do_nothing,
     get_logger,
     load_json_file,
@@ -39,6 +40,8 @@ LOGGER = get_logger('ElasticSearch')
 
 
 def create_tenant(tenant, version=7):
+    check_realm(tenant)
+
     ROLES_URL = f'{API}roles/{tenant}'
     if int(version) < 7:
         role = load_json_file(TEMPLATES['es']['role'], {'tenant': tenant})

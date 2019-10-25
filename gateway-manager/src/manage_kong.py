@@ -26,6 +26,7 @@ from requests.exceptions import HTTPError
 
 from manage_keycloak import get_client_secret
 from helpers import (
+    check_realm,
     do_nothing,
     fill_template,
     get_logger,
@@ -79,6 +80,7 @@ def _check_realm_in_action(action, realm):
         if realm == '*':
             realm = None
 
+    check_realm(realm)
     return realm
 
 

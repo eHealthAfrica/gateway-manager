@@ -24,7 +24,15 @@ import requests
 from string import Template
 from requests.exceptions import HTTPError
 
-from settings import DEBUG
+from settings import DEBUG, KC_ADMIN_REALM, KONG_PUBLIC_REALM
+
+
+def check_realm(realm):
+    # certain realms are forbidden to handle like:
+    # - `KC_ADMIN_REALM`: `master`
+    # - `KONG_PUBLIC_REALM`: `-`
+    if realm in (KC_ADMIN_REALM, KONG_PUBLIC_REALM):
+        raise RuntimeError(f'Forbidden realm {realm}')
 
 
 def do_nothing(*args, **kwargs):

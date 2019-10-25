@@ -21,7 +21,7 @@
 import sys
 from time import sleep
 
-from helpers import get_logger
+from helpers import check_realm, get_logger
 from zookeeper_functions import (
     make_user,
     upsert_permission,
@@ -59,6 +59,8 @@ def grant_superuser(name):
 
 
 def create_tenant(realm):
+    check_realm(realm)
+
     # make user for realm
     LOGGER.info(f'Creating tenant for realm: {realm}')
     pw = get_tenant_password(realm)
@@ -81,6 +83,7 @@ def create_tenant(realm):
 
 
 def tenant_creds(realm):
+    check_realm(realm)
     pw = get_tenant_password(realm)
     LOGGER.info(f'{realm} : {pw}')
 
