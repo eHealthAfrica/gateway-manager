@@ -20,9 +20,12 @@
 #
 set -Eeuo pipefail
 
+KONG_VERSION=1.3
+GWM_VERSION=latest
+
 function build_image {
     APP=$1
-    VERSION=latest
+    VERSION=$2
     TRAVIS_COMMIT=${TRAVIS_COMMIT:-test}
     TAG="${APP}:${VERSION}"
     TAG_COMMIT="${APP}:${TRAVIS_COMMIT}"
@@ -46,5 +49,7 @@ function build_image {
     echo -e ""
 }
 
-build_image gateway-manager
-build_image kong
+
+
+build_image gateway-manager ${GWM_VERSION}
+build_image kong ${KONG_VERSION}
