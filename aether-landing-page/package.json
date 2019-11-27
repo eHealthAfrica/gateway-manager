@@ -1,0 +1,70 @@
+{
+  "name": "aether-landing-page",
+  "version": "0.0.0",
+  "repository": "https://github.com/eHealthAfrica/gateway-manager/tree/master/kong/aether-landing-page",
+  "description": "Aether Landing Page",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "eHealth Africa",
+    "email": "info@ehealthafrica.org",
+    "url": "https://ehealthafrica.org"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "yarn lint && jest",
+    "test:watch": "yarn test --watch",
+    "lint": "eslint \"**/*.{js,jsx}\""
+  },
+  "dependencies": {
+    "bootstrap": "~4.3.1",
+    "react": "~16.12.0",
+    "react-dom": "~16.12.0",
+    "react-intl": "~3.6.2",
+    "react-scripts": "3.2.0",
+    "react-test-renderer": "~16.12.0"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "~7.7.4",
+    "@babel/preset-react": "~7.7.4",
+    "babel-jest": "~24.9.0",
+    "enzyme": "~3.10.0",
+    "enzyme-adapter-react-16": "~1.15.1",
+    "eslint": "~6.7.1",
+    "eslint-config-standard": "~14.1.0",
+    "eslint-plugin-import": "~2.18.2",
+    "eslint-plugin-jsx-a11y": "~6.2.3",
+    "eslint-plugin-node": "~10.0.0",
+    "eslint-plugin-promise": "~4.2.1",
+    "eslint-plugin-react": "~7.16.0",
+    "eslint-plugin-react-hooks": "~1.7.0",
+    "eslint-plugin-standard": "~4.0.1",
+    "jest": "~24.9.0",
+    "node-sass": "~4.13.0"
+  },
+  "jest": {
+    "setupFilesAfterEnv": [
+      "<rootDir>src/setupTests.js"
+    ],
+    "collectCoverage": true,
+    "verbose": true
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
