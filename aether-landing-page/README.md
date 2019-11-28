@@ -1,4 +1,4 @@
-Aether Landing Page
+# Aether Landing Page
 
 ## Available Scripts
 

@@ -12,9 +12,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "yarn lint && jest",
+    "test": "yarn lint && jest --expand",
     "test:watch": "yarn test --watch",
-    "lint": "eslint \"**/*.{js,jsx}\""
+    "lint": "standard './src/**/*.{js,jsx}'"
   },
   "dependencies": {
     "bootstrap": "~4.3.1",
@@ -30,17 +30,8 @@
     "babel-jest": "~24.9.0",
     "enzyme": "~3.10.0",
     "enzyme-adapter-react-16": "~1.15.1",
-    "eslint": "~6.7.1",
-    "eslint-config-standard": "~14.1.0",
-    "eslint-plugin-import": "~2.18.2",
-    "eslint-plugin-jsx-a11y": "~6.2.3",
-    "eslint-plugin-node": "~10.0.0",
-    "eslint-plugin-promise": "~4.2.1",
-    "eslint-plugin-react": "~7.16.0",
-    "eslint-plugin-react-hooks": "~1.7.0",
-    "eslint-plugin-standard": "~4.0.1",
-    "jest": "~24.9.0",
-    "node-sass": "~4.13.0"
+    "node-sass": "~4.13.0",
+    "standard": "~14.3.1"
   },
   "jest": {
     "setupFilesAfterEnv": [

@@ -37,7 +37,7 @@ const LandingPage = () => {
     <div className='landing-page'>
       <NavBar username={username} />
 
-      <div className="content">
+      <div className='content'>
         <div className='tenant-name'>
           {tenant ? capitalize(tenant) : ''}
         </div>
@@ -49,10 +49,10 @@ const LandingPage = () => {
           />
         </div>
 
-        <div className="services">
+        <div className='services'>
           {
             getServices(tenant).map((service, index) => (
-              <div key={`${service.name}${index}`} className="service">
+              <div key={`${service.name}${index}`} className='service'>
                 <ServiceCard {...service} />
               </div>
             ))

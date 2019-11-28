@@ -18,7 +18,7 @@
  * under the License.
  */
 
-import React, { Fragment } from 'react'
+import React from 'react'
 import { FormattedMessage } from 'react-intl'
 
 const getStyle = (color) => ({ fontSize: 25, margin: 5, color: `${color}` })
@@ -49,7 +49,7 @@ const getBrand = (service) => {
 }
 
 const ServiceCard = ({ name, about, icon, link }) => name ? (
-  <Fragment>
+  <>
     <a href={link}>
       <div className={`${name}-card title-large`}>
         {icon && <img className='service-icon' src={icon} alt='icon' />}
@@ -59,7 +59,7 @@ const ServiceCard = ({ name, about, icon, link }) => name ? (
     <p className='service-about small'>
       <FormattedMessage id='service.card.about' defaultMessage={about} />
     </p>
-  </Fragment>
+  </>
 ) : <div className='-card' />
 
 export default ServiceCard
