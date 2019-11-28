@@ -36,11 +36,11 @@ export const capitalize = (str) => `${str[0].toUpperCase()}${str[1] ? str.slice(
  *
  * @param {string} tenant
  */
-export const getServices = (tenant = '') => [
-  { name: 'gather', about: SAMPLE_ABOUT, icon: gatherIcon, link: `/${tenant}/gather` },
-  { name: 'kibana', about: SAMPLE_ABOUT, icon: kibanaIcon, link: `/${tenant}/kibana/kibana-app` },
+export const getServices = (tenant = '', origin = window.location.origin) => [
+  { name: 'gather', about: SAMPLE_ABOUT, icon: gatherIcon, link: `${origin}/${tenant}/gather` },
+  { name: 'kibana', about: SAMPLE_ABOUT, icon: kibanaIcon, link: `${origin}/${tenant}/kibana/kibana-app` },
   { name: '' },
-  { name: 'aether', about: SAMPLE_ABOUT, icon: aetherIcon, link: `/${tenant}/aether` },
-  { name: 'kernel', about: SAMPLE_ABOUT, link: '/kernel' },
-  { name: 'odk', about: SAMPLE_ABOUT, link: '/odk' }
+  { name: 'aether', about: SAMPLE_ABOUT, icon: aetherIcon, link: `${origin}/${tenant}/aether` },
+  { name: 'kernel', about: SAMPLE_ABOUT, link: `${origin}/kernel` },
+  { name: 'odk', about: SAMPLE_ABOUT, link: `${origin}/odk` }
 ]
