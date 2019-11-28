@@ -1,7 +1,7 @@
 {
   "name": "aether-landing-page",
   "version": "0.0.0",
-  "repository": "https://github.com/eHealthAfrica/gateway-manager/tree/master/kong/aether-landing-page",
+  "repository": "https://github.com/eHealthAfrica/gateway-manager/tree/master/aether-landing-page",
   "description": "Aether Landing Page",
   "license": "Apache-2.0",
   "author": {
