@@ -1,7 +1,7 @@
 {
   "name": "cors",
   "config.credentials": "true",
-  "config.exposed_headers": "Authorization",
+  "config.exposed_headers": "Authorization, Content-Disposition",
   "config.headers": "Accept, Accept-Version, Content-Disposition, Content-Length, Content-MD5, Content-Type, Date, Authorization",
   "config.max_age": 3600,
   "config.methods": ["HEAD", "GET", "POST", "PUT", "PATCH", "DELETE"],
