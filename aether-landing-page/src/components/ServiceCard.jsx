@@ -20,6 +20,8 @@
 
 import React from 'react'
 import { FormattedMessage } from 'react-intl'
+import { capitalize } from '../utils'
+import { GATHER, AETHER, KERNEL, ODK, KIBANA } from '../utils/constants'
 
 const getStyle = (color) => ({ fontSize: 25, margin: 5, color: `${color}` })
 
@@ -33,16 +35,16 @@ const withSymbols = (service, color) => (
 
 const getBrand = (service) => {
   switch (service) {
-    case 'gather':
+    case GATHER:
       return <b>{service}</b>
-    case 'aether':
+    case AETHER:
       return <span><b>ae</b>ther</span>
-    case 'kernel':
-      return withSymbols('Kernel', '#50aef3')
-    case 'odk':
-      return withSymbols('ODK', '#d25b69')
-    case 'kibana':
-      return 'Kibana'
+    case KERNEL:
+      return withSymbols(capitalize(KERNEL), '#50aef3')
+    case ODK:
+      return withSymbols(ODK.toUpperCase(), '#d25b69')
+    case KIBANA:
+      return capitalize(KIBANA)
     default:
       return service
   }
@@ -57,7 +59,7 @@ const ServiceCard = ({ name, about, icon, link }) => name ? (
       </div>
     </a>
     <p className='service-about small'>
-      <FormattedMessage id='service.card.about' defaultMessage={about} />
+      <FormattedMessage id={`service.card.about.${name}`} defaultMessage={about} />
     </p>
   </>
 ) : <div className='-card' />

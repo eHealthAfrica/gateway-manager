@@ -18,7 +18,7 @@
  * under the License.
  */
 
-import { SAMPLE_ABOUT } from './constants'
+import { GATHER, KIBANA, AETHER, KERNEL, ODK, SERVICE_ABOUT } from './constants'
 
 import gatherIcon from '../assets/gather.png'
 import kibanaIcon from '../assets/kibana.png'
@@ -37,10 +37,10 @@ export const capitalize = (str) => `${str[0].toUpperCase()}${str[1] ? str.slice(
  * @param {string} tenant
  */
 export const getServices = (tenant = '', origin = window.location.origin) => [
-  { name: 'gather', about: SAMPLE_ABOUT, icon: gatherIcon, link: `${origin}/${tenant}/gather` },
-  { name: 'kibana', about: SAMPLE_ABOUT, icon: kibanaIcon, link: `${origin}/${tenant}/kibana/kibana-app` },
+  { name: GATHER, about: SERVICE_ABOUT[GATHER], icon: gatherIcon, link: `${origin}/${tenant}/${GATHER}` },
+  { name: KIBANA, about: SERVICE_ABOUT[KIBANA], icon: kibanaIcon, link: `${origin}/${tenant}/${KIBANA}/kibana-app` },
   { name: '' },
-  { name: 'aether', about: SAMPLE_ABOUT, icon: aetherIcon, link: `${origin}/${tenant}/aether` },
-  { name: 'kernel', about: SAMPLE_ABOUT, link: `${origin}/kernel` },
-  { name: 'odk', about: SAMPLE_ABOUT, link: `${origin}/odk` }
+  { name: AETHER, about: SERVICE_ABOUT[AETHER], icon: aetherIcon, link: `${origin}/${tenant}/${AETHER}` },
+  { name: KERNEL, about: SERVICE_ABOUT[KERNEL], link: `${origin}/${KERNEL}` },
+  { name: ODK, about: SERVICE_ABOUT[ODK], link: `${origin}/${ODK}` }
 ]
