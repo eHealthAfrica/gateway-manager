@@ -19,9 +19,32 @@
  */
 
 import React from 'react'
-import { FormattedMessage } from 'react-intl'
+import { defineMessages, injectIntl } from 'react-intl'
 import { capitalize } from '../utils'
-import { GATHER, AETHER, KERNEL, ODK, KIBANA } from '../utils/constants'
+import { GATHER, AETHER, KERNEL, ODK, KIBANA, SERVICE_ABOUT } from '../utils/constants'
+
+const MESSAGES = defineMessages({
+  [GATHER]: {
+    defaultMessage: SERVICE_ABOUT[GATHER],
+    id: `service.card.about.${GATHER}`
+  },
+  [AETHER]: {
+    defaultMessage: SERVICE_ABOUT[AETHER],
+    id: `service.card.about.${AETHER}`
+  },
+  [KERNEL]: {
+    defaultMessage: SERVICE_ABOUT[KERNEL],
+    id: `service.card.about.${KERNEL}`
+  },
+  [ODK]: {
+    defaultMessage: SERVICE_ABOUT[ODK],
+    id: `service.card.about.${ODK}`
+  },
+  [KIBANA]: {
+    defaultMessage: SERVICE_ABOUT[KIBANA],
+    id: `service.card.about.${KIBANA}`
+  }
+})
 
 const getStyle = (color) => ({ fontSize: 25, margin: 5, color: `${color}` })
 
@@ -50,7 +73,7 @@ const getBrand = (service) => {
   }
 }
 
-const ServiceCard = ({ name, about, icon, link }) => name ? (
+const ServiceCard = ({ name, icon, link, intl: { formatMessage } }) => name ? (
   <>
     <a href={link}>
       <div className={`${name}-card title-large`}>
@@ -58,10 +81,8 @@ const ServiceCard = ({ name, about, icon, link }) => name ? (
         {getBrand(name)}
       </div>
     </a>
-    <p className='service-about small'>
-      <FormattedMessage id={`service.card.about.${name}`} defaultMessage={about} />
-    </p>
+    <p className='service-about small'>{formatMessage(MESSAGES[name])}</p>
   </>
 ) : <div className='-card' />
 
-export default ServiceCard
+export default injectIntl(ServiceCard)
