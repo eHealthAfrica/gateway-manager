@@ -61,7 +61,7 @@ function build_and_push {
 GATEWAY_VERSION=${TRAVIS_TAG:-latest}
 build_and_push  gateway-manager  $GATEWAY_VERSION
 
-# Use HELM chart tag
-# https://github.com/helm/charts/tree/master/stable/kong
-KONG_VERSION=${KONG_VERSION:-1.3}
-build_and_push  kong  $KONG_VERSION
+KONG_RELEASES=( "latest" "1.3" "1.4" )
+for kong_version in "${KONG_RELEASES[@]}"; do
+    build_and_push  kong  $kong_version
+done

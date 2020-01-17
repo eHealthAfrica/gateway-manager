@@ -20,7 +20,6 @@
 #
 set -Eeuo pipefail
 
-KONG_VERSION=1.3
 GWM_VERSION=latest
 
 function build_image {
@@ -49,7 +48,9 @@ function build_image {
     echo -e ""
 }
 
-
-
 build_image gateway-manager ${GWM_VERSION}
-build_image kong ${KONG_VERSION}
+
+KONG_RELEASES=( "latest" "1.3" "1.4" )
+for kong_version in "${KONG_RELEASES[@]}"; do
+    build_image  kong  $kong_version
+done
