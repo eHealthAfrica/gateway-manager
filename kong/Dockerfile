@@ -5,6 +5,10 @@ FROM kong:$VERSION
 ENV KONG_OIDC_HOME /usr/local/share/lua/5.1/kong/plugins/kong-oidc-auth
 ENV KONG_OIDC_REPO https://github.com/eHealthAfrica/kong-oidc-auth.git
 
+# In version 2.0 the active user is kong
+# we need to switch to root to install the plugin
+USER root
+
 # Install OIDC plugin
 RUN apk -U add --no-cache --virtual .build-deps git unzip gcc libc-dev openssl-dev && \
     git clone $KONG_OIDC_REPO $KONG_OIDC_HOME && \
@@ -13,3 +17,5 @@ RUN apk -U add --no-cache --virtual .build-deps git unzip gcc libc-dev openssl-d
     apk del .build-deps
 
 COPY ./nginx_templates/nginx_kong.lua /usr/local/share/lua/5.1/kong/templates/
+
+USER kong

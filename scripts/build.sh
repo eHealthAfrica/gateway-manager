@@ -50,7 +50,7 @@ function build_image {
 
 build_image gateway-manager ${GWM_VERSION}
 
-KONG_RELEASES=( "latest" "1.3" "1.4" )
+KONG_RELEASES=( "latest" "1.3" "1.4" "1.5" "2.0" )
 for kong_version in "${KONG_RELEASES[@]}"; do
     build_image  kong  $kong_version
 done

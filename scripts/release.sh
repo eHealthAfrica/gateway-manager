@@ -25,7 +25,7 @@ function build_and_push {
     VERSION=$2
     IMAGE_REPO=ehealthafrica
     TAG="${IMAGE_REPO}/${APP}:${VERSION}"
-    TAG_COMMIT="${IMAGE_REPO}/${APP}:${TRAVIS_COMMIT}"
+    TAG_COMMIT="${IMAGE_REPO}/${APP}:${VERSION}-${TRAVIS_COMMIT}"
     LINE="==============="
 
     echo -e ""
@@ -61,7 +61,7 @@ function build_and_push {
 GATEWAY_VERSION=${TRAVIS_TAG:-latest}
 build_and_push  gateway-manager  $GATEWAY_VERSION
 
-KONG_RELEASES=( "latest" "1.3" "1.4" )
+KONG_RELEASES=( "latest" "1.3" "1.4" "1.5" "2.0" )
 for kong_version in "${KONG_RELEASES[@]}"; do
     build_and_push  kong  $kong_version
 done
