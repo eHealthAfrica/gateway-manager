@@ -61,7 +61,7 @@ function build_and_push {
 GATEWAY_VERSION=${TRAVIS_TAG:-latest}
 build_and_push  gateway-manager  $GATEWAY_VERSION
 
-KONG_RELEASES=( "latest" "1.3" "1.4" "1.5" "2.0" )
+KONG_RELEASES=( "1.3" "1.4" "1.5" "2.0" "latest" )
 for kong_version in "${KONG_RELEASES[@]}"; do
     build_and_push  kong  $kong_version
 done
