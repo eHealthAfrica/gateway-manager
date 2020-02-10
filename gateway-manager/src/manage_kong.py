@@ -266,7 +266,7 @@ def remove_service(name, realm):
     def _realm_in_route(route):
         # json -> null will be returned as None, despite the default so we check.
         if route.get('tags', []) is not None:
-            return realm in route
+            return realm in route.get('tags', [])
         else:
             return route['name'].endswith(f'__{realm}')
 
