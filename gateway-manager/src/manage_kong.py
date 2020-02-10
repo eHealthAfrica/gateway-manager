@@ -264,7 +264,11 @@ def add_service(service_config, realm, oidc_client):
 def remove_service(name, realm):
 
     def _realm_in_route(route):
-        return realm in route.get('tags', []) or route['name'].endswith(f'__{realm}')
+        # json -> null will be returned as None, despite the default so we check.
+        if route.get('tags', []) is not None:
+            return realm in route
+        else:
+            return route['name'].endswith(f'__{realm}')
 
     if not realm:
         LOGGER.info(f'Removing service "{name}" from ALL realms...')
