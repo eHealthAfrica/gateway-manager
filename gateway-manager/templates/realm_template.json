@@ -16,5 +16,34 @@
         "description": "Administrator privileges"
       }
     ]
-  }
+  },
+  "clients": [
+    {
+      "clientId": "google-authentication",
+      "enabled": true,
+      "publicClient" : true,
+      "adminUrl": "/auth",
+      "baseUrl": "/auth",
+      "redirectUris": [
+        "/auth/*"
+      ],
+      "webOrigins": [
+        "${baseHost}"
+     ]
+    }
+  ],
+  "identityProviders": [
+   {
+     "alias" : "google",
+     "providerId" : "google",
+     "enabled": true,
+     "updateProfileFirstLogin" : "true",
+     "storeToken" : "true",
+     "addReadTokenRoleOnCreate" : true,
+     "config": {
+        "clientId": "${googleClientId}",
+        "clientSecret": "{googleClientSecret}"
+      }
+    }
+  ]
 }

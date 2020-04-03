@@ -167,6 +167,9 @@ def create_realm(realm, description=None, login_theme=None):
         'realm': realm,
         'displayName': description or '',
         'loginTheme': login_theme or '',
+        'baseHost': BASE_HOST,
+        'googleClientId': GOOGLE_CLIENT_ID,
+        'googleClientSecret': GOOGLE_CLIENT_SECRET
     })
     if not description:
         config['displayName'] = None
