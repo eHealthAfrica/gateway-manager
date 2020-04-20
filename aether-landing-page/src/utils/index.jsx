@@ -36,7 +36,17 @@ export const capitalize = (str) => `${str[0].toUpperCase()}${str[1] ? str.slice(
  *
  * @param {string} tenant
  */
-export const getServices = (tenant = '', origin = window.location.origin) => [
+export const getServices = (tenant = '', origin = window.location.origin) => {
+    const tenant_path = tenant ? `${tenant}/` : ''
+    return [
+        { name: GATHER, icon: gatherIcon, link: `${origin}/${tenant_path}${GATHER}` },
+        { name: KIBANA, icon: kibanaIcon, link: `${origin}/${tenant_path}${KIBANA}/kibana-app` },
+        { name: '' },
+        { name: AETHER, icon: aetherIcon, link: `${origin}/${tenant_path}${AETHER}` },
+        { name: KERNEL, link: `${origin}/${tenant_path}${KERNEL}` },
+        { name: ODK, link: `${origin}/${tenant_path}${ODK}` }
+    ]
+}
   { name: GATHER, icon: gatherIcon, link: `${origin}/${tenant}/${GATHER}` },
   { name: KIBANA, icon: kibanaIcon, link: `${origin}/${tenant}/${KIBANA}/kibana-app` },
   { name: '' },
