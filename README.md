@@ -3,6 +3,12 @@
 This application is used to configure Keycloak+Kong installations,
 locally or as part of a cluster.
 
+## Aether Landing Page
+
+An app that serves as a UI for accessing different running services.
+
+Continues in [Aether Landing Page README](/aether-landing-page/README.md)
+
 ## App
 
 An app represents an application and defines a set of public URLs.
