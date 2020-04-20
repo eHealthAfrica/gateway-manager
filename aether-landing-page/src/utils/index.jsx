@@ -47,10 +47,3 @@ export const getServices = (tenant = '', origin = window.location.origin) => {
         { name: ODK, link: `${origin}/${tenant_path}${ODK}` }
     ]
 }
-  { name: GATHER, icon: gatherIcon, link: `${origin}/${tenant}/${GATHER}` },
-  { name: KIBANA, icon: kibanaIcon, link: `${origin}/${tenant}/${KIBANA}/kibana-app` },
-  { name: '' },
-  { name: AETHER, icon: aetherIcon, link: `${origin}/${tenant}/${AETHER}` },
-  { name: KERNEL, link: `${origin}/${KERNEL}` },
-  { name: ODK, link: `${origin}/${ODK}` }
-]
