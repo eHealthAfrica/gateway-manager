@@ -12,6 +12,10 @@ requests[security]
 # https://coloredlogs.readthedocs.io/en/latest/index.html
 coloredlogs
 
+# A lightweight WSGI web application framework
+# https://palletsprojects.com/p/flask/
+flask
+
 # A password hashing library for Python
 # https://passlib.readthedocs.io/en/stable/
 passlib

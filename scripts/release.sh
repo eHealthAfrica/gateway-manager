@@ -20,6 +20,10 @@
 #
 set -Eeuo pipefail
 
+source scripts/build.sh || \
+    ( echo -e "\033[91mRun this script from root folder\033[0m" && \
+      exit 1 )
+
 function build_and_push {
     APP=$1
     VERSION=$2
@@ -59,6 +63,10 @@ function build_and_push {
 
 # If there is no tag then create image for branch develop
 GATEWAY_VERSION=${TRAVIS_TAG:-latest}
+build_image gateway-home ${GWM_VERSION} gateway-manager/home
+docker run \
+    --volume $PWD/gateway-manager/build:/code/app/build \
+    --rm gateway-home build
 build_and_push  gateway-manager  $GATEWAY_VERSION
 
 KONG_RELEASES=( "1.3" "1.4" "1.5" "2.0" "latest" )

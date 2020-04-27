@@ -18,7 +18,7 @@
  * under the License.
  */
 
-import { GATHER, KIBANA, AETHER, KERNEL, ODK } from './constants'
+import { GATHER, KIBANA, AETHER, KERNEL, ODK, AETHER_UI } from './constants'
 
 import gatherIcon from '../assets/gather.png'
 import kibanaIcon from '../assets/kibana.png'
@@ -42,7 +42,7 @@ export const getServices = (tenant = '', origin = window.location.origin) => {
         { name: GATHER, icon: gatherIcon, link: `${origin}/${tenant_path}${GATHER}` },
         { name: KIBANA, icon: kibanaIcon, link: `${origin}/${tenant_path}${KIBANA}/kibana-app` },
         { name: '' },
-        { name: AETHER, icon: aetherIcon, link: `${origin}/${tenant_path}${AETHER}` },
+        { name: AETHER, icon: aetherIcon, link: `${origin}/${tenant_path}${AETHER_UI}` },
         { name: KERNEL, link: `${origin}/${tenant_path}${KERNEL}` },
         { name: ODK, link: `${origin}/${tenant_path}${ODK}` }
     ]
