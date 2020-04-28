@@ -25,6 +25,11 @@ GWM_VERSION=latest
 function build_image {
     APP=$1
     VERSION=$2
+    if [ -z "${3-}" ]; then
+        LOCATION=$1
+    else
+        LOCATION=$3
+    fi
     TRAVIS_COMMIT=${TRAVIS_COMMIT:-test}
     TAG="${APP}:${VERSION}"
     TAG_COMMIT="${APP}:${TRAVIS_COMMIT}"
@@ -40,7 +45,7 @@ function build_image {
         --force-rm \
         --tag $TAG \
         --build-arg VERSION=$VERSION \
-        ./$APP
+        ./$LOCATION
     docker tag $TAG $TAG_COMMIT
 
     echo -e ""
@@ -48,6 +53,10 @@ function build_image {
     echo -e ""
 }
 
+build_image gateway-home ${GWM_VERSION} gateway-manager/home
+docker run \
+    --volume $PWD/gateway-manager/build:/code/app/build \
+    --rm gateway-home build
 build_image gateway-manager ${GWM_VERSION}
 
 KONG_RELEASES=( "1.3" "1.4" "1.5" "2.0" "latest" )

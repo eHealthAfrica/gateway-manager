@@ -118,3 +118,7 @@ CC_CLUSTER_NAME = get_env('CC_CLUSTER_NAME', 'default')
 ES_HOST = get_env('ELASTICSEARCH_HOST')
 ES_USER = get_env('ELASTICSEARCH_USER')
 ES_PW = get_env('ELASTICSEARCH_PW')
+
+# Home App
+
+CDN_URL = get_env('CDN_URL')
