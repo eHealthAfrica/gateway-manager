@@ -26,7 +26,7 @@ from flask import Flask, render_template, send_from_directory
 from helpers import check_realm, get_logger
 import traceback
 
-from settings import CDN_URL
+from settings import CDN_URL, WEB_SERVER_PORT, BASE_HOST
 
 LOGGER = get_logger('HOME')
 app = None
@@ -64,12 +64,11 @@ def start_app():
 
     @app.route('/<realm>/', methods=['GET'])
     def index(realm):
-        return render_template('index.html')
+        return render_template('index.html', base_host=BASE_HOST)
 
-    PORT = os.environ.get('WEB_SERVER_PORT', 8007)
     HOST = '0.0.0.0'
-    app.run(host=HOST, port=PORT)
-    LOGGER.info(f'App started on {HOST}:{PORT}')
+    app.run(host=HOST, port=WEB_SERVER_PORT)
+    LOGGER.info(f'App started on {HOST}:{WEB_SERVER_PORT}')
 
 
 if __name__ == '__main__':

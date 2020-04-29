@@ -122,3 +122,4 @@ ES_PW = get_env('ELASTICSEARCH_PW')
 # Home App
 
 CDN_URL = get_env('CDN_URL')
+WEB_SERVER_PORT = get_env('WEB_SERVER_PORT', 8007)

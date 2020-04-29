@@ -27,10 +27,16 @@ import { capitalize, getServices } from '../utils'
 const LandingPage = () => {
   const [username, setUsername] = useState('')
   const [tenant, setTenant] = useState('')
+  const [availableServices, setAvailableServices] = useState([])
 
   useEffect(() => {
     setUsername('') // TODO: set the actual username here
     setTenant(window.location.pathname.split('/')[1])
+    fetch(`${window.baseUrl}:8001/services`)
+        .then(response => response.json())
+        .then(res => setAvailableServices(res && res.data
+            && res.data.map(el => (el.name))))
+        .catch(err => console.log(err))
   }, [])
 
   return (
@@ -51,7 +57,7 @@ const LandingPage = () => {
 
         <div className='services'>
           {
-            getServices(tenant).map((service, index) => (
+            getServices(availableServices, tenant).map((service, index) => (
               <div key={`${service.name}${index}`} className='service'>
                 <ServiceCard {...service} />
               </div>
