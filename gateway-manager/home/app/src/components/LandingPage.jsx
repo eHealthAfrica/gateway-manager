@@ -30,13 +30,13 @@ const LandingPage = () => {
   const [availableServices, setAvailableServices] = useState([])
 
   useEffect(() => {
+    const validJson = window.kongServices.replace(/&#34;/g, '"')
+    const services = JSON.parse(validJson)
     setUsername('') // TODO: set the actual username here
     setTenant(window.location.pathname.split('/')[1])
-    fetch(`${window.baseUrl}:8001/services`)
-        .then(response => response.json())
-        .then(res => setAvailableServices(res && res.data
-            && res.data.map(el => (el.name))))
-        .catch(err => console.log(err))
+    setAvailableServices((services && Array.isArray(services) &&
+        services.map(el => (el.name))) || []
+    )
   }, [])
 
   return (

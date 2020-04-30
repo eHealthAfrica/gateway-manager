@@ -18,15 +18,16 @@
 # specific language governing permissions and limitations
 # under the License.
 
-import sys
-import os
 import json
+import os
+import sys
+
 from time import sleep
 from flask import Flask, render_template, send_from_directory
-from helpers import check_realm, get_logger
-import traceback
+from helpers import check_realm, get_logger, request
 
-from settings import CDN_URL, WEB_SERVER_PORT, BASE_HOST
+from settings import CDN_URL, WEB_SERVER_PORT, BASE_HOST, KONG_INTERNAL_URL
+from manage_kong import _check_404
 
 LOGGER = get_logger('HOME')
 app = None
@@ -64,7 +65,12 @@ def start_app():
 
     @app.route('/<realm>/', methods=['GET'])
     def index(realm):
-        return render_template('index.html', base_host=BASE_HOST)
+        services = []
+        url = f'{KONG_INTERNAL_URL}/services'
+        if not _check_404(url):
+            res = request(method='get', url=url)
+            services = res['data'] if 'data' in res else []
+        return render_template('index.html', services=json.dumps(services))
 
     HOST = '0.0.0.0'
     app.run(host=HOST, port=WEB_SERVER_PORT)
@@ -85,6 +91,5 @@ if __name__ == '__main__':
         fn = COMMANDS[command]
         fn()
     except Exception as e:
-        traceback.print_exc()
         LOGGER.error(str(e))
         sys.exit(1)
