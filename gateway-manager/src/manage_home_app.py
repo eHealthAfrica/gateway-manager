@@ -23,6 +23,7 @@ import os
 import sys
 
 from time import sleep
+from urllib.error import HTTPError
 from flask import Flask, render_template, send_from_directory
 from helpers import check_realm, get_logger, request
 
@@ -68,13 +69,47 @@ def start_app():
         services = []
         url = f'{KONG_INTERNAL_URL}/services'
         if not _check_404(url):
-            res = request(method='get', url=url)
-            services = res['data'] if 'data' in res else []
-        return render_template('index.html', services=json.dumps(services))
+            while url:
+                res = request(method='get', url=url)
+                new_services = res['data'] if 'data' in res else []
+                url = res['next']
+
+                services += [
+                    service['name']
+                    for service in new_services
+                    if service_in_realm(realm, service['name'])
+                ]
+        return render_template(
+            'index.html',
+            services=json.dumps(services)
+        )
 
     HOST = '0.0.0.0'
     app.run(host=HOST, port=WEB_SERVER_PORT)
     LOGGER.info(f'App started on {HOST}:{WEB_SERVER_PORT}')
+
+
+def service_in_realm(realm, service):
+
+    def realm_in_route(route):
+        if route.get('tags', []) is not None:
+            return realm in route.get('tags', [])
+        else:
+            return route['name'].endswith(f'__{realm}')
+
+    try:
+        url = f'{KONG_INTERNAL_URL}/services/{service}/routes'
+        while url:
+            res = request(method='get', url=url)
+            url = res['next']
+
+            for route in res['data']:
+                if realm_in_route(route):
+                    return True
+    except HTTPError:
+        pass
+
+    return False
 
 
 if __name__ == '__main__':

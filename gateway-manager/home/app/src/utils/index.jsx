@@ -38,7 +38,6 @@ export const capitalize = (str) => `${str[0].toUpperCase()}${str[1] ? str.slice(
  */
 export const getServices = (availableServices = [], tenant = '', origin = window.location.origin) => {
     const tenant_path = tenant ? `${tenant}/` : ''
-    availableServices.push(AETHER)
     const services = [
         { name: GATHER, icon: gatherIcon, link: `${origin}/${tenant_path}${GATHER}` },
         { name: KIBANA, icon: kibanaIcon, link: `${origin}/${tenant_path}${KIBANA}/kibana-app` },
@@ -48,7 +47,9 @@ export const getServices = (availableServices = [], tenant = '', origin = window
     ]
     const activeServices = []
     services.forEach(service => {
-        if (availableServices.includes(service.name)) {
+        if (availableServices.includes(service.name) ||
+            (service.name === AETHER && availableServices.includes(AETHER_UI))
+        ) {
             activeServices.push(service)
         }
     })

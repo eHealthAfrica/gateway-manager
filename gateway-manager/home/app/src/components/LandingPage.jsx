@@ -34,9 +34,7 @@ const LandingPage = () => {
     const services = JSON.parse(validJson)
     setUsername('') // TODO: set the actual username here
     setTenant(window.location.pathname.split('/')[1])
-    setAvailableServices((services && Array.isArray(services) &&
-        services.map(el => (el.name))) || []
-    )
+    setAvailableServices((Array.isArray(services) && services) || [])
   }, [])
 
   return (
