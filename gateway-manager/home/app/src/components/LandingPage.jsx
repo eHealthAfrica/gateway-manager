@@ -27,10 +27,14 @@ import { capitalize, getServices } from '../utils'
 const LandingPage = () => {
   const [username, setUsername] = useState('')
   const [tenant, setTenant] = useState('')
+  const [availableServices, setAvailableServices] = useState([])
 
   useEffect(() => {
+    const validJson = window.kongServices.replace(/&#34;/g, '"')
+    const services = JSON.parse(validJson)
     setUsername('') // TODO: set the actual username here
     setTenant(window.location.pathname.split('/')[1])
+    setAvailableServices((Array.isArray(services) && services) || [])
   }, [])
 
   return (
@@ -51,7 +55,7 @@ const LandingPage = () => {
 
         <div className='services'>
           {
-            getServices(tenant).map((service, index) => (
+            getServices(availableServices, tenant).map((service, index) => (
               <div key={`${service.name}${index}`} className='service'>
                 <ServiceCard {...service} />
               </div>
