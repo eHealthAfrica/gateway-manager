@@ -42,7 +42,6 @@ function build_and_push {
         --tag $TAG \
         --build-arg VERSION=$VERSION \
         ./$APP
-    docker tag $TAG
 
     echo -e ""
     echo -e "\e[2m${LINE}\e[0m Built image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
