@@ -29,7 +29,6 @@ function build_and_push {
     VERSION=$2
     IMAGE_REPO=ehealthafrica
     TAG="${IMAGE_REPO}/${APP}:${VERSION}"
-    TAG_COMMIT="${IMAGE_REPO}/${APP}:${VERSION}-${TRAVIS_COMMIT}"
     LINE="==============="
 
     echo -e ""
@@ -43,7 +42,7 @@ function build_and_push {
         --tag $TAG \
         --build-arg VERSION=$VERSION \
         ./$APP
-    docker tag $TAG $TAG_COMMIT
+    docker tag $TAG
 
     echo -e ""
     echo -e "\e[2m${LINE}\e[0m Built image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
@@ -54,7 +53,6 @@ function build_and_push {
     echo -e ""
 
     docker push $TAG
-    docker push $TAG_COMMIT
 
     echo -e ""
     echo -e "\e[2m${LINE}\e[0m Pushed image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
