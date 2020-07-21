@@ -57,7 +57,7 @@ docker run \
     --rm gateway-home build
 build_image gateway-manager ${GWM_VERSION}
 
-KONG_RELEASES=( "1.3" "1.4" "1.5" "2.0" "latest" )
+KONG_RELEASES=( "1.3" "1.4" "1.5" "2.0" "2.1" "latest" )
 for kong_version in "${KONG_RELEASES[@]}"; do
     build_image  kong  $kong_version
 done
