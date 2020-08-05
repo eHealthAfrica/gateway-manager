@@ -50,8 +50,8 @@ def start_app():
 
         index_location = '/code/build/index.html'
         with open(index_location, 'r') as fp:
-            index = fp.read()
-        new_index = index.replace('/static', f'{cdn}/static') \
+            _index = fp.read()
+        new_index = _index.replace('/static', f'{cdn}/static') \
             .replace('/aether.ico', f'{cdn}/aether.ico')
 
         with open(index_location, 'w') as fp:

@@ -37,7 +37,7 @@ function show_help {
         Runs bash.
 
     eval:
-        Evals shell command.
+        Evaluates shell command.
 
 
     Home App
@@ -56,7 +56,11 @@ function show_help {
     add_realm:
         Adds a new realm using a default realm template.
 
-        Usage:  add_realm {realm} {description (optional)} {login theme (optional)}
+        Usage:  add_realm {realm} {description (optional)}
+                          {login theme (optional)}
+                          {account theme (optional)}
+                          {admin theme (optional)}
+                          {email theme (optional)}
 
 
     add_user:

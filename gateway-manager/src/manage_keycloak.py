@@ -157,7 +157,14 @@ def assign_all_client_roles(realm, username, client_name):
                    f' to "{username}" on realm "{realm}"')
 
 
-def create_realm(realm, description=None, login_theme=None):
+def create_realm(
+    realm,
+    description=None,
+    login_theme=None,
+    account_theme=None,
+    admin_theme=None,
+    email_theme=None,
+):
     check_realm(realm)
 
     LOGGER.info(f'Adding realm "{realm}"...')
@@ -165,13 +172,14 @@ def create_realm(realm, description=None, login_theme=None):
 
     config = load_json_file(TEMPLATES['realm'], {
         'realm': realm,
-        'displayName': description or '',
-        'loginTheme': login_theme or '',
+        'displayName': description or realm,
+        'accountTheme': account_theme or 'keycloak',
+        'adminTheme': admin_theme or 'keycloak',
+        'emailTheme': email_theme or 'keycloak',
+        'loginTheme': login_theme or 'keycloak',
+        'host': BASE_HOST,
+        'publicRealm': KONG_PUBLIC_REALM,
     })
-    if not description:
-        config['displayName'] = None
-    if not login_theme:
-        config['loginTheme'] = None
 
     _status = keycloak_admin.create_realm(config, skip_exists=True)
     if _status:
@@ -220,6 +228,7 @@ def create_user(
         if _status_pwd:
             LOGGER.warning(f'- {str(_status_pwd)}')
     LOGGER.success(f'Added user "{user}" to realm "{realm}"')
+
     if admin:
         LOGGER.info(f'Granting user "{user}" admin rights on realm "{realm}"...')
         assign_all_client_roles(realm, user, 'realm-management')

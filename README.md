@@ -46,7 +46,7 @@ Shows the help message with all the possible commands.
 Runs bash inside the container.
 
 #### `eval`
-Evals shell command inside the container.
+Evaluates shell command inside the container.
 
 ### Keycloak
 
@@ -57,7 +57,11 @@ Checks the Keycloak connection. Returns status `0` on success.
 Adds a new realm in Keycloak using a default realm template.
 
 ```bash
-add_realm {realm} {description (optional)} {login theme (optional)}
+add_realm {realm} {description (optional)} \
+          {login theme (optional)} \
+          {account theme (optional)} \
+          {admin theme (optional)} \
+          {email theme (optional)}
 ```
 
 #### `add_user`
@@ -145,7 +149,7 @@ remove_service {service-name} "*"
 
 > Note: The expected service file is `{SERVICES_PATH}/{service-name}.json`.
 
-> Note: the service will not be enterily removed if it's still used by another realm.
+> Note: the service will not be entirely removed if it's still used by another realm.
 
 #### `add_solution`
 Adds a package of services to an existing realm in Kong,
@@ -172,7 +176,7 @@ remove_solution {solution-name} "*"
 
 > Note: The expected solution file is `{SOLUTION_PATH}/{solution-name}.json`.
 
-> Note: the solution will not be enterily removed if it's still used by another realm.
+> Note: the solution will not be entirely removed if it's still used by another realm.
 
 ### Kafka
 
