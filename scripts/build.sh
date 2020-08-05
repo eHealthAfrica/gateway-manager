@@ -20,7 +20,7 @@
 #
 set -Eeuo pipefail
 
-GWM_VERSION=latest
+GW_VERSION=latest
 
 function build_image {
     APP=$1
@@ -51,12 +51,16 @@ function build_image {
     echo -e ""
 }
 
-build_image gateway-home ${GWM_VERSION} gateway-manager/home
+# Home page
+build_image gateway-home ${GW_VERSION} gateway-manager/home
 docker run \
     --volume $PWD/gateway-manager/build:/code/app/build \
     --rm gateway-home build
-build_image gateway-manager ${GWM_VERSION}
 
+# GW Manager
+build_image gateway-manager ${GW_VERSION}
+
+# Custom Kong
 KONG_RELEASES=( "1.3" "1.4" "1.5" "2.0" "2.1" "latest" )
 for kong_version in "${KONG_RELEASES[@]}"; do
     build_image  kong  $kong_version

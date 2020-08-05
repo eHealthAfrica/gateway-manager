@@ -40,4 +40,6 @@ python-keycloak>=0.17
 # Implements a higher level API to Apache Zookeeper for Python clients.
 # https://kazoo.readthedocs.io/en/latest/
 # kazoo
-git+https://github.com/python-zk/kazoo.git@88b657a0977161f3815657878ba48f82a97a3846#egg=kazoo
+# https://github.com/python-zk/kazoo/blob/master/CHANGES.md#270-2020-03-13
+# git+https://github.com/python-zk/kazoo.git@88b657a0977161f3815657878ba48f82a97a3846#egg=kazoo
+kazoo>=2.7.0
