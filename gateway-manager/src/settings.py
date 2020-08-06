@@ -55,18 +55,6 @@ TEMPLATES = {
         f'{_TEMPLATES_PATH}/client_template.json'
     ),
 
-    'user': {
-        'admin': get_env(
-            'ADMIN_TEMPLATE_PATH',
-            f'{_TEMPLATES_PATH}/user_admin_template.json'
-        ),
-
-        'standard': get_env(
-            'USER_TEMPLATE_PATH',
-            f'{_TEMPLATES_PATH}/user_standard_template.json'
-        ),
-    },
-
     'es': {
         'role': get_env(
             'ES_ROLE_TEMPLATE_PATH',

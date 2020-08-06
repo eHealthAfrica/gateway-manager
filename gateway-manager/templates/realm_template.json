@@ -43,18 +43,18 @@
   },
   "groups": [
     {
-      "id": "${realm}-admin",
-      "name": "${displayName} Admin",
+      "id": "admin",
+      "name": "Admin",
       "realmRoles": ["${realm}-admin"]
     },
     {
-      "id": "${realm}-editor",
-      "name": "${displayName} Editor",
+      "id": "editor",
+      "name": "Editor",
       "realmRoles": ["${realm}-editor"]
     },
     {
-      "id": "${realm}-user",
-      "name": "${displayName} User",
+      "id": "user",
+      "name": "User",
       "realmRoles": ["${realm}-user"]
     }
   ]

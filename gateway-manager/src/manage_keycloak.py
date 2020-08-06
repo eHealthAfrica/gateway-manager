@@ -131,12 +131,6 @@ def get_client_roles(realm, client_id):
     return client_roles
 
 
-############################################
-#
-# Keycloak Actions
-#
-############################################
-
 def assign_all_client_roles(realm, username, client_name):
     check_realm(realm)
 
@@ -151,10 +145,17 @@ def assign_all_client_roles(realm, username, client_name):
     keycloak_admin.assign_client_role(
         client_id=client.get('id'),
         user_id=user.get('id'),
-        roles=roles
+        roles=roles,
     )
     LOGGER.success(f'Added all rights to client "{client_name}"'
                    f' to "{username}" on realm "{realm}"')
+
+
+############################################
+#
+# Keycloak Actions
+#
+############################################
 
 
 def create_realm(
@@ -187,51 +188,53 @@ def create_realm(
     LOGGER.success(f'Added realm "{realm}"')
 
 
-def create_user(
-    realm,
-    user,
-    password=None,
-    admin=False,
-    email=None,
-    temporary_password=False,
-):
+def create_admin(realm, username, password=None, temporary_password=False):
+    create_user(realm, username, password, temporary_password)
+
+    LOGGER.info(f'Granting user "{username}" admin rights on realm "{realm}"...')
+    assign_all_client_roles(realm, username, 'realm-management')
+
+
+def create_user(realm, username, password=None, temporary_password=False):
     check_realm(realm)
 
-    LOGGER.info(f'Adding user "{user}" to realm "{realm}"...')
-
-    user_type = 'admin' if bool(admin) else 'standard'
-    config = load_json_file(TEMPLATES['user'][user_type], {
-        'username': user,
-        'email': email or '',
-    })
-    if not email:
-        config['email'] = None
-
+    LOGGER.info(f'Adding/Updating user "{username}" to realm "{realm}"...')
     keycloak_admin = client_for_realm(realm)
 
-    _user_id = keycloak_admin.get_user_id(username=user)
+    config = {'username': username, 'enabled': True}
+
+    _user_id = keycloak_admin.get_user_id(username=username)
     if _user_id:
         _status = keycloak_admin.update_user(_user_id, config)
     else:
         _status = keycloak_admin.create_user(config)
-
     if _status:
         LOGGER.warning(f'- {str(_status)}')
 
     if password:
-        user_id = keycloak_admin.get_user_id(username=user)
+        user_id = keycloak_admin.get_user_id(username=username)
         _status_pwd = keycloak_admin.set_user_password(
-            user_id,
-            password,
+            user_id=user_id,
+            password=password,
             temporary=bool(temporary_password),
         )
         if _status_pwd:
             LOGGER.warning(f'- {str(_status_pwd)}')
-    LOGGER.success(f'Added user "{user}" to realm "{realm}"')
 
-    if admin:
-        LOGGER.info(f'Granting user "{user}" admin rights on realm "{realm}"...')
-        assign_all_client_roles(realm, user, 'realm-management')
+    if _user_id:
+        LOGGER.success(f'Updated user "{username}" on realm "{realm}"')
+    else:
+        LOGGER.success(f'Added user "{username}" to realm "{realm}"')
+
+
+def add_user_group(realm, username, group):
+    check_realm(realm)
+
+    LOGGER.info(f'Adding user "{username}" to group "{group}" on realm "{realm}"...')
+    keycloak_admin = client_for_realm(realm)
+    user_id = keycloak_admin.get_user_id(username=username)
+    keycloak_admin.group_user_add(user_id=user_id, group_id =group)
+    LOGGER.success(f'Added user "{username}" to group "{group}" on realm "{realm}"')
 
 
 def create_confidential_client(realm, name):
@@ -272,7 +275,9 @@ if __name__ == '__main__':
     COMMANDS: Dict[str, Callable] = {
         'READY': do_nothing,
         'ADD_REALM': create_realm,
+        'ADD_ADMIN': create_admin,
         'ADD_USER': create_user,
+        'ADD_USER_GROUP': add_user_group,
         'ADD_CONFIDENTIAL_CLIENT': create_confidential_client,
         'ADD_PUBLIC_CLIENT': create_public_client,
     }

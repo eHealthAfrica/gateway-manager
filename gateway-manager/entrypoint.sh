@@ -63,12 +63,24 @@ function show_help {
                           {email theme (optional)}
 
 
+    add_admin:
+        Adds or updates an admin user to an existing realm in Keycloak.
+
+        Usage:  add_admin {realm} {username}
+                          {*password} {*reset_password_on_login}
+
+
     add_user:
-        Adds a user to an existing realm.
+        Adds or updates a user to an existing realm in Keycloak.
 
         Usage:  add_user {realm} {username}
-                         {*password} {*is_administrator}
-                         {*email} {*reset_password_on_login}
+                         {*password} {*reset_password_on_login}
+
+
+    add_user_group:
+        Adds an existing user to a group on an existing realm in Keycloak.
+
+        Usage:  add_user_group {realm} {username} {group_id}
 
 
     add_confidential_client | add_oidc_client:
@@ -267,8 +279,16 @@ case "$1" in
         python /code/src/manage_keycloak.py ADD_REALM "${@:2}"
     ;;
 
+    add_admin )
+        python /code/src/manage_keycloak.py ADD_ADMIN "${@:2}"
+    ;;
+
     add_user )
         python /code/src/manage_keycloak.py ADD_USER "${@:2}"
+    ;;
+
+    add_user_group )
+        python /code/src/manage_keycloak.py ADD_USER_GROUP "${@:2}"
     ;;
 
     add_confidential_client | add_oidc_client )
