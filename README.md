@@ -57,11 +57,11 @@ Checks the Keycloak connection. Returns status `0` on success.
 Adds a new realm in Keycloak using a default realm template.
 
 ```bash
-add_realm {realm} {description (optional)} \
-          {login theme (optional)} \
-          {account theme (optional)} \
-          {admin theme (optional)} \
-          {email theme (optional)}
+add_realm {realm} {*description} \
+          {*login theme} \
+          {*account theme} \
+          {*admin theme} \
+          {*email theme}
 ```
 
 #### `add_admin`
@@ -268,7 +268,7 @@ delete_ccloud_tenant {username}
 Adds a ccloud APIKey for a tenant.
 
 ```bash
-add_ccloud_key {tenant} "{description (optional)}"
+add_ccloud_key {tenant} "{*description}"
 ```
 
 #### `list_ccloud_tenants`
@@ -282,7 +282,7 @@ list_ccloud_tenants
 Lists ACLs of CCloud tenants, or of a single tenant referenced by name
 
 ```bash
-list_ccloud_acls {tenant (optional) }
+list_ccloud_acls {*tenant}
 ```
 
 #### `list_ccloud_api_keys`

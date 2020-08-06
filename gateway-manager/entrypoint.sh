@@ -56,11 +56,11 @@ function show_help {
     add_realm:
         Adds a new realm using a default realm template.
 
-        Usage:  add_realm {realm} {description (optional)}
-                          {login theme (optional)}
-                          {account theme (optional)}
-                          {admin theme (optional)}
-                          {email theme (optional)}
+        Usage:  add_realm {realm} {*description}
+                          {*login theme}
+                          {*account theme}
+                          {*admin theme}
+                          {*email theme}
 
 
     add_admin:
@@ -219,7 +219,7 @@ function show_help {
     add_ccloud_key
         Adds a ccloud APIKey for a tenant.
 
-        Usage:  add_ccloud_key {tenant}  '{description (optional)}'
+        Usage:  add_ccloud_key {tenant} '{*description}'
 
 
     list_ccloud_tenants
@@ -231,7 +231,7 @@ function show_help {
     list_ccloud_acls
         Lists ACLs of CCloud tenants, or of a single tenant referenced by name
 
-        Usage:  list_ccloud_acls {tenant  (optional)}
+        Usage:  list_ccloud_acls {*tenant}
 
 
     list_ccloud_api_keys
