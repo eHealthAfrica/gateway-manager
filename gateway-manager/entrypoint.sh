@@ -64,21 +64,21 @@ function show_help {
 
 
     add_admin:
-        Adds or updates an admin user to an existing realm in Keycloak.
+        Adds or updates an admin user to an existing realm.
 
         Usage:  add_admin {realm} {username}
-                          {*password} {*reset_password_on_login}
+                          {*password} {*reset_password_on_first_login}
 
 
     add_user:
-        Adds or updates a user to an existing realm in Keycloak.
+        Adds or updates a user to an existing realm.
 
         Usage:  add_user {realm} {username}
-                         {*password} {*reset_password_on_login}
+                         {*password} {*reset_password_on_first_login}
 
 
     add_user_group:
-        Adds an existing user to a group on an existing realm in Keycloak.
+        Adds an existing user to an existing group on an existing realm.
 
         Usage:  add_user_group {realm} {username} {group_id}
 

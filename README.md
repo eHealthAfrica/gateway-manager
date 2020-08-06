@@ -68,14 +68,14 @@ add_realm {realm} {description (optional)} \
 Adds or updates an admin user to an existing realm in Keycloak.
 
 ```bash
-add_user {realm} {username} {*password} {*reset_password_on_login}
+add_user {realm} {username} {*password} {*reset_password_on_first_login}
 ```
 
 #### `add_user`
 Adds or updates a user to an existing realm in Keycloak.
 
 ```bash
-add_user {realm} {username} {*password} {*reset_password_on_login}
+add_user {realm} {username} {*password} {*reset_password_on_first_login}
 ```
 
 #### `add_user_group`
