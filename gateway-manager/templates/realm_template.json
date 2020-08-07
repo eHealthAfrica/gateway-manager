@@ -3,7 +3,7 @@
   "displayName": "${displayName}",
 
   "enabled": true,
-  "sslRequired": "NONE",
+  "sslRequired": "none",
   "requiredCredentials": ["password"],
 
   "accountTheme": "${accountTheme}",
@@ -13,6 +13,8 @@
 
   "accessCodeLifespan": 1800,
   "accessTokenLifespan": 1800,
+  "ssoSessionIdleTimeout": 2592000,
+  "ssoSessionMaxLifespan": 3888000,
 
   "roles": {
     "realm": [
