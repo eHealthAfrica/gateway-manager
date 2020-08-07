@@ -37,7 +37,7 @@ function show_help {
         Runs bash.
 
     eval:
-        Evals shell command.
+        Evaluates shell command.
 
 
     Home App
@@ -56,15 +56,31 @@ function show_help {
     add_realm:
         Adds a new realm using a default realm template.
 
-        Usage:  add_realm {realm} {description (optional)} {login theme (optional)}
+        Usage:  add_realm {realm} {*description}
+                          {*login theme}
+                          {*account theme}
+                          {*admin theme}
+                          {*email theme}
+
+
+    add_admin:
+        Adds or updates an admin user to an existing realm.
+
+        Usage:  add_admin {realm} {username}
+                          {*password} {*reset_password_on_first_login}
 
 
     add_user:
-        Adds a user to an existing realm.
+        Adds or updates a user to an existing realm.
 
         Usage:  add_user {realm} {username}
-                         {*password} {*is_administrator}
-                         {*email} {*reset_password_on_login}
+                         {*password} {*reset_password_on_first_login}
+
+
+    add_user_group:
+        Adds an existing user to an existing group on an existing realm.
+
+        Usage:  add_user_group {realm} {username} {group_id}
 
 
     add_confidential_client | add_oidc_client:
@@ -203,7 +219,7 @@ function show_help {
     add_ccloud_key
         Adds a ccloud APIKey for a tenant.
 
-        Usage:  add_ccloud_key {tenant}  '{description (optional)}'
+        Usage:  add_ccloud_key {tenant} '{*description}'
 
 
     list_ccloud_tenants
@@ -215,7 +231,7 @@ function show_help {
     list_ccloud_acls
         Lists ACLs of CCloud tenants, or of a single tenant referenced by name
 
-        Usage:  list_ccloud_acls {tenant  (optional)}
+        Usage:  list_ccloud_acls {*tenant}
 
 
     list_ccloud_api_keys
@@ -263,8 +279,16 @@ case "$1" in
         python /code/src/manage_keycloak.py ADD_REALM "${@:2}"
     ;;
 
+    add_admin )
+        python /code/src/manage_keycloak.py ADD_ADMIN "${@:2}"
+    ;;
+
     add_user )
         python /code/src/manage_keycloak.py ADD_USER "${@:2}"
+    ;;
+
+    add_user_group )
+        python /code/src/manage_keycloak.py ADD_USER_GROUP "${@:2}"
     ;;
 
     add_confidential_client | add_oidc_client )

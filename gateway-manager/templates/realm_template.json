@@ -1,20 +1,61 @@
 {
   "realm": "${realm}",
   "displayName": "${displayName}",
-  "loginTheme": "${loginTheme}",
+
   "enabled": true,
   "sslRequired": "NONE",
   "requiredCredentials": ["password"],
+
+  "accountTheme": "${accountTheme}",
+  "adminTheme": "${adminTheme}",
+  "loginTheme": "${loginTheme}",
+  "emailTheme": "${emailTheme}",
+
+  "accessCodeLifespan": 1800,
+  "accessTokenLifespan": 1800,
+
   "roles": {
     "realm": [
       {
-        "name": "user",
-        "description": "User privileges"
+        "id": "${realm}-user",
+        "name": "${realm}-user",
+        "description": "${displayName} User"
       },
       {
-        "name": "admin",
-        "description": "Administrator privileges"
+        "id": "${realm}-editor",
+        "name": "${realm}-editor",
+        "description": "${displayName} Editor",
+        "composites": {
+          "realm": ["${realm}-user"]
+        }
+      },
+      {
+        "id": "${realm}-admin",
+        "name": "${realm}-admin",
+        "description": "${displayName} Admin",
+        "composites": {
+          "client": {
+            "realm-management": ["manage-users", "query-users"]
+          }
+        }
       }
     ]
-  }
+  },
+  "groups": [
+    {
+      "id": "admin",
+      "name": "Admin",
+      "realmRoles": ["${realm}-admin"]
+    },
+    {
+      "id": "editor",
+      "name": "Editor",
+      "realmRoles": ["${realm}-editor"]
+    },
+    {
+      "id": "user",
+      "name": "User",
+      "realmRoles": ["${realm}-user"]
+    }
+  ]
 }

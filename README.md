@@ -46,7 +46,7 @@ Shows the help message with all the possible commands.
 Runs bash inside the container.
 
 #### `eval`
-Evals shell command inside the container.
+Evaluates shell command inside the container.
 
 ### Keycloak
 
@@ -57,16 +57,32 @@ Checks the Keycloak connection. Returns status `0` on success.
 Adds a new realm in Keycloak using a default realm template.
 
 ```bash
-add_realm {realm} {description (optional)} {login theme (optional)}
+add_realm {realm} {*description} \
+          {*login theme} \
+          {*account theme} \
+          {*admin theme} \
+          {*email theme}
+```
+
+#### `add_admin`
+Adds or updates an admin user to an existing realm in Keycloak.
+
+```bash
+add_user {realm} {username} {*password} {*reset_password_on_first_login}
 ```
 
 #### `add_user`
-Adds a user to an existing realm in Keycloak.
+Adds or updates a user to an existing realm in Keycloak.
 
 ```bash
-add_user {realm} {username} \
-         {*password} {*is_administrator} \
-         {*email} {*reset_password_on_login}
+add_user {realm} {username} {*password} {*reset_password_on_first_login}
+```
+
+#### `add_user_group`
+Adds an existing user to a group on an existing realm in Keycloak.
+
+```bash
+add_user_group {realm} {username} {group_id}
 ```
 
 #### `add_confidential_client` or `add_oidc_client`
@@ -145,7 +161,7 @@ remove_service {service-name} "*"
 
 > Note: The expected service file is `{SERVICES_PATH}/{service-name}.json`.
 
-> Note: the service will not be enterily removed if it's still used by another realm.
+> Note: the service will not be entirely removed if it's still used by another realm.
 
 #### `add_solution`
 Adds a package of services to an existing realm in Kong,
@@ -172,7 +188,7 @@ remove_solution {solution-name} "*"
 
 > Note: The expected solution file is `{SOLUTION_PATH}/{solution-name}.json`.
 
-> Note: the solution will not be enterily removed if it's still used by another realm.
+> Note: the solution will not be entirely removed if it's still used by another realm.
 
 ### Kafka
 
@@ -252,7 +268,7 @@ delete_ccloud_tenant {username}
 Adds a ccloud APIKey for a tenant.
 
 ```bash
-add_ccloud_key {tenant} "{description (optional)}"
+add_ccloud_key {tenant} "{*description}"
 ```
 
 #### `list_ccloud_tenants`
@@ -266,7 +282,7 @@ list_ccloud_tenants
 Lists ACLs of CCloud tenants, or of a single tenant referenced by name
 
 ```bash
-list_ccloud_acls {tenant (optional) }
+list_ccloud_acls {*tenant}
 ```
 
 #### `list_ccloud_api_keys`
