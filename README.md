@@ -341,22 +341,14 @@ add_elasticsearch_tenant {tenant}
   This template is used with the `add_service` and `add_solution` commands.
   Defaults to `{TEMPLATES_PATH}/oidc_template.json`.
 
-- `REALM_TEMPLATE_PATH`: Path to keycloak realm template file.
+- `REALM_TEMPLATE_PATH`: Path to Keycloak realm template file.
   This template is used with the `add_solution` and `add_service` commands.
   Defaults to `{TEMPLATES_PATH}/realm_template.json`.
 
-- `CLIENT_TEMPLATE_PATH`: Path to keycloak client template file.
+- `CLIENT_TEMPLATE_PATH`: Path to Keycloak client template file.
   This template is used with the `add_confidential_client`, `add_oidc_client`
   and `add_public_client` commands.
   Defaults to `{TEMPLATES_PATH}/client_template.json`.
-
-- `ADMIN_TEMPLATE_PATH`: Path to Keycloak admin user template file.
-  This template is used with the `add_user` command while creating admin users.
-  Defaults to `{TEMPLATES_PATH}/user_admin_template.json`.
-
-- `USER_TEMPLATE_PATH`: Path to Keycloak standard user template file.
-  This template is used with the `add_user` command while creating non admin users.
-  Defaults to `{TEMPLATES_PATH}/user_standard_template.json`.
 
 - `ES_ROLE_TEMPLATE_PATH`: Path to ElasticSearch role template file.
   This template is used with the `add_elasticsearch_tenant` command.
@@ -375,8 +367,6 @@ Some of the expected `$-based` strings are:
 - `publicRealm`: replaced with `PUBLIC_REALM` environment variable value.
 - `oidc_client_id`: replaced with the `oidc-client` command argument value.
 - `oidc_client_secret`: replaced with `oidc` client secret fetched form Keycloak.
-- `username`: replaced with the `username` command argument value.
-- `email`: replaced with the `email` command argument value.
 
 Review the code to get the expected strings in each case.
 
