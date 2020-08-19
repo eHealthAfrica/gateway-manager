@@ -87,15 +87,15 @@ function show_help {
         Adds a confidential client to an existing realm.
         Required for any realm that will use OIDC for authentication.
 
-        Usage:  add_confidential_client {realm} {client-name}
-                add_oidc_client {realm} {client-name}
+        Usage:  add_confidential_client {realm} {client-name} {*login theme}
+                add_oidc_client {realm} {client-name} {*login theme}
 
 
     add_public_client:
         Adds a public client to an existing realm.
         Allows token generation.
 
-        Usage:  add_public_client {realm} {client-name}
+        Usage:  add_public_client {realm} {client-name} {*login theme}
 
 
     decode_token:

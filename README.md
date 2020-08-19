@@ -90,9 +90,9 @@ Adds a confidential client to an existing realm in Keycloak.
 Required for any realm that will use OIDC for authentication.
 
 ```bash
-add_confidential_client {realm} {client-name}
+add_confidential_client {realm} {client-name} {*login theme}
 # or
-add_oidc_client {realm} {client-name}
+add_oidc_client {realm} {client-name} {*login theme}
 ```
 
 #### `add_public_client`
@@ -100,7 +100,7 @@ Adds a public client to an existing realm in Keycloak.
 Allows token generation.
 
 ```bash
-add_public_client {realm} {client-name}
+add_public_client {realm} {client-name} {*login theme}
 ```
 
 #### `decode_token`

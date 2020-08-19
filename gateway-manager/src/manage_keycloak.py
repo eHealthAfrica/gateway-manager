@@ -237,21 +237,21 @@ def add_user_group(realm, username, group):
     LOGGER.success(f'Added user "{username}" to group "{group}" on realm "{realm}"')
 
 
-def create_confidential_client(realm, name):
+def create_confidential_client(realm, name, login_theme=None):
     check_realm(realm)
 
     LOGGER.info(f'Adding confidential client "{name}" to realm "{realm}"...')
-    create_client(realm, name, False)
+    create_client(realm, name, False, login_theme)
 
 
-def create_public_client(realm, name):
+def create_public_client(realm, name, login_theme=None):
     check_realm(realm)
 
     LOGGER.info(f'Adding public client "{name}" to realm "{realm}"...')
-    create_client(realm, name, True)
+    create_client(realm, name, True, login_theme)
 
 
-def create_client(realm, name, isPublic):
+def create_client(realm, name, isPublic, login_theme=None):
     check_realm(realm)
 
     config = load_json_file(TEMPLATES['client'], {
@@ -263,6 +263,10 @@ def create_client(realm, name, isPublic):
     if not isPublic:
         config['publicClient'] = False
         config['redirectUris'] = ['*']
+
+    if login_theme:
+        config['attributes'] = config.get('attributes', {})
+        config['attributes']['login_theme'] = login_theme
 
     keycloak_admin = client_for_realm(realm)
     _status = keycloak_admin.create_client(config, skip_exists=True)
