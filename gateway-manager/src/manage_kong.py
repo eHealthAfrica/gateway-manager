@@ -280,12 +280,16 @@ def remove_service(name, realm):
     _remove_service_and_routes(name, routes_fn)
 
 
-def handle_app(action, name, options=None):
+def handle_app(action, name, *args, kwargs={}):
     try:
         app_config = load_json_file(f'{APPS_PATH}/{name}.json')
     except Exception:
         LOGGER.critical(f'No app definition for name: "{name}"')
         sys.exit(1)
+
+    if kwargs.get('test'):
+        LOGGER.debug(app_config)
+        return
 
     if action == 'ADD':
         _add_service(app_config)
@@ -295,17 +299,16 @@ def handle_app(action, name, options=None):
         _remove_service_and_routes(service_name)
 
 
-def handle_service(action, name, realm=None, oidc_client=None, options=None):
+def handle_service(action, name, realm=None, oidc_client=None, *args, kwargs={}):
     try:
         config = load_json_file(f'{SERVICES_PATH}/{name}.json')
-        service_name = options.get('service_name') or config['name']
-        service_url = options.get('service_url') or config['host']
+        service_name = kwargs.get('service_name') or config['name']
+        service_url = kwargs.get('service_url') or config['host']
     except Exception:
         LOGGER.critical(f'No service definition for name: "{name}"')
         sys.exit(1)
 
-    if not options.get('test'):
-        realm = _check_realm_in_action(action, realm)
+    realm = _check_realm_in_action(action, realm)
 
     if action == 'ADD':
         # load again an substitute the possible string templates
@@ -317,16 +320,19 @@ def handle_service(action, name, realm=None, oidc_client=None, options=None):
             'name': name,
             'service_url': service_url
         })
-        if options.get('test'):
+
+        if kwargs.get('test'):
             LOGGER.debug(service_config)
             return
+
         add_service(service_config, realm, oidc_client)
 
     elif action == 'REMOVE':
-        remove_service(service_name, realm)
+        if not kwargs.get('test'):
+            remove_service(service_name, realm)
 
 
-def handle_solution(action, name, realm=None, oidc_client=None, options=None):
+def handle_solution(action, name, realm=None, oidc_client=None, *args, kwargs={}):
     try:
         services = load_json_file(f'{SOLUTIONS_PATH}/{name}.json').get('services', [])
     except Exception:
@@ -366,7 +372,6 @@ if __name__ == '__main__':
     }
 
     args, kwargs = categorize_arguments(sys.argv[:])
-
     command = args[1]
     if command.upper() not in COMMANDS.keys():
         LOGGER.critical(f'No command: {command}')
@@ -378,7 +383,7 @@ if __name__ == '__main__':
 
         fn = COMMANDS[command]
         args = args[2:]
-        fn(*args, options=kwargs)
+        fn(*args, kwargs=kwargs or {})
     except Exception as e:
         LOGGER.error(str(e))
         sys.exit(1)

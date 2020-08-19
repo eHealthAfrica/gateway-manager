@@ -56,11 +56,12 @@ function show_help {
     add_realm:
         Adds a new realm using a default realm template.
 
-        Usage:  add_realm {realm} {*description}
-                          {*login theme}
-                          {*account theme}
-                          {*admin theme}
-                          {*email theme}
+        Usage:  add_realm {realm}
+                          {*description=abc}
+                          {*login_theme=abc}
+                          {*account_theme=abc}
+                          {*admin_theme=abc}
+                          {*email_theme=abc}
 
 
     add_admin:
@@ -87,15 +88,15 @@ function show_help {
         Adds a confidential client to an existing realm.
         Required for any realm that will use OIDC for authentication.
 
-        Usage:  add_confidential_client {realm} {client-name}
-                add_oidc_client {realm} {client-name}
+        Usage:  add_confidential_client {realm} {client-name} {*login_theme=abc}
+                add_oidc_client {realm} {client-name} {*login_theme=abc}
 
 
     add_public_client:
         Adds a public client to an existing realm.
         Allows token generation.
 
-        Usage:  add_public_client {realm} {client-name}
+        Usage:  add_public_client {realm} {client-name} {*login_theme=abc}
 
 
     decode_token:
