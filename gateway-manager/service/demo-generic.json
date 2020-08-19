@@ -1,0 +1,39 @@
+{
+  "name": "${service}",
+  "host": "${service_url}",
+
+  "paths": [
+    "/{realm}/{name}/",
+    "/{realm}/{name}$"
+  ],
+  "strip_path": "true",
+  "regex_priority": 0,
+
+  "oidc_endpoints": [
+    {
+      "name": "protected",
+      "paths": [
+        "/{realm}/{name}/",
+        "/{realm}/\\d+/{name}/"
+      ],
+      "strip_path": "false",
+      "regex_priority": 0,
+      "oidc_override": {
+        "config.app_login_redirect_url": "${host}/${realm}/${name}/home"
+      }
+    }
+  ],
+
+  "public_endpoints": [
+    {
+      "name": "public",
+      "paths": [
+        "/{realm}/{name}/static",
+        "/{realm}/{name}/public",
+        "/{realm}/\\d+/{name}/assets"
+      ],
+      "strip_path": "true",
+      "regex_priority": 1
+    }
+  ]
+}

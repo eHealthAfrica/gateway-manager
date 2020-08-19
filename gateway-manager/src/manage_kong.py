@@ -26,6 +26,7 @@ from requests.exceptions import HTTPError
 
 from manage_keycloak import get_client_secret
 from helpers import (
+    categorize_arguments,
     check_realm,
     do_nothing,
     fill_template,
@@ -279,7 +280,7 @@ def remove_service(name, realm):
     _remove_service_and_routes(name, routes_fn)
 
 
-def handle_app(action, name):
+def handle_app(action, name, options=None):
     try:
         app_config = load_json_file(f'{APPS_PATH}/{name}.json')
     except Exception:
@@ -294,15 +295,17 @@ def handle_app(action, name):
         _remove_service_and_routes(service_name)
 
 
-def handle_service(action, name, realm=None, oidc_client=None):
+def handle_service(action, name, realm=None, oidc_client=None, options=None):
     try:
         config = load_json_file(f'{SERVICES_PATH}/{name}.json')
-        service_name = config['name']
+        service_name = options.get('service_name') or config['name']
+        service_url = options.get('service_url') or config['host']
     except Exception:
         LOGGER.critical(f'No service definition for name: "{name}"')
         sys.exit(1)
 
-    realm = _check_realm_in_action(action, realm)
+    if not options.get('test'):
+        realm = _check_realm_in_action(action, realm)
 
     if action == 'ADD':
         # load again an substitute the possible string templates
@@ -311,14 +314,19 @@ def handle_service(action, name, realm=None, oidc_client=None):
             'domain': BASE_DOMAIN,
             'realm': realm,
             'service': service_name,
+            'name': name,
+            'service_url': service_url
         })
+        if options.get('test'):
+            LOGGER.debug(service_config)
+            return
         add_service(service_config, realm, oidc_client)
 
     elif action == 'REMOVE':
         remove_service(service_name, realm)
 
 
-def handle_solution(action, name, realm=None, oidc_client=None):
+def handle_solution(action, name, realm=None, oidc_client=None, options=None):
     try:
         services = load_json_file(f'{SOLUTIONS_PATH}/{name}.json').get('services', [])
     except Exception:
@@ -357,17 +365,20 @@ if __name__ == '__main__':
         'SOLUTION': handle_solution,
     }
 
-    command = sys.argv[1]
+    args, kwargs = categorize_arguments(sys.argv[:])
+
+    command = args[1]
     if command.upper() not in COMMANDS.keys():
         LOGGER.critical(f'No command: {command}')
         sys.exit(1)
 
     try:
-        is_kong_ready()
+        if not kwargs.get('test'):
+            is_kong_ready()
 
         fn = COMMANDS[command]
-        args = sys.argv[2:]
-        fn(*args)
+        args = args[2:]
+        fn(*args, options=kwargs)
     except Exception as e:
         LOGGER.error(str(e))
         sys.exit(1)

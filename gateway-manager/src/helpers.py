@@ -16,12 +16,13 @@
 # specific language governing permissions and limitations
 # under the License.
 
-import coloredlogs
 import logging
 import json
-import requests
-
 from string import Template
+from typing import List, Tuple
+
+import coloredlogs
+import requests
 from requests.exceptions import HTTPError
 
 from settings import DEBUG, KC_ADMIN_REALM, KONG_PUBLIC_REALM
@@ -136,3 +137,18 @@ def get_logger(name):
     )
 
     return logger
+
+
+def is_kwarg(arg, collector):
+    try:
+        k, v = arg.split('=')
+    except ValueError:
+        return False
+    collector[k] = v
+    return True
+
+
+def categorize_arguments(argv) -> Tuple[List, dict]:
+    kwargs = {}
+    args = [i for i in argv if not is_kwarg(i, kwargs)]
+    return args, kwargs
