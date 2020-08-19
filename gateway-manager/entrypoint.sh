@@ -258,22 +258,6 @@ function show_help {
 
         Usage:  add_elasticsearch_tenant {tenant}
 
-
-    Zeebe
-    ----------------------------------------------------------------------------
-
-    add_zeebe_auth:
-        Adds zeebe auth routes to a tenant
-
-        Usage:  add_zeebe_auth {tenant}
-
-
-    add_zeebe_monitor:
-        Adds zeebe_monitor application to a tenant that has Zeebe
-
-        Usage:  add_zeebe_monitor {tenant} {monitor-service-url}
-
-
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Current version:  [${VERSION:-latest}]
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
