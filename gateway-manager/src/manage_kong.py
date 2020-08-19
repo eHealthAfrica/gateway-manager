@@ -280,7 +280,7 @@ def remove_service(name, realm):
     _remove_service_and_routes(name, routes_fn)
 
 
-def handle_app(action, name, options=None):
+def handle_app(action, name, options={}):
     try:
         app_config = load_json_file(f'{APPS_PATH}/{name}.json')
     except Exception:
@@ -295,7 +295,7 @@ def handle_app(action, name, options=None):
         _remove_service_and_routes(service_name)
 
 
-def handle_service(action, name, realm=None, oidc_client=None, options=None):
+def handle_service(action, name, realm=None, oidc_client=None, options={}):
     try:
         config = load_json_file(f'{SERVICES_PATH}/{name}.json')
         service_name = options.get('service_name') or config['name']
@@ -326,7 +326,7 @@ def handle_service(action, name, realm=None, oidc_client=None, options=None):
         remove_service(service_name, realm)
 
 
-def handle_solution(action, name, realm=None, oidc_client=None, options=None):
+def handle_solution(action, name, realm=None, oidc_client=None, options={}):
     try:
         services = load_json_file(f'{SOLUTIONS_PATH}/{name}.json').get('services', [])
     except Exception:
@@ -378,7 +378,7 @@ if __name__ == '__main__':
 
         fn = COMMANDS[command]
         args = args[2:]
-        fn(*args, options=kwargs)
+        fn(*args, options=kwargs or {})
     except Exception as e:
         LOGGER.error(str(e))
         sys.exit(1)
