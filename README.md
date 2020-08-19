@@ -57,11 +57,12 @@ Checks the Keycloak connection. Returns status `0` on success.
 Adds a new realm in Keycloak using a default realm template.
 
 ```bash
-add_realm {realm} {*description} \
-          {*login theme} \
-          {*account theme} \
-          {*admin theme} \
-          {*email theme}
+add_realm {realm} \
+          {*description=abc} \
+          {*login_theme=abc} \
+          {*account_theme=abc} \
+          {*admin_theme=abc} \
+          {*email_theme=abc}
 ```
 
 #### `add_admin`
@@ -90,9 +91,9 @@ Adds a confidential client to an existing realm in Keycloak.
 Required for any realm that will use OIDC for authentication.
 
 ```bash
-add_confidential_client {realm} {client-name} {*login theme}
+add_confidential_client {realm} {client-name} {*login_theme=abc}
 # or
-add_oidc_client {realm} {client-name} {*login theme}
+add_oidc_client {realm} {client-name} {*login_theme=abc}
 ```
 
 #### `add_public_client`
@@ -100,7 +101,7 @@ Adds a public client to an existing realm in Keycloak.
 Allows token generation.
 
 ```bash
-add_public_client {realm} {client-name} {*login theme}
+add_public_client {realm} {client-name} {*login_theme=abc}
 ```
 
 #### `decode_token`
