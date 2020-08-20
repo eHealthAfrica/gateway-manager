@@ -240,8 +240,15 @@ def add_user_group(realm, username, group, *args, kwargs={}):
     LOGGER.info(f'Adding user "{username}" to group "{group}" on realm "{realm}"...')
     keycloak_admin = client_for_realm(realm)
     user_id = keycloak_admin.get_user_id(username=username)
-    keycloak_admin.group_user_add(user_id=user_id, group_id =group)
-    LOGGER.success(f'Added user "{username}" to group "{group}" on realm "{realm}"')
+    groups = keycloak_admin.get_groups()  # get all groups
+    was_added = False
+    for g in groups:
+        if g['name'] == group:  # identify group by name
+            keycloak_admin.group_user_add(user_id=user_id, group_id=g['id'])
+            LOGGER.success(f'Added user "{username}" to group "{group}" on realm "{realm}"')
+            was_added = True
+    if not was_added:
+        LOGGER.warning(f'Could not add user "{username}" to group "{group}" on realm "{realm}"')
 
 
 def create_confidential_client(realm, name, *args, kwargs={}):
