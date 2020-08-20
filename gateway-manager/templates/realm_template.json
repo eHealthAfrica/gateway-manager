@@ -19,12 +19,10 @@
   "roles": {
     "realm": [
       {
-        "id": "${realm}-user",
         "name": "${realm}-user",
         "description": "${displayName} User"
       },
       {
-        "id": "${realm}-editor",
         "name": "${realm}-editor",
         "description": "${displayName} Editor",
         "composites": {
@@ -32,7 +30,6 @@
         }
       },
       {
-        "id": "${realm}-admin",
         "name": "${realm}-admin",
         "description": "${displayName} Admin",
         "composites": {
@@ -45,18 +42,15 @@
   },
   "groups": [
     {
-      "id": "admin",
-      "name": "Admin",
+      "name": "admin",
       "realmRoles": ["${realm}-admin"]
     },
     {
-      "id": "editor",
-      "name": "Editor",
+      "name": "editor",
       "realmRoles": ["${realm}-editor"]
     },
     {
-      "id": "user",
-      "name": "User",
+      "name": "user",
       "realmRoles": ["${realm}-user"]
     }
   ]
