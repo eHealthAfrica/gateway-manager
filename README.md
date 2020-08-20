@@ -391,6 +391,14 @@ Review the code to get the expected strings in each case.
 - `ZOOKEEPER_PW`: Zookeeper user password.
 - `KAFKA_SECRET`: Kafka registered administrative credentials.
 
+### Confluent Cloud
+
+- `CC_CLI_PATH`: Confluent Cloud client path. Usually `ccloud`.
+- `CC_API_USER`: Confluent Cloud user name.
+- `CC_API_PASSWORD`: Confluent Cloud password.
+- `CC_ENVIRONMENT_NAME`: Confluent Cloud environment name. Usually `default`.
+- `CC_CLUSTER_NAME`: Confluent Cloud cluster name. Usually `default`.
+
 ### ElasticSearch
 
 - `ELASTICSEARCH_HOST`: Elasticsearch internal URL. Usually `http://elasticsearch:9200`.
