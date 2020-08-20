@@ -228,7 +228,7 @@ function show_help_ccloud {
 
 
     delete_ccloud_tenant:
-        Removes a tenant and their credentials, account and permissions (Does not remove data / topics).
+        Removes a tenant and their credentials, account and permissions (does not remove data / topics).
 
         Usage:  delete_ccloud_tenant {username}
 
@@ -246,13 +246,13 @@ function show_help_ccloud {
 
 
     list_ccloud_acls
-        Lists ACLs of CCloud tenants, or of a single tenant referenced by name
+        Lists ACLs of CCloud tenants, or of a single tenant referenced by name.
 
         Usage:  list_ccloud_acls {*tenant}
 
 
     list_ccloud_api_keys
-        Lists active APIKeys on the cluster. (Names only)
+        Lists active APIKeys on the cluster (names only).
 
         Usage:  list_ccloud_api_keys
     """
@@ -288,6 +288,7 @@ function show_help_env {
         BASE_DOMAIN                ${BASE_DOMAIN:-}
         BASE_HOST                  ${BASE_HOST:-}
 
+        CC_URL                     ${CC_URL:-}
         CC_CLI_PATH                ${CC_CLI_PATH:-}
         CC_CLUSTER_NAME            ${CC_CLUSTER_NAME:-}
         CC_ENVIRONMENT_NAME        ${CC_ENVIRONMENT_NAME:-}
