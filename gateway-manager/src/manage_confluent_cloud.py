@@ -28,6 +28,7 @@ import pexpect
 
 import helpers
 from settings import (
+    CC_URL,
     CC_CLI_PATH,
     CC_API_USER,
     CC_API_PASSWORD,
@@ -95,7 +96,7 @@ class ACL:
 def login(user, pw):
     login_prompt = 'Email:*'
     pw_prompt = 'Password:*'
-    child = pexpect.spawn(f'{CC_CLI_PATH} login --url https://confluent.cloud')
+    child = pexpect.spawn(f'{CC_CLI_PATH} login --url {CC_URL}')
     child.expect(login_prompt)
     child.sendline(user)
     child.expect(pw_prompt)
@@ -654,7 +655,9 @@ if __name__ == '__main__':
     if command.upper() not in COMMANDS.keys():
         LOGGER.critical(f'No command: {command}')
         sys.exit(1)
+
     requirements = [
+        CC_URL,
         CC_CLI_PATH,
         CC_API_USER,
         CC_API_PASSWORD,
@@ -664,6 +667,7 @@ if __name__ == '__main__':
     if not all(requirements):
         LOGGER.error(f'CCloud environment variables are missing.')
         sys.exit(1)
+
     try:
         fn = COMMANDS[command]
         args = sys.argv[2:]

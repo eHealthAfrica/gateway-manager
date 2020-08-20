@@ -223,13 +223,6 @@ get_kafka_creds {tenant}
 
 ### Confluent Cloud
 
- > Note: You need the following environment variables to be set to manipulate CCloud.
- >  - CC_API_USER : a permissioned Confluent Cloud User
- >  - CC_API_PASSWORD: that user's password
- >  - CC_ENVIRONMENT_NAME: the name of the environment you want to use (or default)
- >  - CC_CLUSTER_NAME: the name of the cluster to modify
-
-
 #### `add_ccloud_su`
 Adds a Superuser to the Confluent Cloud Kafka Cluster.
 
@@ -259,7 +252,7 @@ add_ccloud_tenant {tenant}
 ```
 
 #### `delete_ccloud_tenant`
-Removes a tenant and their credentials, account and permissions (Does not remove data / topics).
+Removes a tenant and their credentials, account and permissions (does not remove data / topics).
 
 ```bash
 delete_ccloud_tenant {username}
@@ -280,14 +273,14 @@ list_ccloud_tenants
 ```
 
 #### `list_ccloud_acls`
-Lists ACLs of CCloud tenants, or of a single tenant referenced by name
+Lists ACLs of CCloud tenants, or of a single tenant referenced by name.
 
 ```bash
 list_ccloud_acls {*tenant}
 ```
 
 #### `list_ccloud_api_keys`
-Lists active APIKeys on the cluster. (Names only)
+Lists active APIKeys on the cluster (names only).
 
 ```bash
 list_ccloud_api_keys
@@ -376,8 +369,8 @@ Review the code to get the expected strings in each case.
 - `KEYCLOAK_INTERNAL`: Keycloak internal URL. Usually `http://keycloak:8080/auth/`.
   **Note**: Ending `/` is required to connect to admin console.
 - `KEYCLOAK_MASTER_REALM`: Keycloak master realm name. Defaults to `master`.
-- `KEYCLOAK_GLOBAL_ADMIN`: Keycloak admin user name in the master realm.
-- `KEYCLOAK_GLOBAL_PASSWORD`: Keycloak admin user password in the master realm.
+- `KEYCLOAK_GLOBAL_ADMIN`: Keycloak admin user in the master realm.
+- `KEYCLOAK_GLOBAL_PASSWORD`: Keycloak admin user's password in the master realm.
 
 ### Kong
 
@@ -387,12 +380,21 @@ Review the code to get the expected strings in each case.
 ### Kafka & Zookeeper
 
 - `ZOOKEEPER_HOST`: Zookeeper host address. Usually `127.0.0.1:32181`.
-- `ZOOKEEPER_USER`: Zookeeper user name.
-- `ZOOKEEPER_PW`: Zookeeper user password.
+- `ZOOKEEPER_USER`: Zookeeper user.
+- `ZOOKEEPER_PW`: Zookeeper user's password.
 - `KAFKA_SECRET`: Kafka registered administrative credentials.
+
+### Confluent Cloud
+
+- `CC_URL`: Confluent Cloud URL. Usually `https://confluent.cloud`.
+- `CC_CLI_PATH`: Confluent Cloud client path. Usually `ccloud`.
+- `CC_API_USER`: Confluent Cloud permissioned user.
+- `CC_API_PASSWORD`: Confluent Cloud user's password.
+- `CC_ENVIRONMENT_NAME`: Confluent Cloud environment to use. Usually `default`.
+- `CC_CLUSTER_NAME`: Confluent Cloud cluster to modify. Usually `default`.
 
 ### ElasticSearch
 
 - `ELASTICSEARCH_HOST`: Elasticsearch internal URL. Usually `http://elasticsearch:9200`.
-- `ELASTICSEARCH_USER`: Elasticsearch user name.
-- `ELASTICSEARCH_PW`: Elasticsearch user password.
+- `ELASTICSEARCH_USER`: Elasticsearch user.
+- `ELASTICSEARCH_PW`: Elasticsearch user's password.

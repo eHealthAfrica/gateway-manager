@@ -25,7 +25,7 @@ if [ -f "$VERSION_FILE" ]; then
     VERSION=`cat $VERSION_FILE`
 fi
 
-function show_help {
+function show_help_commands {
     echo """
     Commands
     ----------------------------------------------------------------------------
@@ -38,14 +38,21 @@ function show_help {
 
     eval:
         Evaluates shell command.
+    """
+}
 
-
+function show_help_app {
+    echo """
     Home App
     ----------------------------------------------------------------------------
+
     start_app:
-        Starts the gateway tenant home app
+        Starts the gateway tenant home app.
+    """
+}
 
-
+function show_help_keycloak {
+    echo """
     Keycloak
     ----------------------------------------------------------------------------
 
@@ -103,8 +110,11 @@ function show_help {
         Decodes a Keycloak JSON Web Token (JWT).
 
         Usage:  decode_token {token}
+    """
+}
 
-
+function show_help_kong {
+    echo """
     Kong
     ----------------------------------------------------------------------------
 
@@ -155,8 +165,11 @@ function show_help {
         Usage:  remove_solution {solution} {realm}
 
         Remove in all realms:  remove_solution {solution}
+    """
+}
 
-
+function show_help_kafka {
+    echo """
     Kafka
     ----------------------------------------------------------------------------
 
@@ -182,8 +195,11 @@ function show_help {
         Gets SASL Credential for a given kafka tenant.
 
         Usage:  get_kafka_creds {tenant}
+    """
+}
 
-
+function show_help_ccloud {
+    echo """
     Confluent Cloud
     ----------------------------------------------------------------------------
 
@@ -212,7 +228,7 @@ function show_help {
 
 
     delete_ccloud_tenant:
-        Removes a tenant and their credentials, account and permissions (Does not remove data / topics).
+        Removes a tenant and their credentials, account and permissions (does not remove data / topics).
 
         Usage:  delete_ccloud_tenant {username}
 
@@ -230,17 +246,20 @@ function show_help {
 
 
     list_ccloud_acls
-        Lists ACLs of CCloud tenants, or of a single tenant referenced by name
+        Lists ACLs of CCloud tenants, or of a single tenant referenced by name.
 
         Usage:  list_ccloud_acls {*tenant}
 
 
     list_ccloud_api_keys
-        Lists active APIKeys on the cluster. (Names only)
+        Lists active APIKeys on the cluster (names only).
 
         Usage:  list_ccloud_api_keys
+    """
+}
 
-
+function show_help_es {
+    echo """
     ElasticSearch
     ----------------------------------------------------------------------------
 
@@ -258,14 +277,57 @@ function show_help {
         Adds a tenant to ElasticSearch.
 
         Usage:  add_elasticsearch_tenant {tenant}
+    """
+}
 
+function show_help_env {
+    echo """
+    Environment variables
+    ----------------------------------------------------------------------------
+
+        BASE_DOMAIN                ${BASE_DOMAIN:-}
+        BASE_HOST                  ${BASE_HOST:-}
+
+        CC_URL                     ${CC_URL:-}
+        CC_CLI_PATH                ${CC_CLI_PATH:-}
+        CC_CLUSTER_NAME            ${CC_CLUSTER_NAME:-}
+        CC_ENVIRONMENT_NAME        ${CC_ENVIRONMENT_NAME:-}
+
+        CDN_URL                    ${CDN_URL:-}
+
+        ELASTICSEARCH_HOST         ${ELASTICSEARCH_HOST:-}
+
+        KEYCLOAK_INTERNAL          ${KEYCLOAK_INTERNAL:-}
+        KEYCLOAK_MASTER_REALM      ${KEYCLOAK_MASTER_REALM:-}
+
+        KONG_INTERNAL              ${KONG_INTERNAL:-}
+
+        PUBLIC_REALM               ${PUBLIC_REALM:-}
+
+        ZOOKEEPER_HOST             ${ZOOKEEPER_HOST:-}
+    """
+}
+
+function show_help_version {
+    echo """
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Current version:  [${VERSION:-latest}]
+        Current version:  [${VERSION:-latest}]
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     """
 }
 
-case "$1" in
+function show_help {
+    show_help_commands
+    show_help_app
+    show_help_keycloak
+    show_help_kong
+    show_help_kafka
+    show_help_ccloud
+    show_help_es
+    show_help_env
+}
+
+case "${1:-}" in
 
     # --------------------------------------------------------------------------
     # Keycloak
@@ -438,10 +500,44 @@ case "$1" in
     ;;
 
     help )
-        show_help
+        case "${2:-}" in
+            kc | keycloak )
+                show_help_keycloak
+            ;;
+
+            kong )
+                show_help_kong
+            ;;
+
+            kafka )
+                show_help_kafka
+            ;;
+
+            cc | ccloud )
+                show_help_ccloud
+            ;;
+
+            es | elasticsearch )
+                show_help_es
+            ;;
+
+            app | home )
+                show_help_app
+            ;;
+
+            env )
+                show_help_env
+            ;;
+
+            * )
+                show_help
+            ;;
+        esac
+        show_help_version
     ;;
 
     * )
         show_help
+        show_help_version
     ;;
 esac
