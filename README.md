@@ -83,7 +83,7 @@ add_user {realm} {username} {*password} {*reset_password_on_first_login}
 Adds an existing user to a group on an existing realm in Keycloak.
 
 ```bash
-add_user_group {realm} {username} {group_id}
+add_user_group {realm} {username} {group_name}
 ```
 
 #### `add_confidential_client` or `add_oidc_client`

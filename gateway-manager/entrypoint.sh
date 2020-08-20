@@ -88,7 +88,7 @@ function show_help_keycloak {
     add_user_group:
         Adds an existing user to an existing group on an existing realm.
 
-        Usage:  add_user_group {realm} {username} {group_id}
+        Usage:  add_user_group {realm} {username} {group_name}
 
 
     add_confidential_client | add_oidc_client:
