@@ -6,7 +6,7 @@
   "config.cookie_domain": "${domain}",
 
   "config.email_key": "email",
-  "config.scope": "openid+profile+email+iss",
+  "config.scope": "openid+profile+email+roles",
   "config.user_info_cache_enabled": "true",
 
   "config.app_login_redirect_url": "${host}/${realm}/${service}/",
