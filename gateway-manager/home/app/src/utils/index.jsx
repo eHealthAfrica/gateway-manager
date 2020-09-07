@@ -37,21 +37,22 @@ export const capitalize = (str) => `${str[0].toUpperCase()}${str[1] ? str.slice(
  * @param {string} tenant
  */
 export const getServices = (availableServices = [], tenant = '', origin = window.location.origin) => {
-    const tenant_path = tenant ? `${tenant}/` : ''
-    const services = [
-        { name: GATHER, icon: gatherIcon, link: `${origin}/${tenant_path}${GATHER}` },
-        { name: KIBANA, icon: kibanaIcon, link: `${origin}/${tenant_path}${KIBANA}/kibana-app` },
-        { name: AETHER, icon: aetherIcon, link: `${origin}/${tenant_path}${AETHER_UI}` },
-        { name: KERNEL, link: `${origin}/${tenant_path}${KERNEL}` },
-        { name: ODK, link: `${origin}/${tenant_path}${ODK}` }
-    ]
-    const activeServices = []
-    services.forEach(service => {
-        if (availableServices.includes(service.name) ||
-            (service.name === AETHER && availableServices.includes(AETHER_UI))
-        ) {
-            activeServices.push(service)
-        }
-    })
-    return activeServices
+  const tenantPath = tenant ? `${tenant}/` : ''
+  const services = [
+    { name: GATHER, icon: gatherIcon, link: `${origin}/${tenantPath}${GATHER}` },
+    { name: KIBANA, icon: kibanaIcon, link: `${origin}/${tenantPath}${KIBANA}/kibana-app` },
+    { name: AETHER, icon: aetherIcon, link: `${origin}/${tenantPath}${AETHER_UI}` },
+    { name: KERNEL, link: `${origin}/${tenantPath}${KERNEL}` },
+    { name: ODK, link: `${origin}/${tenantPath}${ODK}` }
+  ]
+  const activeServices = []
+  services.forEach(service => {
+    if (
+      availableServices.includes(service.name) ||
+      (service.name === AETHER && availableServices.includes(AETHER_UI))
+    ) {
+      activeServices.push(service)
+    }
+  })
+  return activeServices
 }

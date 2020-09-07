@@ -27,7 +27,7 @@
 
 .top-nav-user {
   @include label;
-  transition: opacity .4s;
+  transition: opacity 0.4s;
   margin-left: auto;
 
   .user-name {
@@ -35,7 +35,7 @@
   }
 
   .logout {
-    margin-left: .7rem;
+    margin-left: 0.7rem;
     font-size: $font-size-standard;
   }
 }

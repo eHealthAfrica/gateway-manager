@@ -62,12 +62,12 @@
 
     .service-about {
       margin-top: 1rem;
-      opacity: .6;
+      opacity: 0.6;
     }
 
     .gather-card {
       @extend .service-card;
-      background: rgba(rgb(50, 255, 255), .4);
+      background: rgba(rgb(50, 255, 255), 0.4);
     }
 
     .aether-card {
@@ -77,17 +77,17 @@
 
     .kernel-card {
       @extend .service-card;
-      background: rgba($action-color-b, .4);
+      background: rgba($action-color-b, 0.4);
     }
 
     .odk-card {
       @extend .service-card;
-      background: rgba($action-color-b, .4);
+      background: rgba($action-color-b, 0.4);
     }
 
     .kibana-card {
       @extend .service-card;
-      background: rgba($action-color-b, .4);
+      background: rgba($action-color-b, 0.4);
     }
   }
 }

@@ -46,7 +46,7 @@ const MESSAGES = defineMessages({
   }
 })
 
-const getStyle = (color) => ({ fontSize: 25, margin: 5, color: `${color}` })
+const getStyle = (color) => ({ fontSize: 25, margin: 5, color })
 
 const withSymbols = (service, color) => (
   <span>
@@ -83,6 +83,6 @@ const ServiceCard = ({ name, icon, link, intl: { formatMessage } }) => name ? (
     </a>
     <p className='service-about small'>{formatMessage(MESSAGES[name])}</p>
   </>
-) : <div className='-card' />
+) : <div className='service-card' />
 
 export default injectIntl(ServiceCard)
