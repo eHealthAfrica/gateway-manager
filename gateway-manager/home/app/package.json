@@ -10,27 +10,27 @@
     "url": "https://ehealthafrica.org"
   },
   "scripts": {
-    "start": "react-scripts start",
     "build": "react-scripts build",
+    "start": "react-scripts start",
     "test": "yarn lint && jest --expand",
     "test:watch": "yarn test --watch",
     "lint": "standard './src/**/*.{js,jsx}'"
   },
   "dependencies": {
-    "bootstrap": "~4.3.1",
-    "react": "~16.12.0",
-    "react-dom": "~16.12.0",
-    "react-intl": "~3.6.2",
-    "react-scripts": "3.2.0"
+    "bootstrap": "~4.5.0",
+    "react": "~16.13.0",
+    "react-dom": "~16.13.0",
+    "react-intl": "~5.8.0"
   },
   "devDependencies": {
-    "@babel/preset-env": "~7.7.4",
-    "@babel/preset-react": "~7.7.4",
+    "@babel/preset-env": "~7.11.0",
+    "@babel/preset-react": "~7.10.0",
     "babel-jest": "~24.9.0",
-    "enzyme": "~3.10.0",
-    "enzyme-adapter-react-16": "~1.15.1",
-    "node-sass": "~4.13.0",
-    "standard": "~14.3.1"
+    "enzyme": "~3.11.0",
+    "enzyme-adapter-react-16": "~1.15.0",
+    "node-sass": "~4.14.0",
+    "react-scripts": "3.2.0",
+    "standard": "~14.3.0"
   },
   "jest": {
     "setupFilesAfterEnv": [
