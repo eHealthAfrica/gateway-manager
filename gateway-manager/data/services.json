@@ -6,7 +6,7 @@
     "link": "demo-service/web-app",
     "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
   },
-  "kibana": {
+  "%kibana%": {
     "key": "kibana",
     "name": "<b>K</b>ibana",
     "icon": "${host}/${public_realm}/gateway/static/images/kibana-white.png",
