@@ -80,7 +80,9 @@ under the License.
                   <span>{{ service.name|safe }}</span>
                 </a>
               </div>
-              <p class='service-about'>{{ service.description|safe }}</p>
+              {% if service.description %}
+                <p class='service-about'>{{ service.description|safe }}</p>
+              {% endif %}
             </div>
           {% endfor %}
         </div>

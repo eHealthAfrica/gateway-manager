@@ -1,16 +1,1 @@
-{
-  "demo-service": {
-    "key": "demo",
-    "name": "<b>Demo</b> Service",
-    "icon": "${host}/${public_realm}/demo-service/assets/logo.png",
-    "link": "demo-service/web-app",
-    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-  },
-  "%kibana%": {
-    "key": "kibana",
-    "name": "<b>K</b>ibana",
-    "icon": "${host}/${public_realm}/gateway/static/images/kibana-white.png",
-    "link": "kibana/kibana-app",
-    "description": "Send your data to Kibana and create various types of charts, tables and maps for visualizing, analyzing, and exploring the data."
-  }
-}
+{}
