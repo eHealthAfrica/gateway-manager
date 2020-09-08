@@ -20,10 +20,6 @@
 #
 set -Eeuo pipefail
 
-source scripts/build.sh || \
-    ( echo -e "\033[91mRun this script from root folder\033[0m" && \
-      exit 1 )
-
 function build_and_push {
     APP=$1
     VERSION=$2
