@@ -322,6 +322,9 @@ add_elasticsearch_tenant {tenant}
 
 - `SOLUTIONS_PATH`: Path to solution files directory. Defaults to `/code/solution`.
 
+- `SERVICES_DATA_PATH`: Path to the services data to be displayed in the landing page.
+  Defaults to `/code/data/services.json`.
+
 ### Templates
 
 - `TEMPLATES_PATH`: Path to template files directory.
@@ -363,6 +366,11 @@ Some of the expected `$-based` strings are:
 - `oidc_client_secret`: replaced with `oidc` client secret fetched form Keycloak.
 
 Review the code to get the expected strings in each case.
+
+### Home app (landing page)
+
+- `WEB_SERVER_PORT`: Web server port. Defaults to `8007`.
+- `WEB_SERVICE_NAME`: Name of this app used by kong to serve the routes. Defaults to `gateway`.
 
 ### Keycloak
 

@@ -25,8 +25,12 @@ from helpers import request, get_logger, print_json
 from settings import BASE_HOST
 
 
+def decode_token(token):
+    return jwt.decode(token, verify=False)
+
+
 def check_jwt(token):
-    tokeninfo = jwt.decode(token, verify=False)
+    tokeninfo = decode_token(token)
     print_json(logger.info, tokeninfo)
 
     iss_url = tokeninfo['iss']
@@ -45,6 +49,23 @@ def check_jwt(token):
         headers={'Authorization': '{} {}'.format(tokeninfo['typ'], token)},
     )
     print_json(logger.info, userinfo)
+
+
+def get_userinfo(token):
+    tokeninfo = decode_token(token)
+
+    username = tokeninfo['preferred_username']
+    given_name = tokeninfo.get('given_name')
+    family_name = tokeninfo.get('family_name')
+
+    if family_name and given_name:
+        return f'{given_name} {family_name}'
+    elif family_name:
+        return family_name
+    elif given_name:
+        return given_name
+    else:
+        return username
 
 
 if __name__ == '__main__':

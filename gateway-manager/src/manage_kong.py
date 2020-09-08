@@ -95,6 +95,44 @@ def _check_404(url):
         return True
 
 
+def get_services_by_realm(realm):
+    def _service_in_realm(service):
+        def _realm_in_route(route):
+            if route.get('tags', []) is not None:
+                return realm in route.get('tags', [])
+            else:
+                return route['name'].endswith(f'__{realm}')
+
+        try:
+            url = f'{KONG_INTERNAL_URL}/services/{service}/routes'
+            while url:
+                res = request(method='get', url=url)
+                url = res['next']
+
+                for route in res['data']:
+                    if _realm_in_route(route):
+                        return True
+        except HTTPError:
+            pass
+
+        return False
+
+    available_services = []
+    url = f'{KONG_INTERNAL_URL}/services'
+    if not _check_404(url):
+        while url:
+            res = request(method='get', url=url)
+            url = res['next']
+
+            _services = res['data'] if 'data' in res else []
+            available_services += [
+                service['name']
+                for service in _services
+                if _service_in_realm(service['name'])
+            ]
+    return available_services
+
+
 def _add_service(config):
     name = config['name']  # service name
     host = config['host']  # service host

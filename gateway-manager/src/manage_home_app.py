@@ -18,98 +18,90 @@
 # specific language governing permissions and limitations
 # under the License.
 
-import json
-import os
 import sys
 
-from time import sleep
-from urllib.error import HTTPError
-from flask import Flask, render_template, send_from_directory
-from helpers import check_realm, get_logger, request
+from flask import (
+    Flask,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+)
 
-from settings import CDN_URL, WEB_SERVER_PORT, BASE_HOST, KONG_INTERNAL_URL
-from manage_kong import _check_404
+from decode_token import get_userinfo
+from helpers import get_logger, load_json_file
+from manage_keycloak import get_realm_display_name
+from manage_kong import get_services_by_realm
+from settings import (
+    BASE_HOST,
+    KONG_PUBLIC_REALM,
+    KONG_TOKEN_HEADER,
+    REVISION,
+    SERVICES_DATA_PATH,
+    VERSION,
+    WEB_SERVER_PORT,
+    WEB_SERVICE_NAME,
+)
 
+HOST = '0.0.0.0'
 LOGGER = get_logger('HOME')
 app = None
 
+STATIC_URL = f'/{KONG_PUBLIC_REALM}/{WEB_SERVICE_NAME}/static'
+try:
+    SERVICES = load_json_file(SERVICES_DATA_PATH, {
+        'host': BASE_HOST,
+        'public_realm': KONG_PUBLIC_REALM,
+    })
+except Exception:
+    SERVICES = {}
+
 
 def start_app():
-    cdn = CDN_URL
-    if cdn:
-        if cdn.endswith('/'):
-            cdn = cdn[:-1]
-        assets_location = '/code/build/asset-manifest.json'
-        with open(assets_location, 'rb') as fp:
-            assets = json.load(fp)
-        for asset in assets['files']:
-            assets['files'][asset] = f'{cdn}{assets["files"][asset]}'
-
-        with open(assets_location, 'w') as fp:
-            json.dump(assets, fp)
-
-        index_location = '/code/build/index.html'
-        with open(index_location, 'r') as fp:
-            _index = fp.read()
-        new_index = _index.replace('/static', f'{cdn}/static') \
-            .replace('/aether.ico', f'{cdn}/aether.ico')
-
-        with open(index_location, 'w') as fp:
-            fp.write(new_index)
-
     app = Flask(
         '__main__',
-        template_folder='../build',
-        static_folder='../build',
-        static_url_path='/gateway'
+        template_folder='../templates',
+        static_folder='../static',
+        static_url_path=STATIC_URL,
     )
 
-    @app.route('/<realm>/', methods=['GET'])
-    def index(realm):
-        services = []
-        url = f'{KONG_INTERNAL_URL}/services'
-        if not _check_404(url):
-            while url:
-                res = request(method='get', url=url)
-                new_services = res['data'] if 'data' in res else []
-                url = res['next']
+    @app.route(f'/{KONG_PUBLIC_REALM}/{WEB_SERVICE_NAME}/health', methods=['GET'])
+    def _health():
+        # health endpoint, returns current commit hash and version
+        return jsonify(version=VERSION, revision=REVISION)
 
-                services += [
-                    service['name']
-                    for service in new_services
-                    if service_in_realm(realm, service['name'])
-                ]
+    @app.route('/<realm>/', methods=['GET'])
+    def _index(realm):
+        # landing page
+        realm_name = get_realm_display_name(realm)
+        available_services = get_services_by_realm(realm)
+        services = [
+            value
+            for key, value in SERVICES.items()
+            if key in available_services
+        ]
+
+        username = get_userinfo(request.headers.get(KONG_TOKEN_HEADER))
         return render_template(
-            'index.html',
-            services=json.dumps(services)
+            'landing-page.html',
+            # realm urls
+            account_url=f'{BASE_HOST}/auth/realms/{realm}/account',
+            base_url=f'{BASE_HOST}/{realm}',
+            logout_url=f'{BASE_HOST}/{realm}/{WEB_SERVICE_NAME}/logout',
+            static_url=f'{BASE_HOST}{STATIC_URL}',
+            # realm & user info
+            tenant=realm_name,
+            username=username,
+            services=services,
         )
 
-    HOST = '0.0.0.0'
+    @app.route(f'/<realm>/{WEB_SERVICE_NAME}/', methods=['GET'])
+    def _index_2(realm):
+        # this is the url used after logout, redirect to /<realm>
+        return redirect(f'/{realm}')
+
     app.run(host=HOST, port=WEB_SERVER_PORT)
     LOGGER.info(f'App started on {HOST}:{WEB_SERVER_PORT}')
-
-
-def service_in_realm(realm, service):
-
-    def realm_in_route(route):
-        if route.get('tags', []) is not None:
-            return realm in route.get('tags', [])
-        else:
-            return route['name'].endswith(f'__{realm}')
-
-    try:
-        url = f'{KONG_INTERNAL_URL}/services/{service}/routes'
-        while url:
-            res = request(method='get', url=url)
-            url = res['next']
-
-            for route in res['data']:
-                if realm_in_route(route):
-                    return True
-    except HTTPError:
-        pass
-
-    return False
 
 
 if __name__ == '__main__':

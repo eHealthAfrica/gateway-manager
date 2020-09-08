@@ -52,7 +52,7 @@ LOGGER = get_logger('Keycloak')
 #
 ############################################
 
-def get_client():
+def get_client(exit_on_error=True):
     try:
         # connect to master realm
         keycloak_admin = KeycloakAdmin(server_url=KC_ADMIN_URL,
@@ -65,20 +65,24 @@ def get_client():
     except KeycloakError as ke:
         LOGGER.critical('Keycloak is NOT ready!')
         LOGGER.error(str(ke))
-        sys.exit(1)
+        if exit_on_error:
+            sys.exit(1)
+        raise e
 
 
-def client_for_realm(realm):
+def client_for_realm(realm, exit_on_error=True):
     try:
-        keycloak_admin = get_client()
+        keycloak_admin = get_client(exit_on_error)
         keycloak_admin.realm_name = realm
-        keycloak_admin.users_count()  # check that realm exists
+        # keycloak_admin.users_count()  # check that realm exists
         return keycloak_admin
 
     except Exception as e:
         LOGGER.warning(f'Do the realm "{realm}" exist?')
         LOGGER.error(str(e))
-        sys.exit(1)
+        if exit_on_error:
+            sys.exit(1)
+        raise e
 
 
 def get_client_secret(realm, client_id):
@@ -101,6 +105,19 @@ def get_client_secret(realm, client_id):
 def is_keycloak_ready():
     get_client()
     LOGGER.success('Keycloak is ready!')
+
+
+def get_realm_display_name(realm):
+    try:
+        keycloak_admin = client_for_realm(realm, exit_on_error=False)
+        # get all realms and search for current one
+        realms = keycloak_admin.get_realms()
+        for r in realms:
+            if r['realm'] == realm:
+                return r.get('displayNameHtml') or r.get('displayName') or realm
+        return realm
+    except Exception:
+        return realm
 
 
 def get_user(realm, username):
