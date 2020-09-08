@@ -304,8 +304,8 @@ function show_help_env {
 
         ZOOKEEPER_HOST             ${ZOOKEEPER_HOST:-}
 
-        WEB_SERVER_PORT            ${WEB_SERVER_PORT}
-        WEB_SERVICE_NAME           ${WEB_SERVICE_NAME}
+        WEB_SERVER_PORT            ${WEB_SERVER_PORT:-}
+        WEB_SERVICE_NAME           ${WEB_SERVICE_NAME:-}
 
     """
 }
