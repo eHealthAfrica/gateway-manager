@@ -44,18 +44,13 @@ function build_image {
         --force-rm \
         --tag $TAG \
         --build-arg VERSION=$VERSION \
+        --build-arg REVISION=$TRAVIS_COMMIT \
         ./$LOCATION
 
     echo -e ""
     echo -e "\e[2m${LINE}\e[0m Built image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
     echo -e ""
 }
-
-# Home page
-build_image gateway-home ${GW_VERSION} gateway-manager/home
-docker run \
-    --volume $PWD/gateway-manager/build:/code/app/build \
-    --rm gateway-home build
 
 # GW Manager
 build_image gateway-manager ${GW_VERSION}

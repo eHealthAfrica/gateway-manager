@@ -33,6 +33,7 @@ BASE_USE_SSL = BASE_HOST.startswith('https://')
 APPS_PATH = get_env('APPS_PATH', '/code/app')
 SERVICES_PATH = get_env('SERVICES_PATH', '/code/service')
 SOLUTIONS_PATH = get_env('SOLUTIONS_PATH', '/code/solution')
+SERVICES_DATA_PATH = get_env('SERVICES_DATA_PATH', '/code/data/services.json')
 
 _TEMPLATES_PATH = get_env('TEMPLATES_PATH', '/code/templates')
 TEMPLATES = {
@@ -66,7 +67,7 @@ TEMPLATES = {
             'ES_ROLE_TEMPLATE_PATH',
             f'{_TEMPLATES_PATH}/es7_role_template.json'
         ),
-    }
+    },
 }
 
 
@@ -82,6 +83,7 @@ KC_ADMIN_REALM = get_env('KEYCLOAK_MASTER_REALM', 'master')
 
 KONG_INTERNAL_URL = get_env('KONG_INTERNAL')    # http://kong:8001
 KONG_PUBLIC_REALM = get_env('PUBLIC_REALM', '-')
+KONG_TOKEN_HEADER = get_env('KONG_TOKEN_HEADER', 'X-Oauth-Token')
 
 
 # Kafka && Zookeeper
@@ -108,7 +110,22 @@ ES_HOST = get_env('ELASTICSEARCH_HOST')
 ES_USER = get_env('ELASTICSEARCH_USER')
 ES_PW = get_env('ELASTICSEARCH_PW')
 
+
 # Home App
 
-CDN_URL = get_env('CDN_URL')
+WEB_SERVICE_NAME = get_env('WEB_SERVICE_NAME', 'gateway')
 WEB_SERVER_PORT = get_env('WEB_SERVER_PORT', 8007)
+
+
+# Version and revision
+try:
+    with open('/var/tmp/VERSION') as fp:
+        VERSION = fp.read().strip()
+except Exception:
+    VERSION = '#.#.#'
+
+try:
+    with open('/var/tmp/REVISION') as fp:
+        REVISION = fp.read().strip()
+except Exception:
+    REVISION = '---'

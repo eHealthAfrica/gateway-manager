@@ -293,8 +293,6 @@ function show_help_env {
         CC_CLUSTER_NAME            ${CC_CLUSTER_NAME:-}
         CC_ENVIRONMENT_NAME        ${CC_ENVIRONMENT_NAME:-}
 
-        CDN_URL                    ${CDN_URL:-}
-
         ELASTICSEARCH_HOST         ${ELASTICSEARCH_HOST:-}
 
         KEYCLOAK_INTERNAL          ${KEYCLOAK_INTERNAL:-}
@@ -305,6 +303,10 @@ function show_help_env {
         PUBLIC_REALM               ${PUBLIC_REALM:-}
 
         ZOOKEEPER_HOST             ${ZOOKEEPER_HOST:-}
+
+        WEB_SERVER_PORT            ${WEB_SERVER_PORT:-}
+        WEB_SERVICE_NAME           ${WEB_SERVICE_NAME:-}
+
     """
 }
 

@@ -41,6 +41,7 @@ function build_and_push {
         --force-rm \
         --tag $TAG \
         --build-arg VERSION=$VERSION \
+        --build-arg REVISION=$TRAVIS_COMMIT \
         ./$APP
 
     echo -e ""
@@ -61,17 +62,11 @@ function build_and_push {
 # If there is no tag then create image for branch develop
 GW_VERSION=${TRAVIS_TAG:-latest}
 
-# Home page
-build_image gateway-home ${GW_VERSION} gateway-manager/home
-docker run \
-    --volume $PWD/gateway-manager/build:/code/app/build \
-    --rm gateway-home build
-
 # GW Manager
 build_and_push  gateway-manager  ${GW_VERSION}
 
 # Custom Kong
-KONG_RELEASES=( "1.3" "1.4" "1.5" "2.0" "2.1" "latest" )
+KONG_RELEASES=( "1.3" "1.3.1" "1.4" "1.4.3" "1.5" "1.5.1" "2.0" "2.0.5" )
 for kong_version in "${KONG_RELEASES[@]}"; do
     build_and_push  kong  $kong_version
 done
