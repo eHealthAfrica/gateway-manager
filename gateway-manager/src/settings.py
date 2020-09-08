@@ -108,7 +108,23 @@ ES_HOST = get_env('ELASTICSEARCH_HOST')
 ES_USER = get_env('ELASTICSEARCH_USER')
 ES_PW = get_env('ELASTICSEARCH_PW')
 
+
 # Home App
 
-CDN_URL = get_env('CDN_URL')
+WEB_SERVICE_NAME = get_env('WEB_SERVICE_NAME', 'gateway')
 WEB_SERVER_PORT = get_env('WEB_SERVER_PORT', 8007)
+STATIC_URL = f'/{KONG_PUBLIC_REALM}/{WEB_SERVICE_NAME}/static'
+
+
+# Version and revision
+try:
+    with open('/var/tmp/VERSION') as fp:
+        VERSION = fp.read().strip()
+except Exception:
+    VERSION = '#.#.#'
+
+try:
+    with open('/var/tmp/REVISION') as fp:
+        REVISION = fp.read().strip()
+except Exception:
+    REVISION = '---'
