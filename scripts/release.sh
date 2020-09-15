@@ -20,40 +20,9 @@
 #
 set -Eeuo pipefail
 
-function build_and_push {
-    APP=$1
-    VERSION=$2
-    IMAGE_REPO=ehealthafrica
-    TAG="${IMAGE_REPO}/${APP}:${VERSION}"
-    LINE="==============="
-
-    echo -e ""
-    echo -e "\e[2m${LINE}\e[0m Building image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
-    echo -e ""
-
-    docker build \
-        --pull \
-        --no-cache \
-        --force-rm \
-        --tag $TAG \
-        --build-arg VERSION=$VERSION \
-        --build-arg REVISION=$TRAVIS_COMMIT \
-        ./$APP
-
-    echo -e ""
-    echo -e "\e[2m${LINE}\e[0m Built image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
-
-
-    echo -e ""
-    echo -e "\e[2m${LINE}\e[0m Pushing image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
-    echo -e ""
-
-    docker push $TAG
-
-    echo -e ""
-    echo -e "\e[2m${LINE}\e[0m Pushed image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
-    echo -e ""
-}
+source ./scripts/lib.sh || \
+    ( echo -e "\033[91mRun this script from root folder\033[0m" && \
+      exit 1 )
 
 # If there is no tag then create image for branch develop
 GW_VERSION=${TRAVIS_TAG:-latest}
@@ -61,8 +30,8 @@ GW_VERSION=${TRAVIS_TAG:-latest}
 # GW Manager
 build_and_push  gateway-manager  ${GW_VERSION}
 
-# Custom Kong
-KONG_RELEASES=( "1.3" "1.3.1" "1.4" "1.4.3" "1.5" "1.5.1" "2.0" "2.0.5" )
-for kong_version in "${KONG_RELEASES[@]}"; do
-    build_and_push  kong  $kong_version
-done
+# # Custom Kong
+# KONG_RELEASES=( "1.3" "1.3.1" "1.4" "1.4.3" "1.5" "1.5.1" "2.0" "2.0.5" )
+# for kong_version in "${KONG_RELEASES[@]}"; do
+#     build_and_push  kong  $kong_version
+# done
