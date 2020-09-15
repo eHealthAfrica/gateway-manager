@@ -20,43 +20,14 @@
 #
 set -Eeuo pipefail
 
-GW_VERSION=latest
+source ./scripts/lib.sh || \
+    ( echo -e "\033[91mRun this script from root folder\033[0m" && \
+      exit 1 )
 
-function build_image {
-    APP=$1
-    VERSION=$2
-    if [ -z "${3-}" ]; then
-        LOCATION=$1
-    else
-        LOCATION=$3
-    fi
-    TRAVIS_COMMIT=${TRAVIS_COMMIT:-test}
-    TAG="${APP}:${VERSION}"
-    LINE="~~~~~~~~~~~~~~~"
+build_image gateway-manager latest
 
-    echo -e ""
-    echo -e "\e[2m${LINE}\e[0m Building image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
-    echo -e ""
-
-    docker build \
-        --pull \
-        --no-cache \
-        --force-rm \
-        --tag $TAG \
-        --build-arg VERSION=$VERSION \
-        --build-arg REVISION=$TRAVIS_COMMIT \
-        ./$LOCATION
-
-    echo -e ""
-    echo -e "\e[2m${LINE}\e[0m Built image: \e[1;92m${TAG}\e[0m \e[2m${LINE}\e[0m"
-    echo -e ""
-}
-
-# GW Manager
-build_image gateway-manager ${GW_VERSION}
-
-# Custom Kong
-KONG_RELEASES=( "1.3" "1.4" "1.5" "2.0" "2.1" "latest" )
-for kong_version in "${KONG_RELEASES[@]}"; do
-    build_image  kong  $kong_version
-done
+# # Custom Kong
+# KONG_RELEASES=( "1.3" "1.4" "1.5" "2.0" "2.1" "latest" )
+# for kong_version in "${KONG_RELEASES[@]}"; do
+#     build_image  kong  $kong_version
+# done
