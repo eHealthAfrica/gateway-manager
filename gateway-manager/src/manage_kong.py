@@ -142,22 +142,18 @@ def _add_service(config):
     try:
         if not _check_404(f'{KONG_INTERNAL_URL}/services/{name}'):
             LOGGER.warning(f'Service "{name}" already exists!')
-            return
-
-        # Register service
-        service_data = {
-            'name': name,
-            'url': host,
-        }
-        service_info = request(method='post', url=f'{KONG_INTERNAL_URL}/services/', data=service_data)
-        service_id = service_info['id']
-        LOGGER.success(f'Added service "{name}": {service_id}')
+        else:
+            # Register service
+            service_data = {
+                'name': name,
+                'url': host,
+            }
+            service_info = request(method='post', url=f'{KONG_INTERNAL_URL}/services/', data=service_data)
+            service_id = service_info['id']
+            LOGGER.success(f'Added service "{name}": {service_id}')
 
         # Add CORS plugin for whole domain
-        cors_data = load_json_file(TEMPLATES['cors'], {'host': BASE_HOST})
-        PLUGIN_URL = f'{KONG_INTERNAL_URL}/services/{name}/plugins'
-        request(method='post', url=PLUGIN_URL, data=cors_data)
-        LOGGER.success(f'Added CORS plugin to service "{name}"')
+        _add_service_plugin(name)
 
         # Add the public routes (non realm dependant)
         context = {
@@ -166,18 +162,21 @@ def _add_service(config):
         }
         paths = [fill_template(p, context) for p in config.get('paths', [])]
         if paths:
-            # check route
-            if not _check_404(f'{KONG_INTERNAL_URL}/services/{name}/routes/{name}'):
-                LOGGER.warning(f'Route "{name}" for service "{name}" already exists!')
+            # check route (route names contain only [A-Za-z0-9_])
+            route_name = f'{BASE_DOMAIN}__{name}'
+            route_name = ''.join([c if c.isalnum() else '_' for c in route_name])
+            if not _check_404(f'{KONG_INTERNAL_URL}/services/{name}/routes/{route_name}'):
+                LOGGER.warning(f'Route "{route_name}" for service "{name}" already exists!')
                 return
 
             route_data = {
-                'name': name,
+                'name': route_name,
                 'hosts': [BASE_DOMAIN, ],
                 'preserve_host': 'true',
                 'paths': paths,
                 'strip_path': config.get('strip_path', 'false'),
                 'regex_priority': config.get('regex_priority', 0),
+                'tags': [BASE_DOMAIN, ]  # use tags to identify assigned host
             }
 
             ROUTE_URL = f'{KONG_INTERNAL_URL}/services/{name}/routes'
@@ -187,6 +186,36 @@ def _add_service(config):
     except Exception as e:
         LOGGER.critical(f'Could not add service "{name}"')
         raise e
+
+
+def _add_service_plugin(name):
+    # Add CORS plugin for whole domain
+    # get all plugins, if CORS already added, put BASE_HOST in the list of available origins
+    cors_data = load_json_file(TEMPLATES['cors'], {'host': BASE_HOST})
+    PLUGIN_URL = f'{KONG_INTERNAL_URL}/services/{name}/plugins'
+
+    next_url = PLUGIN_URL
+    while next_url:
+        res = request(method='get', url=next_url)
+        next_url = res['next']
+
+        for plugin in res['data']:
+            if plugin['name'] == 'cors':
+                # update origins list
+                if isinstance(cors_data['config.origins'], str):
+                    cors_data['config.origins'] = [cors_data['config.origins'], ]
+                cors_data['config.origins'] += plugin['config']['origins']
+                # remove possible duplicates
+                cors_data['config.origins'] = list(set(cors_data['config.origins']))
+
+                # remove entry
+                _plugin_id = plugin['id']
+                request(method='delete', url=f'{PLUGIN_URL}/{_plugin_id}')
+                next_url = None
+                break
+
+    request(method='post', url=PLUGIN_URL, data=cors_data)
+    LOGGER.success(f'Added CORS plugin to service "{name}"')
 
 
 def _remove_service_and_routes(name, routes_fn=None):
@@ -255,7 +284,8 @@ def add_service(service_config, realm, oidc_client):
 
         for ep in service_config.get(f'{ep_type}_endpoints', []):
             ep_name = ep['name']
-            route_name = f'{name}__{ep_type}__{ep_name}__{realm}'
+            route_name = f'{BASE_DOMAIN}__{name}__{ep_type}__{ep_name}__{realm}'
+            route_name = ''.join([c if c.isalnum() else '_' for c in route_name])
 
             # check route
             if not _check_404(f'{KONG_INTERNAL_URL}/services/{name}/routes/{route_name}'):
@@ -270,7 +300,7 @@ def add_service(service_config, realm, oidc_client):
                 'paths': paths,
                 'strip_path': ep.get('strip_path', 'false'),
                 'regex_priority': ep.get('regex_priority', 0),
-                'tags': [realm, ]  # use tags to identify assigned realm
+                'tags': [BASE_DOMAIN, realm, ]  # use tags to identify assigned host and realm
             }
 
             try:
