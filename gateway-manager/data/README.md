@@ -13,7 +13,7 @@ The expected format for services file is:
     // The HTML content to be displayed as service name
     "name": "<b>Demo</b> Service",
     // The service icon (optional)
-    "icon": "${host}/${public_realm}/demo-service/assets/logo.png",
+    "icon": "/${public_realm}/demo-service/assets/logo.png",
     // link to the service, usually the service-name
     "link": "demo-service/web-app",
     // Service description to be included bellow the name (optional)
@@ -24,7 +24,7 @@ The expected format for services file is:
   "kibana": {
     "key": "kibana",
     "name": "<b>K</b>ibana",
-    "icon": "${host}/${public_realm}/gateway/static/images/kibana-white.png",
+    "icon": "/${public_realm}/gateway/static/images/kibana-white.png",
     "link": "kibana/kibana-app",
     "description": "Send your data to Kibana and create various types of charts, tables and maps for visualizing, analyzing, and exploring the data."
   }
