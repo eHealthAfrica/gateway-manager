@@ -87,7 +87,7 @@ def _check_realm_in_action(action, realm):
 
 def _check_404(url):
     try:
-        request(method='get', url=url)
+        request(method='get', url=url, ignore_404=True)
         return False
     except HTTPError as he:
         if he.response.status_code != 404:
