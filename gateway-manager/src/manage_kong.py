@@ -148,6 +148,13 @@ def _add_service(config):
                 'name': name,
                 'url': host,
             }
+
+            timeout = config.get('timeout', 0)
+            if timeout:
+                service_data['connect_timeout'] = timeout
+                service_data['read_timeout'] = timeout
+                service_data['write_timeout'] = timeout
+
             service_info = request(method='post', url=f'{KONG_INTERNAL_URL}/services/', data=service_data)
             service_id = service_info['id']
             LOGGER.success(f'Added service "{name}": {service_id}')

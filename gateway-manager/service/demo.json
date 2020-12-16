@@ -1,6 +1,7 @@
 {
   "name": "demo-service",
   "host": "http://demo-service:3013",
+  "timeout": 60000,
 
   "paths": [
     "/{public_realm}/{name}/",

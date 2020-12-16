@@ -13,6 +13,9 @@ The expected format for each service file is:
   // internal host (behind kong)
   "host": "http://my-service:8888",
 
+  // timeout in milliseconds (default value is 1m = 60.000ms)
+  "timeout": 60000,
+
   // list of public regex paths served behind Kong
   // Evaluates a path dynamically based on the following variables
   // using string substitution:
