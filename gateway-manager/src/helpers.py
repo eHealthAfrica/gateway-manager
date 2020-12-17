@@ -44,9 +44,10 @@ def identity(obj):
     return obj
 
 
-def request(*args, **kwargs, ignore_404=False):
+def request(*args, **kwargs):
     _logger = get_logger('request')
 
+    ignore_404 = kwargs.pop('ignore_404', False)
     try:
         # don't verify SSL certificate internally
         res = requests.request(*args, **kwargs, verify=False)
@@ -91,7 +92,7 @@ def print_json(printer, data):
 
 
 def __handle_exception(logger, exception, res=None, ignore_404=False):
-    if res:
+    if res is not None:
         if res.status_code == 404 and ignore_404:
             raise exception
 
