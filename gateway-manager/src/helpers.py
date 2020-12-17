@@ -44,7 +44,7 @@ def identity(obj):
     return obj
 
 
-def request(*args, **kwargs):
+def request(*args, **kwargs, ignore_404=False):
     _logger = get_logger('request')
 
     try:
@@ -57,7 +57,7 @@ def request(*args, **kwargs):
             return data
         return None
     except HTTPError as he:
-        __handle_exception(_logger, he, res)
+        __handle_exception(_logger, he, res, ignore_404)
     except Exception as e:
         __handle_exception(_logger, e)
 
@@ -90,13 +90,16 @@ def print_json(printer, data):
     printer(json.dumps(data, indent=2))
 
 
-def __handle_exception(logger, exception, res=None):
-    logger.error(str(exception))
-
+def __handle_exception(logger, exception, res=None, ignore_404=False):
     if res:
+        if res.status_code == 404 and ignore_404:
+            raise exception
+
         logger.error(str(res))
         if res.status_code != 204:
             print_json(logger.verbose, res.json())
+
+    logger.error(str(exception))
     raise exception
 
 

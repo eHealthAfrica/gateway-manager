@@ -87,7 +87,7 @@ def _check_realm_in_action(action, realm):
 
 def _check_404(url):
     try:
-        request(method='get', url=url)
+        request(method='get', url=url, ignore_404=True)
         return False
     except HTTPError as he:
         if he.response.status_code != 404:
@@ -148,6 +148,13 @@ def _add_service(config):
                 'name': name,
                 'url': host,
             }
+
+            timeout = config.get('timeout', 0)
+            if timeout:
+                service_data['connect_timeout'] = timeout
+                service_data['read_timeout'] = timeout
+                service_data['write_timeout'] = timeout
+
             service_info = request(method='post', url=f'{KONG_INTERNAL_URL}/services/', data=service_data)
             service_id = service_info['id']
             LOGGER.success(f'Added service "{name}": {service_id}')

@@ -1,6 +1,7 @@
 {
   "name": "${service}",
   "host": "${service_url}",
+  "timeout": 60000,
 
   "paths": [
     "/{realm}/{name}/",
