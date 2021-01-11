@@ -7,10 +7,10 @@
         if err then
             ngx.log(ngx.WARN, err)
         elseif (ngx.var["cookie_EOAuthRealm"] ~= nil and m ~= nil) then
-            local service  = m["app"]
+            local service       = m["app"]
             local remaining_url = m["url"]
-            local realm = ngx.var["cookie_EOAuthRealm"]
-            local args = ngx.req.get_uri_args()
+            local realm         = ngx.var["cookie_EOAuthRealm"]
+            local args          = ngx.req.get_uri_args()
             if args ~= nil then
                 local friendly_args = ngx.encode_args(args)
                 ngx.log(ngx.INFO, realm .. "/" .. service .. "/" .. service .. "-app" .. remaining_url .. "?" .. friendly_args)
