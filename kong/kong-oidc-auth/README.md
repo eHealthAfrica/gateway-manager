@@ -20,7 +20,7 @@ $ curl -X POST http://kong:8001/apis/{api}/plugins \
     --data "config.service_logout_url=https://iam.service/realm/logout" \
     --data "config.token_url=https://oauth.something.net/openid-connect/token" \
     --data "config.user_info_cache_enabled=false" \
-    --data "config.user_keys=email,name,sub" \
+    --data "config.user_keys=email,username" \
     --data "config.user_url=https://oauth.something.net/openid-connect/userinfo"
 ```
 
@@ -35,7 +35,7 @@ $ curl -X POST http://kong:8001/apis/{api}/plugins \
 | `config.cookie_domain` | `ehealthafrica.org` | Specify the domain in which this cookie is valid for, realistically will need to match the gateway |
 | `config.email_key` | | Key to be checked for hosted domain, taken from userinfo endpoint |
 | `config.hosted_domain` | | Domain whose users must belong to in order to get logged in. Ignored if empty |
-| `config.pf_idp_adapter_id` <br /> <small>Optional</small> | | OAUTH PingFederate Adaptor ID of the authorization request ex: CompanyIdOIDCStage, essentially points to the idp environment, ping federate specific only |
+| `config.pf_idp_adapter_id` <br /> <small>Optional</small> | | OAUTH PingFederate Adaptor ID of the authorization request ex: `CompanyIdOIDCStage`, essentially points to the idp environment, ping federate specific only |
 | `config.realm` <br /> <small>Optional</small> | | This value will be passed as `X-Oauth-realm` _if and only if_ it is included as part of the request URL. |
 | `config.salt` | `b3253141ce67204b` | Salt for the user session token, must be 16 char alphanumeric |
 | `config.scope` | | OAUTH scope of the authorization request |

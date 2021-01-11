@@ -1,13 +1,12 @@
-local cipher         = require "openssl.cipher"
 local cjson          = require "cjson.safe"
-local http           = require "resty.http"
+local singletons     = require "kong.singletons"
+local openssl_cipher = require "openssl.cipher"
 local openssl_digest = require "openssl.digest"
 local pl_stringx     = require "pl.stringx"
-local singletons     = require "kong.singletons"
-local str            = require "resty.string"
+local http           = require "resty.http"
 
 local _M              = {}
-local aes             = cipher.new("AES-128-CBC")
+local aes             = openssl_cipher.new("AES-128-CBC")
 local cookie_domain   = nil
 local oidc_error      = nil
 local salt            = nil -- 16 char alphanumeric
@@ -178,11 +177,11 @@ function redirect_to_auth(conf, callback_url)
     return kong.response.exit(403, { message = "Forbidden: Auth redirect aborted on X-Oauth-Unauthorized == status_code" })
   end
 
-  local redirect_url = ngx.var.request_uri
-  if (string.find(redirect_url, oauth2_callback)) then
-    redirect_url = conf.app_login_redirect_url
+  local redirect_back = ngx.var.request_uri
+  if (string.find(redirect_back, oauth2_callback)) then
+    redirect_back = conf.app_login_redirect_url
   end
-  ngx.header["Set-Cookie"] = { "EOAuthRedirectBack=" .. redirect_url .. cookie_expires(120), extract_cookies() }
+  ngx.header["Set-Cookie"] = { "EOAuthRedirectBack=" .. redirect_back .. cookie_expires(120), extract_cookies() }
 
   -- Redirect to the /oauth endpoint
   local oauth_authorize = nil
@@ -397,23 +396,23 @@ function _M.run(conf)
 
   -- Get user info
   if not ngx.var.cookie_EOAuthUserInfo then
-    local json = getUserInfo(access_token, callback_url, conf)
-    if json then
+    local userInfo = getUserInfo(access_token, callback_url, conf)
+    if userInfo then
       -- Check if allowed_roles is set && enforce
-      local valid = validate_roles(conf, json)
+      local valid = validate_roles(conf, userInfo)
       if valid == false then
         return kong.response.exit(401, { message = "User lacks valid role for this OIDC resource" })
       end
       if conf.hosted_domain ~= "" and conf.email_key ~= "" then
-        if not pl_stringx.endswith(json[conf.email_key], conf.hosted_domain) then
+        if not pl_stringx.endswith(userInfo[conf.email_key], conf.hosted_domain) then
           oidc_error = {status = ngx.HTTP_UNAUTHORIZED, message = "Hosted domain is not matching"}
           return kong.response.exit(oidc_error.status, { message = oidc_error.message })
         end
       end
 
       for i, key in ipairs(conf.user_keys) do
-        ngx.header["X-Oauth-".. key] = json[key]
-        ngx.req.set_header("X-Oauth-".. key, json[key])
+        ngx.header["X-Oauth-".. key] = userInfo[key]
+        ngx.req.set_header("X-Oauth-".. key, userInfo[key])
       end
       if (conf.realm ~= "" and (pl_stringx.count(ngx.var.request_uri, conf.realm) > 0)) then -- inject realm name into headers
         ngx.header["X-Oauth-realm"] = conf.realm
