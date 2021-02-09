@@ -301,9 +301,11 @@ function handle_callback(conf, callback_url)
       local body_json = cjson.decode(res.body)
       local access_token = body_json.access_token
       if not access_token then
-         return kong.response.exit(ngx.HTTP_BAD_REQUEST, {
-            message = body_json.error_description
-         })
+         -- ** do not exit with error and redirect to auth page **
+         -- return kong.response.exit(ngx.HTTP_BAD_REQUEST, {
+         --    message = body_json.error_description
+         -- })
+         return redirect_to_auth(conf, callback_url)
       end
 
       ngx.header["Set-Cookie"] = {
