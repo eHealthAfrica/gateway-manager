@@ -24,15 +24,20 @@ source ./scripts/lib.sh || \
     ( echo -e "\033[91mRun this script from root folder\033[0m" && \
       exit 1 )
 
-# If there is no tag then create image for branch develop
+# If there is no tag then create image for branch master
 GW_VERSION=${TRAVIS_TAG:-latest}
 
 # GW Manager
 build_and_push  gateway-manager  ${GW_VERSION}
 
-# # Custom Kong
-KONG_VERSION="2.0"
-build_and_push  kong  ${KONG_VERSION}
+if [[ "${TRAVIS_TAG:-}" = "" ]]; then
+    # Release custom Kong only in master branch
+    KONG_VERSION="2.0"
+    build_and_push kong ${KONG_VERSION}
 
-docker tag  ehealthafrica/kong:${KONG_VERSION} ehealthafrica/kong:2
-docker push ehealthafrica/kong:2
+    docker tag  ehealthafrica/kong:${KONG_VERSION} ehealthafrica/kong:2
+    docker push ehealthafrica/kong:2
+
+    docker tag  ehealthafrica/kong:${KONG_VERSION} ehealthafrica/kong:latest
+    docker push ehealthafrica/kong:latest
+fi

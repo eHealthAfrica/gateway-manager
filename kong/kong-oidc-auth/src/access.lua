@@ -5,10 +5,9 @@ local openssl_digest = require "openssl.digest"
 local pl_stringx = require "pl.stringx"
 local http = require "resty.http"
 
-local _M = {}
 local aes = openssl_cipher.new("AES-128-CBC")
-local cookie_domain = nil
-local salt = nil -- 16 char alphanumeric
+local md5 = openssl_digest.new("md5")
+
 local oauth2_callback = "/oauth2/callback"
 
 --
@@ -19,7 +18,7 @@ local oauth2_callback = "/oauth2/callback"
 local function dump(o)
    if type(o) == "table" then
       local s = "{ "
-      for k,v in pairs(o) do
+      for k, v in pairs(o) do
          if type(k) ~= "number" then
             k = '"'..k..'"'
          end
@@ -34,7 +33,7 @@ end
 
 -- Checks if an object exists in a set
 local function is_member(_obj, _set)
-   for _,v in pairs(_set) do
+   for _, v in pairs(_set) do
       if v == _obj then
          return true
       end
@@ -52,18 +51,16 @@ end
 
 
 function encode_token(token, conf)
-   return ngx.encode_base64(
-      aes:encrypt(openssl_digest.new("md5"):final(conf.client_secret), salt, true):final(token)
-   )
+   local secret = md5:final(conf.client_secret)
+   return ngx.encode_base64(aes:encrypt(secret, conf.salt, true):final(token))
 end
 
 
 function decode_token(token, conf)
    local status, token = pcall(
       function()
-         return aes:decrypt(
-            openssl_digest.new("md5"):final(conf.client_secret), salt, true):final(ngx.decode_base64(token)
-         )
+         local secret = md5:final(conf.client_secret)
+         return aes:decrypt(secret, conf.salt, true):final(ngx.decode_base64(token))
       end
    )
 
@@ -74,11 +71,23 @@ function decode_token(token, conf)
 end
 
 
-function cookie_expires(value)
-   if value == 0 then
-      return "Path=/;Expires=Thu, Jan 01 1970 00:00:00 UTC;Max-Age=0;HttpOnly;"
+function add_cookie(name, value)
+   return name.."="..value..";"
+end
+
+
+function set_cookie(name, value, age, domain)
+   local cookie = add_cookie(name, value).."Path=/;HttpOnly;"..add_cookie("Max-Age", age)
+
+   if domain then
+      cookie = cookie..add_cookie("Domain", domain)
    end
-   return ";Path=/;Expires="..ngx.cookie_time(ngx.time() + value)..";Max-Age="..value..";HttpOnly;"
+
+   local expires = 0
+   if age > 0 then
+      expires = ngx.time() + age
+   end
+   return cookie..add_cookie("Expires", ngx.cookie_time(expires))
 end
 
 --
@@ -168,7 +177,7 @@ local function get_kong_key(eoauth_token, access_token, callback_url, conf)
    )
 
    if err then
-      ngx.log(ngx.ERR, "Could not retrieve UserInfo: ", err)
+      ngx.log(ngx.ERR, "Could not retrieve User info: ", err)
       return
    end
    return user_info
@@ -216,7 +225,7 @@ function redirect_to_auth(conf, callback_url)
       redirect_back = conf.app_login_redirect_url
    end
    ngx.header["Set-Cookie"] = {
-      "EOAuthRedirectBack="..redirect_back..cookie_expires(120),
+      set_cookie("EOAuthRedirectBack", redirect_back, 120, conf.cookie_domain),
       extract_cookies()
    }
 
@@ -246,12 +255,12 @@ function handle_logout(encrypted_token, conf)
    )
 
    ngx.header["Set-Cookie"] = {
-      "EOAuthToken=;"..cookie_expires(0)..cookie_domain,
+      set_cookie("EOAuthToken", "", 0, conf.cookie_domain),
       extract_cookies()
    }
    if conf.realm then
       ngx.header["Set-Cookie"] = {
-         "EOAuthRealm=;"..cookie_expires(0)..cookie_domain,
+         set_cookie("EOAuthRealm", "", 0, conf.cookie_domain),
          extract_cookies()
       }
    end
@@ -309,19 +318,18 @@ function handle_callback(conf, callback_url)
       end
 
       ngx.header["Set-Cookie"] = {
-         "EOAuthToken="..encode_token(access_token, conf)..cookie_expires(1800)..cookie_domain,
+         set_cookie("EOAuthToken", encode_token(access_token, conf), 1800, conf.cookie_domain),
          extract_cookies()
       }
       if conf.realm then
          ngx.header["Set-Cookie"] = {
-            "EOAuthRealm="..conf.realm..cookie_expires(1800)..cookie_domain,
+            set_cookie("EOAuthRealm", conf.realm, 1800, conf.cookie_domain),
             extract_cookies()
          }
       end
 
       -- Support redirection back to Kong if necessary
       local redirect_back = ngx.var.cookie_EOAuthRedirectBack
-
       if redirect_back then
          -- Should always land here if no custom Logged in page defined!
          return ngx.redirect(redirect_back)
@@ -340,12 +348,11 @@ end
 -- MAIN Function that Kong runs
 --
 
-function _M.run(conf)
+local _main = {}
+
+function _main.run(conf)
    local path_prefix = ""
    local callback_url = ""
-
-   cookie_domain = "Domain="..conf.cookie_domain..";"
-   salt = conf.salt
 
    -- Fix for /api/team/POC/oidc/v1/service/oauth2/callback?code=*******
    if ngx.var.request_uri:find("?") then
@@ -443,12 +450,12 @@ function _M.run(conf)
 
    -- Update the Cookie to increase longevity for 30 more minutes if active proxying
    ngx.header["Set-Cookie"] = {
-      "EOAuthToken="..encode_token(access_token, conf)..cookie_expires(1800)..cookie_domain,
+      set_cookie("EOAuthToken", encode_token(access_token, conf), 1800, conf.cookie_domain),
       extract_cookies()
    }
    if conf.realm then
       ngx.header["Set-Cookie"] = {
-         "EOAuthRealm="..conf.realm..cookie_expires(1800)..cookie_domain,
+         set_cookie("EOAuthRealm", conf.realm, 1800, conf.cookie_domain),
          extract_cookies()
       }
    end
@@ -517,7 +524,7 @@ function _M.run(conf)
          ngx.header["X-Oauth-Token"] = access_token
 
          ngx.header["Set-Cookie"] = {
-            "EOAuthUserInfo=0;"..cookie_expires(conf.user_info_periodic_check),
+            set_cookie("EOAuthUserInfo", 0, conf.user_info_periodic_check, conf.cookie_domain),
             extract_cookies()
          }
       else
@@ -528,4 +535,4 @@ function _M.run(conf)
    end
 end
 
-return _M
+return _main
