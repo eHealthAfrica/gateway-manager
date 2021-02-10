@@ -27,7 +27,5 @@ source ./scripts/lib.sh || \
 build_image gateway-manager latest
 
 # # Custom Kong
-# KONG_RELEASES=( "1.3" "1.4" "1.5" "2.0" "2.1" "latest" )
-# for kong_version in "${KONG_RELEASES[@]}"; do
-#     build_image  kong  $kong_version
-# done
+KONG_VERSION="2.0"
+build_image  kong  $KONG_VERSION
