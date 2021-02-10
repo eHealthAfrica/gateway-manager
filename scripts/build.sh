@@ -26,6 +26,8 @@ source ./scripts/lib.sh || \
 
 build_image gateway-manager latest
 
-# # Custom Kong
-KONG_VERSION="2.0"
-build_image  kong  $KONG_VERSION
+if [[ "${TRAVIS_TAG:-}" = "" ]]; then
+    # build custom Kong only in master branch
+    KONG_VERSION="2.0"
+    build_image kong $KONG_VERSION
+fi
