@@ -35,4 +35,4 @@ KONG_VERSION="2.0"
 build_and_push  kong  ${KONG_VERSION}
 
 docker tag  ehealthafrica/kong:${KONG_VERSION} ehealthafrica/kong:2
-dokcer push ehealthafrica/kong:2
+docker push ehealthafrica/kong:2
