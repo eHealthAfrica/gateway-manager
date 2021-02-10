@@ -31,7 +31,8 @@ GW_VERSION=${TRAVIS_TAG:-latest}
 build_and_push  gateway-manager  ${GW_VERSION}
 
 # # Custom Kong
-# KONG_RELEASES=( "1.3" "1.3.1" "1.4" "1.4.3" "1.5" "1.5.1" "2.0" "2.0.5" )
-# for kong_version in "${KONG_RELEASES[@]}"; do
-#     build_and_push  kong  $kong_version
-# done
+KONG_VERSION="2.0"
+build_and_push  kong  ${KONG_VERSION}
+
+docker tag  ehealthafrica/kong:${KONG_VERSION} ehealthafrica/kong:2
+dokcer push ehealthafrica/kong:2
