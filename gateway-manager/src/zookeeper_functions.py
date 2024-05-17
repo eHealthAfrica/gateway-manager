@@ -24,7 +24,7 @@ import sys
 import kazoo
 from kazoo.client import KazooClient
 
-from cryptography import zk_config, pbkdf2_hmac_sha256
+from cryptosupport import zk_config, pbkdf2_hmac_sha256
 from helpers import get_logger
 from settings import (
     ZK_HOST,
