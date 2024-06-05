@@ -67,13 +67,13 @@ def get_client(exit_on_error=True):
         LOGGER.error(str(ke))
         if exit_on_error:
             sys.exit(1)
-        raise e
+        raise ke
 
 
 def client_for_realm(realm, exit_on_error=True):
     try:
         keycloak_admin = get_client(exit_on_error)
-        keycloak_admin.realm_name = realm
+        keycloak_admin.change_current_realm(realm)
         # keycloak_admin.users_count()  # check that realm exists
         return keycloak_admin
 
