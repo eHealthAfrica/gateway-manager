@@ -11,10 +11,10 @@
   "config.user_info_cache_enabled": "true",
 
   "config.app_login_redirect_url": "${host}/${realm}/${service}/",
-  "config.authorize_url": "${host}/auth/realms/${realm}/protocol/openid-connect/auth",
-  "config.service_logout_url": "${host}/auth/realms/${realm}/protocol/openid-connect/logout",
-  "config.token_url": "${host}/auth/realms/${realm}/protocol/openid-connect/token",
-  "config.user_url": "${host}/auth/realms/${realm}/protocol/openid-connect/userinfo",
+  "config.authorize_url": "${host}/realms/${realm}/protocol/openid-connect/auth",
+  "config.service_logout_url": "${host}/realms/${realm}/protocol/openid-connect/logout",
+  "config.token_url": "${host}/realms/${realm}/protocol/openid-connect/token",
+  "config.user_url": "${host}/realms/${realm}/protocol/openid-connect/userinfo",
 
   "config.use_ssl": "${use_ssl}",
   "config.realm": "${realm}"

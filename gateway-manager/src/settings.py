@@ -73,7 +73,7 @@ TEMPLATES = {
 
 # Keycloak Information
 
-KC_ADMIN_URL = get_env('KEYCLOAK_INTERNAL')     # http://keycloak:8080/auth/
+KC_ADMIN_URL = get_env('KEYCLOAK_INTERNAL')     # http://keycloak:8080/
 KC_ADMIN_USER = get_env('KEYCLOAK_GLOBAL_ADMIN')
 KC_ADMIN_PASSWORD = get_env('KEYCLOAK_GLOBAL_PASSWORD')
 KC_ADMIN_REALM = get_env('KEYCLOAK_MASTER_REALM', 'master')

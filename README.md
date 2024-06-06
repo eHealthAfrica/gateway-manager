@@ -374,7 +374,7 @@ Review the code to get the expected strings in each case.
 
 ### Keycloak
 
-- `KEYCLOAK_INTERNAL`: Keycloak internal URL. Usually `http://keycloak:8080/auth/`.
+- `KEYCLOAK_INTERNAL`: Keycloak internal URL. Usually `http://keycloak:8080/`.
   **Note**: Ending `/` is required to connect to admin console.
 - `KEYCLOAK_MASTER_REALM`: Keycloak master realm name. Defaults to `master`.
 - `KEYCLOAK_GLOBAL_ADMIN`: Keycloak admin user in the master realm.

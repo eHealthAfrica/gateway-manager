@@ -85,7 +85,7 @@ def start_app():
         return render_template(
             'landing-page.html',
             # realm urls
-            account_url=f'{BASE_HOST}/auth/realms/{realm}/account',
+            account_url=f'{BASE_HOST}/realms/{realm}/account',
             base_url=f'{BASE_HOST}/{realm}',
             logout_url=f'{BASE_HOST}/{realm}/{WEB_SERVICE_NAME}/logout',
             static_url=f'{BASE_HOST}{STATIC_URL}',
