@@ -31,7 +31,6 @@ RUN apt-get update -qq && \
         --allow-remove-essential \
         --allow-change-held-packages \
         install gcc git curl && \
-    curl -L https://cnfl.io/ccloud-cli | sh -s -- -b /usr/local/bin && \
     pip install -q --upgrade pip && \
     pip install -q -r /code/conf/pip/requirements.txt && \
     mkdir -p /var/tmp
