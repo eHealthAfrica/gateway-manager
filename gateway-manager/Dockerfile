@@ -13,8 +13,8 @@ RUN apt-get update -qq && \
         --allow-downgrades \
         --allow-remove-essential \
         --allow-change-held-packages \
-        install gcc git curl && \
-    curl -L https://cnfl.io/ccloud-cli | sh -s -- -b /usr/local/bin
+        install gcc git curl
+#    curl -L https://cnfl.io/ccloud-cli | sh -s -- -b /usr/local/bin
 
 COPY ./conf/pip /code/conf/pip
 
