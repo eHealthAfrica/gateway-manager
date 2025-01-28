@@ -73,6 +73,9 @@ def get_client(exit_on_error=True):
 def client_for_realm(realm, exit_on_error=True):
     try:
         keycloak_admin = get_client(exit_on_error)
+        # sometimes authentication fails, this is due to some internal caching
+        # clear the internal caching first
+        keycloak_admin.clear_realm_cache()
         keycloak_admin.change_current_realm(realm)
         # keycloak_admin.users_count()  # check that realm exists
         return keycloak_admin
