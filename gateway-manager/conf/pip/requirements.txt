@@ -43,3 +43,8 @@ python-keycloak>=4.0.1
 # https://github.com/python-zk/kazoo/blob/master/CHANGES.md#270-2020-03-13
 # git+https://github.com/python-zk/kazoo.git@88b657a0977161f3815657878ba48f82a97a3846#egg=kazoo
 kazoo>=2.7.0
+
+# Async http library similar to requests, used by keycloak
+# since version 0.28.0 there is an incompability with the keycloak library
+# so pin the version until we can update
+httpx<0.28.0
